@@ -1,11 +1,19 @@
 import "./App.css";
-import Canvas from "./components/Canvas";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Menu from "./pages/Menu";
+import Modulo1hidroestatica from "./pages/Modulo1hidroestatica";
 
 function App() {
   return (
-    <div className="App">
-      <Canvas></Canvas>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Menu></Menu>}></Route>
+        <Route
+          path="mod1"
+          element={<Modulo1hidroestatica></Modulo1hidroestatica>}
+        ></Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 
