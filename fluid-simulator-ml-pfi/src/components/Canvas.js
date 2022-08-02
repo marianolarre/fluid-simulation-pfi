@@ -10,22 +10,14 @@ const Canvas = (props) => {
 
     Paper.setup(canvas);
 
-    var path = new Paper.Path.Rectangle(Paper.view.center, new Size(200, 5));
-    path.style = {
-      fillColor: "white",
-      strokeColor: "black",
-    };
-
-    const point = path.bounds.leftCenter;
-
-    Paper.view.onFrame = (event) => {
-      path.rotate(event.delta * 90, point);
-    };
+    props.functionality();
 
     Paper.view.draw();
   }, []);
 
-  return <canvas ref={canvasRef} {...props} id="canvas" resize="true" />;
+  return (
+    <canvas ref={canvasRef} {...props.canvasProps} id="canvas" resize="true" />
+  );
 };
 
 export default Canvas;
