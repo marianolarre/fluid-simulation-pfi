@@ -1,7 +1,7 @@
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Menu from "./pages/Menu";
-import Modulo1hidroestatica from "./pages/Modulo1hidroestatica";
+import Modulo2Estratificacion from "./pages/Modulo2Estratificacion";
 
 function App() {
   return (
@@ -9,8 +9,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Menu></Menu>}></Route>
         <Route
-          path="mod1"
-          element={<Modulo1hidroestatica></Modulo1hidroestatica>}
+          path="mod2"
+          element={<Modulo2Estratificacion></Modulo2Estratificacion>}
         ></Route>
       </Routes>
     </BrowserRouter>

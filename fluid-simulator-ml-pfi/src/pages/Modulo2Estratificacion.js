@@ -23,8 +23,8 @@ import Mod1Liquid from "../components/Mod1Liquid";
 import { HorizontalSplit } from "@mui/icons-material";
 
 const metersToPixels = 400;
-const atmToPixels = 40;
-const maxPressure = 10;
+const atmToPixels = 20;
+const maxPressure = 16;
 let incrementingLiquidLookup = 0;
 const liquidColors = [
   "#1976D2",
@@ -42,7 +42,7 @@ const liquidColors = [
 // Agregar la posibilidad de agregar y quitar liquidos
 // Que con un boton se organicen por densidad
 
-class Modulo1hidroestatica extends Component {
+class Modulo2Estratificacion extends Component {
   state = {
     container: {
       shape: null,
@@ -172,6 +172,13 @@ class Modulo1hidroestatica extends Component {
   onContainerWidthChange = (newValue) => {
     var newState = { ...this.state };
     newState.container.width = newValue;
+    this.setState(newState);
+  };
+
+  onContainerHeightChange = (newValue) => {
+    var newState = { ...this.state };
+    newState.container.height = newValue;
+    this.handleOverflow(newState);
     this.setState(newState);
   };
 
@@ -577,6 +584,7 @@ class Modulo1hidroestatica extends Component {
   render() {
     return (
       <PanelAndCanvas
+        title="Estratificación"
         panel={
           <>
             <SliderWithInput
@@ -586,6 +594,14 @@ class Modulo1hidroestatica extends Component {
               max={600}
               value={this.state.container.width}
               onChange={this.onContainerWidthChange}
+            ></SliderWithInput>
+            <SliderWithInput
+              label="Altura del contenedor"
+              step={1}
+              min={100}
+              max={600}
+              value={this.state.container.height}
+              onChange={this.onContainerHeightChange}
             ></SliderWithInput>
             <MyToggle
               label="Mostar presion"
@@ -608,6 +624,7 @@ class Modulo1hidroestatica extends Component {
                 key={index}
                 id={index}
                 liquid={liquid}
+                max={this.state.container.height}
                 onHeightChange={this.onLiquidHeightChange}
                 onDensityChange={this.onLiquidDensityChange}
                 onRemoveButtonClicked={this.onLiquidRemove}
@@ -645,4 +662,4 @@ class Modulo1hidroestatica extends Component {
   }
 }
 
-export default Modulo1hidroestatica;
+export default Modulo2Estratificacion;

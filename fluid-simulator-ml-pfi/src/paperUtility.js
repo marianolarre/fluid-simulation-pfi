@@ -44,6 +44,7 @@ export const pressureGradient = [
   new Color(0.3, 1, 0.3),
   new Color(1, 0.8, 0.3),
   new Color(1, 0.3, 0.3),
+  new Color(0.5, 0.3, 0.6),
   new Color(0.3, 0.3, 0.3),
 ];
 

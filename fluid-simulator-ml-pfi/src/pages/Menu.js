@@ -36,49 +36,49 @@ class Menu extends Component {
             <Stack direction="row">
               <Container maxWidth="sm">
                 <Stack spacing={2}>
-                  <Link to="mod1" style={{ textDecoration: "none" }}>
+                  <Button variant="contained" disabled>
+                    Fuerzas de presión
+                  </Button>
+                  <Link to="mod2" style={{ textDecoration: "none" }}>
                     <Button variant="contained" style={{ width: "100%" }}>
-                      Hidroestática
+                      Estratificación
                     </Button>
                   </Link>
                   <Button variant="contained" disabled>
-                    Modulo (Coming soon)
+                    Manómetros
                   </Button>
                   <Button variant="contained" disabled>
-                    Modulo (Coming soon)
+                    Superficie sumergida
                   </Button>
                   <Button variant="contained" disabled>
-                    Modulo (Coming soon)
+                    Dique
                   </Button>
                   <Button variant="contained" disabled>
-                    Modulo (Coming soon)
+                    Flotación
                   </Button>
                   <Button variant="contained" disabled>
-                    Modulo (Coming soon)
+                    Cinemática
                   </Button>
                   <Button variant="contained" disabled>
-                    Modulo (Coming soon)
+                    Volumen de control
                   </Button>
                   <Button variant="contained" disabled>
-                    Modulo (Coming soon)
+                    Flujo no viscoso
                   </Button>
                   <Button variant="contained" disabled>
-                    Modulo (Coming soon)
+                    Flujo viscoso
                   </Button>
                   <Button variant="contained" disabled>
-                    Modulo (Coming soon)
+                    Flujo viscoso laminar
                   </Button>
                   <Button variant="contained" disabled>
-                    Modulo (Coming soon)
+                    Flujo interno en conducto
                   </Button>
                   <Button variant="contained" disabled>
-                    Modulo (Coming soon)
+                    Tiro oblicuo con arrastre
                   </Button>
                   <Button variant="contained" disabled>
-                    Modulo (Coming soon)
-                  </Button>
-                  <Button variant="contained" disabled>
-                    Modulo (Coming soon)
+                    Perfil alar
                   </Button>
                 </Stack>
               </Container>

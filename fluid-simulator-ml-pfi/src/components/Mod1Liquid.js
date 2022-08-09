@@ -31,7 +31,7 @@ class Mod1Liquid extends Component {
           label="Profundidad"
           step={1}
           min={0}
-          max={400}
+          max={this.props.max}
           value={this.props.liquid.height}
           onChange={(newValue) =>
             this.props.onHeightChange(newValue, this.props.id)

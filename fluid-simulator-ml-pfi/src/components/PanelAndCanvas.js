@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import { blue } from "@mui/material/colors";
 import { Box, Paper, Stack } from "@mui/material";
+import GoBackButton from "./SimulatorBanner";
+import SimulatorBanner from "./SimulatorBanner";
 
 class PanelAndCanvas extends Component {
   state = {};
@@ -16,14 +18,23 @@ class PanelAndCanvas extends Component {
         <Stack direction={"row"} sx={{ height: "100%" }}>
           <Paper
             sx={{
+              display: "flex",
+              flexDirection: "column",
               flex: "1",
+              height: "100%",
               backgroundColor: blue[100],
-              padding: "20px",
-              overflowY: "scroll",
             }}
           >
-            {" "}
-            {this.props.panel}
+            <SimulatorBanner title={this.props.title}></SimulatorBanner>
+            <Box
+              sx={{
+                padding: "20px",
+                overflowY: "auto",
+                flex: "1",
+              }}
+            >
+              {this.props.panel}
+            </Box>
           </Paper>
           <Box
             sx={{
