@@ -36,17 +36,21 @@ class Menu extends Component {
             <Stack direction="row">
               <Container maxWidth="sm">
                 <Stack spacing={2}>
-                  <Button variant="contained" disabled>
-                    Fuerzas de presión
-                  </Button>
+                  <Link to="mod1" style={{ textDecoration: "none" }}>
+                    <Button variant="contained" style={{ width: "100%" }}>
+                      Fuerzas de presión
+                    </Button>
+                  </Link>
                   <Link to="mod2" style={{ textDecoration: "none" }}>
                     <Button variant="contained" style={{ width: "100%" }}>
                       Estratificación
                     </Button>
                   </Link>
-                  <Button variant="contained" disabled>
-                    Manómetros
-                  </Button>
+                  <Link to="mod3" style={{ textDecoration: "none" }}>
+                    <Button variant="contained" style={{ width: "100%" }}>
+                      Menometría
+                    </Button>
+                  </Link>
                   <Button variant="contained" disabled>
                     Superficie sumergida
                   </Button>

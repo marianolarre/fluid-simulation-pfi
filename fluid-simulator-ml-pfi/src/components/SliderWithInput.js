@@ -16,7 +16,14 @@ class SliderWithInput extends Component {
 
   handleInputChange = (event) => {
     if (event.target.value != "") {
-      this.props.onChange(Number(event.target.value));
+      let number = Number(event.target.value);
+      if (number > this.props.max) {
+        number = this.props.max;
+      }
+      if (number < this.props.min) {
+        number = this.props.min;
+      }
+      this.props.onChange(number);
     }
   };
 

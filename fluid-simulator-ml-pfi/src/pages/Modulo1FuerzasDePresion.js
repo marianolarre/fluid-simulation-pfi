@@ -19,46 +19,30 @@ import {
   LevelSimbol,
 } from "../paperUtility";
 import { Button } from "@mui/material";
-import Stratum from "../components/Stratum";
 import { HorizontalSplit } from "@mui/icons-material";
 
 const metersToPixels = 400;
 const atmToPixels = 20;
 const maxPressure = 16;
 let incrementingLiquidLookup = 0;
-const liquidColors = [
-  "#1976D2",
-  "#5E33B1",
-  "#72BB78",
-  "#742D3F",
-  "#CEAC56",
-  "#6B6B6B",
-  "#D7AAE5",
-  "#6DAAF8",
-];
+const liquidColors = "#1976D2";
 
-// TODO:
-// Hacer que el selector entre presion absoluta y manometrica indique ambas opciones
-// Agregar la posibilidad de agregar y quitar liquidos
-// Que con un boton se organicen por densidad
-
-class Modulo2Estratificacion extends Component {
+class Modulo1FuerzasDePresion extends Component {
   state = {
     container: {
       shape: null,
       width: 300,
       height: 400,
+      borderRadius: 0,
     },
-    liquids: [],
+    liquids: {
+      height: 100,
+    },
     background: {
       shape: null,
     },
     atmPressureText: null,
-    arrows: {
-      left: null,
-      bottom: null,
-      right: null,
-    },
+    arrows: null,
     atmosphericPressure: 1,
     showingPressure: false,
     showingPressureForces: false,
@@ -76,21 +60,6 @@ class Modulo2Estratificacion extends Component {
     );
   }
 
-  orderByDensity = () => {
-    const newState = { ...this.state };
-    newState.liquids.sort((a, b) => {
-      return a.density - b.density;
-    });
-    for (let l = 0; l < newState.liquids.length; l++) {
-      newState.liquids[l].shape.bringToFront();
-      newState.liquids[l].topLineShape.bringToFront();
-      newState.liquids[l].levelSimbol.bringToFront();
-      newState.liquids[l].pressureText.bringToFront();
-    }
-    newState.container.shape.bringToFront();
-    this.setState(newState);
-  };
-
   getImportantPoints() {
     const center = Paper.view.center;
     const halfContainerWidth = this.state.container.width / 2;
@@ -99,17 +68,19 @@ class Modulo2Estratificacion extends Component {
     const right = center.x + halfContainerWidth;
 
     let currentHeight = center.y + halfContainerHeight;
-    const liquidPoints = [];
-    for (let l = this.state.liquids.length - 1; l >= 0; l--) {
-      let newHeight = currentHeight - this.state.liquids[l].height;
-      liquidPoints[l] = {
-        topLeft: new Point(left, newHeight),
-        topRight: new Point(right, newHeight),
-        bottomRight: new Point(right, currentHeight),
-        bottomLeft: new Point(left, currentHeight),
-      };
-      currentHeight = newHeight;
-    }
+
+    liquidPoints = {
+      topLeft: new Point(
+        left,
+        center.y + halfContainerHeight - this.state.liquid.height
+      ),
+      topRight: new Point(
+        right,
+        center.y + halfContainerHeight - this.state.liquid.height
+      ),
+      bottomRight: new Point(right, center.y + halfContainerHeight),
+      bottomLeft: new Point(left, center.y + halfContainerHeight),
+    };
 
     return {
       container: {
@@ -662,4 +633,4 @@ class Modulo2Estratificacion extends Component {
   }
 }
 
-export default Modulo2Estratificacion;
+export default Modulo1FuerzasDePresion;

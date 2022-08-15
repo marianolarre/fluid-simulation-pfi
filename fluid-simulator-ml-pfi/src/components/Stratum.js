@@ -3,7 +3,7 @@ import { Button, IconButton, Paper, Typography } from "@mui/material";
 import SliderWithInput from "./SliderWithInput";
 import BackspaceIcon from "@mui/icons-material/Backspace";
 
-class Mod1Liquid extends Component {
+class Stratum extends Component {
   state = {};
   render() {
     const style = {
@@ -52,4 +52,4 @@ class Mod1Liquid extends Component {
   }
 }
 
-export default Mod1Liquid;
+export default Stratum;
