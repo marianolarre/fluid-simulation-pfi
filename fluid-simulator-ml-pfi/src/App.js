@@ -11,7 +11,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Menu></Menu>}></Route>
         <Route
-          path="mod2"
+          path="mod1"
           element={<Modulo1FuerzasDePresion></Modulo1FuerzasDePresion>}
         ></Route>
         <Route

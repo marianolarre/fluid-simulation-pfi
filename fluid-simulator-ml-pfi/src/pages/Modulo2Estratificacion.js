@@ -42,7 +42,7 @@ const liquidColors = [
 // Agregar la posibilidad de agregar y quitar liquidos
 // Que con un boton se organicen por densidad
 
-class Modulo2Estratificacion extends Component {
+class Modulo1FuerzasDePresion extends Component {
   state = {
     container: {
       shape: null,
@@ -662,4 +662,4 @@ class Modulo2Estratificacion extends Component {
   }
 }
 
-export default Modulo2Estratificacion;
+export default Modulo1FuerzasDePresion;
