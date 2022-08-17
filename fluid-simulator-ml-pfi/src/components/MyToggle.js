@@ -2,7 +2,8 @@ import React, { Component } from "react";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
-import { Switch } from "@mui/material";
+import { FormControlLabel, Paper, Switch } from "@mui/material";
+import { blue } from "@mui/material/colors";
 
 class MyToggle extends Component {
   constructor(props) {
@@ -11,21 +12,27 @@ class MyToggle extends Component {
 
   render() {
     return (
-      <Box sx={{ width: "100%" }}>
-        <Grid container spacing={2} alignItems="center">
-          <Grid item xs>
-            <Typography id="input-slider" gutterBottom>
-              {this.props.label}
-            </Typography>
-          </Grid>
-          <Grid item xs>
+      <Paper
+        sx={{
+          width: "92%",
+          background: blue[50],
+          padding: "2%",
+          paddingLeft: "6%",
+        }}
+        elevation={0}
+      >
+        <FormControlLabel
+          label={this.props.label}
+          labelPlacement="end"
+          control={
             <Switch
+              size="large"
               checked={this.props.checked}
               onChange={this.props.onChange}
             />
-          </Grid>
-        </Grid>
-      </Box>
+          }
+        ></FormControlLabel>
+      </Paper>
     );
   }
 }

@@ -49,7 +49,7 @@ export const pressureGradient = [
 ];
 
 export class VectorArrow {
-  constructor(start, end, color, width, headWidth, headLength) {
+  constructor(start, end, color, width, headWidth, headLength, doubleHeaded) {
     this.start = start;
     this.end = end;
     this.line = new Path([start, end]);
@@ -60,6 +60,18 @@ export class VectorArrow {
     this.head.closed = true;
     this.headWidth = headWidth;
     this.headLength = headLength;
+    this.doubleHeaded = doubleHeaded;
+    if (doubleHeaded) {
+      this.secondHead = new Path([
+        new Point(0, 0),
+        new Point(0, 0),
+        new Point(0, 0),
+      ]);
+      this.secondHead.fillColor = color;
+      this.secondHead.closed = true;
+    } else {
+      this.secondHead = null;
+    }
     this.Update();
   }
 
@@ -78,6 +90,13 @@ export class VectorArrow {
     this.head.segments[0].point = addPoints(arrowStart, forward);
     this.head.segments[1].point = addPoints(arrowStart, right);
     this.head.segments[2].point = subPoints(arrowStart, right);
+
+    if (this.doubleHeaded) {
+      arrowStart = addPoints(this.start, forward);
+      this.head.segments[0].point = subPoints(arrowStart, forward);
+      this.head.segments[1].point = subPoints(arrowStart, right);
+      this.head.segments[2].point = addPoints(arrowStart, right);
+    }
   }
 
   SetStart(newStart) {

@@ -1,9 +1,11 @@
 import React, { Component } from "react";
 import Box from "@mui/material/Box";
+import { blue } from "@mui/material/colors";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import Slider from "@mui/material/Slider";
 import MuiInput from "@mui/material/Input";
+import { Paper } from "@mui/material";
 
 class SliderWithInput extends Component {
   constructor(props) {
@@ -29,15 +31,21 @@ class SliderWithInput extends Component {
 
   render() {
     return (
-      <Box sx={{ width: "100%" }}>
+      <Paper
+        sx={{
+          width: "96%",
+          padding: "2%",
+          background: blue[50],
+        }}
+        elevation={0}
+      >
         <Grid container spacing={2} alignItems="center">
-          <Grid item xs>
-            <Typography id="input-slider" gutterBottom>
+          <Grid item xs={4}>
+            <Typography id="input-slider" gutterBottom align="right">
               {this.props.label}
             </Typography>
           </Grid>
-
-          <Grid item xs>
+          <Grid item xs={4}>
             <Slider
               value={
                 typeof this.props.value === "number" ? this.props.value : 0
@@ -49,7 +57,7 @@ class SliderWithInput extends Component {
               aria-labelledby="input-slider"
             />
           </Grid>
-          <Grid item>
+          <Grid item xs={2}>
             <MuiInput
               value={this.props.value}
               size="small"
@@ -62,10 +70,14 @@ class SliderWithInput extends Component {
                 type: "number",
                 "aria-labelledby": "input-slider",
               }}
+              sx={{ float: "left" }}
             />
           </Grid>
+          <Grid item xs={1}>
+            <Typography>{this.props.unit}</Typography>
+          </Grid>
         </Grid>
-      </Box>
+      </Paper>
     );
   }
 }

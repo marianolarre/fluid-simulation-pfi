@@ -1,5 +1,6 @@
 import MyToggle from "../components/MyToggle";
 import React, { Component } from "react";
+import Grid from "@mui/material/Grid";
 import Canvas from "../components/Canvas";
 import PanelAndCanvas from "../components/PanelAndCanvas";
 import AddIcon from "@mui/icons-material/Add";
@@ -20,6 +21,7 @@ import {
 } from "../paperUtility";
 import { Button } from "@mui/material";
 import { HorizontalSplit, ThirteenMp } from "@mui/icons-material";
+import MyRadio from "../components/MyRadio";
 
 const metersToPixels = 400;
 const atmToPixels = 20;
@@ -179,10 +181,10 @@ class Modulo1FuerzasDePresion extends Component {
     this.setState(newState);
   };
 
-  toggleAbsolutePressureChange = (event) => {
-    const absPressure = !this.state.absolutePressure;
+  onPressureTypeChange = (event) => {
+    console.log(event.target.value);
     var newState = { ...this.state };
-    newState.absolutePressure = absPressure;
+    newState.absolutePressure = event.target.value == "true";
     this.setState(newState);
   };
 
@@ -371,9 +373,6 @@ class Modulo1FuerzasDePresion extends Component {
 
   updateVectors(absolutePressure, showingPressure, showingPressureForces) {
     if (showingPressureForces) {
-      const points = this.getImportantPoints();
-      const pressureSteps = this.getPressureSteps();
-
       // Liquids
       const stepMagnitudes = [];
       const arrowPoints = [];
@@ -493,53 +492,76 @@ class Modulo1FuerzasDePresion extends Component {
         title="Fuerzas de presión"
         panel={
           <>
-            <SliderWithInput
-              label="Ancho del contenedor"
-              step={1}
-              min={100}
-              max={400}
-              value={this.state.container.width}
-              onChange={this.onContainerWidthChange}
-            ></SliderWithInput>
-            <SliderWithInput
-              label="Altura del líquido"
-              step={1}
-              min={0}
-              max={400}
-              value={this.state.liquid.height}
-              onChange={this.onLiquidHeightChange}
-            ></SliderWithInput>
-            <SliderWithInput
-              label="Densidad del líquido"
-              step={0.1}
-              min={0}
-              max={10}
-              value={this.state.liquid.density}
-              onChange={this.onLiquidDensityChange}
-            ></SliderWithInput>
-            <SliderWithInput
-              label="Radio de las esquinas"
-              step={1}
-              min={0}
-              max={200}
-              value={this.state.container.borderRadius}
-              onChange={this.onBorderRadiusChange}
-            ></SliderWithInput>
-            <MyToggle
-              label="Mostar presion"
-              checked={this.state.showingPressure}
-              onChange={this.toggleShowingPressureChange}
-            />
-            <MyToggle
-              label="Presión absoluta"
-              checked={this.state.absolutePressure}
-              onChange={this.toggleAbsolutePressureChange}
-            />
-            <MyToggle
-              label="Mostar fuerzas de presion"
-              checked={this.state.showingPressureForces}
-              onChange={this.toggleShowingPressureForcesChange}
-            />
+            <Grid container spacing="2%" alignItems="stretch">
+              <Grid item xs={12}>
+                <SliderWithInput
+                  label="Ancho del contenedor"
+                  step={1}
+                  min={100}
+                  max={400}
+                  unit="cm"
+                  value={this.state.container.width}
+                  onChange={this.onContainerWidthChange}
+                ></SliderWithInput>
+              </Grid>
+              <Grid item xs={12}>
+                <SliderWithInput
+                  label="Altura del líquido"
+                  step={1}
+                  min={0}
+                  max={400}
+                  value={this.state.liquid.height}
+                  unit="cm"
+                  onChange={this.onLiquidHeightChange}
+                ></SliderWithInput>
+              </Grid>
+              <Grid item xs={12}>
+                <SliderWithInput
+                  label="Densidad del líquido"
+                  step={0.1}
+                  min={0}
+                  max={10}
+                  unit="kg/m³"
+                  value={this.state.liquid.density}
+                  onChange={this.onLiquidDensityChange}
+                ></SliderWithInput>
+              </Grid>
+              <Grid item xs={12}>
+                <SliderWithInput
+                  label="Radio de las esquinas"
+                  step={1}
+                  min={0}
+                  max={200}
+                  unit="cm"
+                  value={this.state.container.borderRadius}
+                  onChange={this.onBorderRadiusChange}
+                ></SliderWithInput>
+              </Grid>
+              <Grid item xs={12} xl={6}>
+                <MyToggle
+                  label="Presión"
+                  checked={this.state.showingPressure}
+                  onChange={this.toggleShowingPressureChange}
+                />
+              </Grid>
+              <Grid item xs={12} xl={6}>
+                <MyToggle
+                  label="Fuerzas de presión"
+                  checked={this.state.showingPressureForces}
+                  onChange={this.toggleShowingPressureForcesChange}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <MyRadio
+                  options={[
+                    { value: false, label: "Presion Manométrica" },
+                    { value: true, label: "Presion Absoluta" },
+                  ]}
+                  value={this.state.absolutePressure}
+                  onChange={this.onPressureTypeChange}
+                ></MyRadio>
+              </Grid>
+            </Grid>
           </>
         }
         canvas={

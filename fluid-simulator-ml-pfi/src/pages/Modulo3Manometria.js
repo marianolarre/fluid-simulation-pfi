@@ -18,7 +18,7 @@ import {
   lerp,
   LevelSimbol,
 } from "../paperUtility";
-import { Button } from "@mui/material";
+import { Button, Grid } from "@mui/material";
 import Stratum from "../components/Stratum";
 import { HorizontalSplit } from "@mui/icons-material";
 
@@ -255,30 +255,41 @@ class Modulo3Manometria extends Component {
         title="Manometría"
         panel={
           <>
-            <SliderWithInput
-              label="Presión del reservorio"
-              step={0.1}
-              min={0}
-              max={100}
-              value={this.state.reservoir.pressure}
-              onChange={this.onReservoirPressureChanged}
-            ></SliderWithInput>
-            <SliderWithInput
-              label="Presión atmosférica"
-              step={0.1}
-              min={0}
-              max={100}
-              value={this.state.atmosphericPressure}
-              onChange={this.onAtmosphericPressureChanged}
-            ></SliderWithInput>
-            <SliderWithInput
-              label="Densidad del líquido"
-              step={0.25}
-              min={5}
-              max={50}
-              value={this.state.liquid.density}
-              onChange={this.onLiquidDensityChanged}
-            ></SliderWithInput>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <SliderWithInput
+                  label="Presión del reservorio"
+                  step={0.1}
+                  min={0}
+                  max={100}
+                  unit="atm"
+                  value={this.state.reservoir.pressure}
+                  onChange={this.onReservoirPressureChanged}
+                ></SliderWithInput>
+              </Grid>
+              <Grid item xs={12}>
+                <SliderWithInput
+                  label="Presión atmosférica"
+                  step={0.1}
+                  min={0}
+                  max={100}
+                  unit="atm"
+                  value={this.state.atmosphericPressure}
+                  onChange={this.onAtmosphericPressureChanged}
+                ></SliderWithInput>
+              </Grid>
+              <Grid item xs={12}>
+                <SliderWithInput
+                  label="Densidad del líquido"
+                  step={0.25}
+                  min={5}
+                  max={50}
+                  unit="kg/m³"
+                  value={this.state.liquid.density}
+                  onChange={this.onLiquidDensityChanged}
+                ></SliderWithInput>
+              </Grid>
+            </Grid>
           </>
         }
         canvas={

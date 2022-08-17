@@ -1,9 +1,11 @@
 import MyToggle from "../components/MyToggle";
 import React, { Component } from "react";
+import Grid from "@mui/material/Grid";
 import Canvas from "../components/Canvas";
 import PanelAndCanvas from "../components/PanelAndCanvas";
 import AddIcon from "@mui/icons-material/Add";
 
+import MyRadio from "../components/MyRadio";
 import Paper from "paper";
 import { Color, Point } from "paper/dist/paper-core";
 import SliderWithInput from "../components/SliderWithInput";
@@ -241,6 +243,13 @@ class Modulo1FuerzasDePresion extends Component {
     const absPressure = !this.state.absolutePressure;
     var newState = { ...this.state };
     newState.absolutePressure = absPressure;
+    this.setState(newState);
+  };
+
+  onPressureTypeChange = (event) => {
+    console.log(event.target.value);
+    var newState = { ...this.state };
+    newState.absolutePressure = event.target.value == "true";
     this.setState(newState);
   };
 
@@ -587,69 +596,91 @@ class Modulo1FuerzasDePresion extends Component {
         title="Estratificación"
         panel={
           <>
-            <SliderWithInput
-              label="Ancho del contenedor"
-              step={1}
-              min={100}
-              max={600}
-              value={this.state.container.width}
-              onChange={this.onContainerWidthChange}
-            ></SliderWithInput>
-            <SliderWithInput
-              label="Altura del contenedor"
-              step={1}
-              min={100}
-              max={600}
-              value={this.state.container.height}
-              onChange={this.onContainerHeightChange}
-            ></SliderWithInput>
-            <MyToggle
-              label="Mostar presion"
-              checked={this.state.showingPressure}
-              onChange={this.toggleShowingPressureChange}
-            />
-            <MyToggle
-              label="Presión absoluta"
-              checked={this.state.absolutePressure}
-              onChange={this.toggleAbsolutePressureChange}
-            />
-            <MyToggle
-              label="Mostar fuerzas de presion"
-              checked={this.state.showingPressureForces}
-              onChange={this.toggleShowingPressureForcesChange}
-            />
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <SliderWithInput
+                  label="Ancho del contenedor"
+                  step={1}
+                  min={100}
+                  max={600}
+                  unit="cm"
+                  value={this.state.container.width}
+                  onChange={this.onContainerWidthChange}
+                ></SliderWithInput>
+              </Grid>
+              <Grid item xs={12}>
+                <SliderWithInput
+                  label="Altura del contenedor"
+                  step={1}
+                  min={100}
+                  max={600}
+                  unit="cm"
+                  value={this.state.container.height}
+                  onChange={this.onContainerHeightChange}
+                ></SliderWithInput>
+              </Grid>
+              <Grid item xs={6}>
+                <MyToggle
+                  label="Presión"
+                  checked={this.state.showingPressure}
+                  onChange={this.toggleShowingPressureChange}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <MyToggle
+                  label="Fuerzas de Presión"
+                  checked={this.state.showingPressureForces}
+                  onChange={this.toggleShowingPressureForcesChange}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <MyRadio
+                  options={[
+                    { value: false, label: "Presion Manométrica" },
+                    { value: true, label: "Presion Absoluta" },
+                  ]}
+                  value={this.state.absolutePressure}
+                  onChange={this.onPressureTypeChange}
+                ></MyRadio>
+              </Grid>
 
-            {this.state.liquids.map((liquid, index) => (
-              <Stratum
-                key={index}
-                id={index}
-                liquid={liquid}
-                max={this.state.container.height}
-                onHeightChange={this.onLiquidHeightChange}
-                onDensityChange={this.onLiquidDensityChange}
-                onRemoveButtonClicked={this.onLiquidRemove}
-              ></Stratum>
-            ))}
-            {this.state.liquids.length > 1 && (
-              <>
+              {this.state.liquids.map((liquid, index) => (
+                <Grid item xs={12}>
+                  <Stratum
+                    key={index}
+                    id={index}
+                    liquid={liquid}
+                    max={this.state.container.height}
+                    onHeightChange={this.onLiquidHeightChange}
+                    onDensityChange={this.onLiquidDensityChange}
+                    onRemoveButtonClicked={this.onLiquidRemove}
+                  ></Stratum>
+                </Grid>
+              ))}
+              <Grid item xs={6}>
                 <Button
+                  sx={{ width: "100%" }}
                   variant="contained"
-                  color="secondary"
-                  startIcon={<HorizontalSplit></HorizontalSplit>}
-                  onClick={this.orderByDensity}
+                  startIcon={<AddIcon></AddIcon>}
+                  onClick={this.onLiquidAdd}
                 >
-                  Ordenar por densidad
+                  Añadir líquido
                 </Button>
-                <br></br>
-              </>
-            )}
-            <Button
-              variant="contained"
-              startIcon={<AddIcon></AddIcon>}
-              onClick={this.onLiquidAdd}
-            >
-              Añadir líquido
-            </Button>
+              </Grid>
+              {this.state.liquids.length > 1 && (
+                <Grid item xs={6}>
+                  <Button
+                    sx={{ width: "100%" }}
+                    variant="contained"
+                    color="secondary"
+                    startIcon={<HorizontalSplit></HorizontalSplit>}
+                    onClick={this.orderByDensity}
+                  >
+                    Ordenar por densidad
+                  </Button>
+                </Grid>
+              )}
+            </Grid>
           </>
         }
         canvas={
