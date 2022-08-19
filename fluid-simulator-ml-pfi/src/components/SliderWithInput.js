@@ -12,11 +12,27 @@ class SliderWithInput extends Component {
     super(props);
   }
 
+  state = {
+    temporaryValue: null,
+  };
+
   handleSliderChange = (event, newValue) => {
     this.props.onChange(newValue);
   };
 
   handleInputChange = (event) => {
+    if (event.target.value != "") {
+      let number = Number(event.target.value);
+      if (number <= this.props.max && number >= this.props.min) {
+        this.setState({ temporaryValue: null });
+        this.props.onChange(number);
+      } else {
+        this.setState({ temporaryValue: number });
+      }
+    }
+  };
+
+  handleBlur = (event) => {
     if (event.target.value != "") {
       let number = Number(event.target.value);
       if (number > this.props.max) {
@@ -25,6 +41,7 @@ class SliderWithInput extends Component {
       if (number < this.props.min) {
         number = this.props.min;
       }
+      this.setState({ temporaryValue: null });
       this.props.onChange(number);
     }
   };
@@ -59,7 +76,7 @@ class SliderWithInput extends Component {
           </Grid>
           <Grid item xs={2}>
             <MuiInput
-              value={this.props.value}
+              value={this.state.temporaryValue || this.props.value}
               size="small"
               onChange={this.handleInputChange}
               onBlur={this.handleBlur}

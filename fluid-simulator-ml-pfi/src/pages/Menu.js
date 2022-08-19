@@ -7,6 +7,7 @@ import WavesIcon from "@mui/icons-material/Waves";
 class Menu extends Component {
   state = {};
   render() {
+    const buttonStyle = { width: "100%" };
     return (
       <div>
         <AppBar
@@ -37,18 +38,18 @@ class Menu extends Component {
               <Container maxWidth="sm">
                 <Stack spacing={2}>
                   <Link to="mod1" style={{ textDecoration: "none" }}>
-                    <Button variant="contained" style={{ width: "100%" }}>
+                    <Button variant="contained" style={buttonStyle}>
                       Fuerzas de presión
                     </Button>
                   </Link>
                   <Link to="mod2" style={{ textDecoration: "none" }}>
-                    <Button variant="contained" style={{ width: "100%" }}>
+                    <Button variant="contained" style={buttonStyle}>
                       Estratificación
                     </Button>
                   </Link>
                   <Link to="mod3" style={{ textDecoration: "none" }}>
-                    <Button variant="contained" style={{ width: "100%" }}>
-                      Menometría
+                    <Button variant="contained" style={buttonStyle}>
+                      Manometría
                     </Button>
                   </Link>
                   <Button variant="contained" disabled>
@@ -57,9 +58,11 @@ class Menu extends Component {
                   <Button variant="contained" disabled>
                     Dique
                   </Button>
-                  <Button variant="contained" disabled>
-                    Flotación
-                  </Button>
+                  <Link to="mod6" style={{ textDecoration: "none" }}>
+                    <Button variant="contained" style={buttonStyle}>
+                      Flotación
+                    </Button>
+                  </Link>
                   <Button variant="contained" disabled>
                     Cinemática
                   </Button>

@@ -4,6 +4,7 @@ import Menu from "./pages/Menu";
 import Modulo1FuerzasDePresion from "./pages/Modulo1FuerzasDePresion";
 import Modulo2Estratificacion from "./pages/Modulo2Estratificacion";
 import Modulo3Manometria from "./pages/Modulo3Manometria";
+import Modulo6Flotacion from "./pages/Modulo6Flotacion";
 
 function App() {
   return (
@@ -21,6 +22,11 @@ function App() {
         <Route
           path="mod3"
           element={<Modulo3Manometria></Modulo3Manometria>}
+        ></Route>
+
+        <Route
+          path="mod6"
+          element={<Modulo6Flotacion></Modulo6Flotacion>}
         ></Route>
       </Routes>
     </BrowserRouter>

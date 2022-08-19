@@ -17,6 +17,7 @@ class PanelAndCanvas extends Component {
       >
         <Stack direction={"row"} sx={{ height: "100%" }}>
           <Paper
+            elevation={3}
             sx={{
               display: "flex",
               flexDirection: "column",

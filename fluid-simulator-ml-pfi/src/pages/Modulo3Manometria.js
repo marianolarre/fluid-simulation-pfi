@@ -17,6 +17,7 @@ import {
   subPoints,
   lerp,
   LevelSimbol,
+  VectorArrow,
 } from "../paperUtility";
 import { Button, Grid } from "@mui/material";
 import Stratum from "../components/Stratum";
@@ -26,8 +27,12 @@ const metersToPixels = 400;
 const atmToPixels = 20;
 const maxPressure = 16;
 
+const leftColumnXOffset = -100;
+const rightColumnXOffset = 300;
+
 class Modulo3Manometria extends Component {
   state = {
+    ready: false,
     pipe: {
       exteriorShape: null,
       interiorShape: null,
@@ -46,6 +51,7 @@ class Modulo3Manometria extends Component {
       heightDifference: 0,
       density: 10,
     },
+    columnInfo: null,
     background: {
       shape: null,
     },
@@ -81,6 +87,7 @@ class Modulo3Manometria extends Component {
   };
 
   updateFluid(delta) {
+    const level = 100;
     const frequency = 4;
     const damping = 0.9;
     const minDifference = -11;
@@ -111,11 +118,53 @@ class Modulo3Manometria extends Component {
       newVelocity = -newVelocity;
     }
 
-    if (!isNaN(newHeightDifference) && this.state.liquid.shape != null) {
-      this.state.liquid.shape.segments[0].point.y =
-        center.y + 100 + newHeightDifference * atmToPixels;
-      this.state.liquid.shape.segments[3].point.y =
-        center.y + 100 - newHeightDifference * atmToPixels;
+    if (this.state.ready) {
+      const leftColumnX = center.x + leftColumnXOffset;
+      const rightColumnX = center.x + rightColumnXOffset;
+      const midColumnX = (leftColumnX + rightColumnX) / 2;
+      const leftHeight = center.y + level + newHeightDifference * atmToPixels;
+      const rightHeight = center.y + level - newHeightDifference * atmToPixels;
+      this.state.liquid.shape.segments[0].point.y = leftHeight;
+      this.state.liquid.shape.segments[3].point.y = rightHeight;
+
+      const targetLeftHeight =
+        center.y + level + targetHeightDifference * atmToPixels;
+      const targetRightHeight =
+        center.y + level - targetHeightDifference * atmToPixels;
+      const heightMeasure = this.state.columnInfo.heightMeasure;
+
+      const leftLine = heightMeasure.leftLine.segments;
+      leftLine[0].point.x = leftColumnX + 25;
+      leftLine[0].point.y = targetLeftHeight;
+      if (targetHeightDifference < 0.5) {
+        leftLine[1].point.x = midColumnX + 10;
+      } else {
+        leftLine[1].point.x = rightColumnX - 25;
+      }
+      leftLine[1].point.y = targetLeftHeight;
+
+      const rightLine = heightMeasure.rightLine.segments;
+      if (targetHeightDifference > -0.5) {
+        rightLine[0].point.x = midColumnX - 10;
+      } else {
+        rightLine[0].point.x = leftColumnX + 25;
+      }
+      rightLine[0].point.y = targetRightHeight;
+      rightLine[1].point.x = rightColumnX - 25;
+      rightLine[1].point.y = targetRightHeight;
+      heightMeasure.text.content =
+        Math.round(targetHeightDifference * 100) / 100;
+      if (Math.abs(targetHeightDifference) > 1) {
+        heightMeasure.text.point.x = midColumnX + 5;
+        heightMeasure.text.point.y = center.y + 105;
+      } else {
+        heightMeasure.text.point.x = midColumnX - 20;
+        heightMeasure.text.point.y = center.y + 70;
+      }
+      heightMeasure.arrow.SetPosition(
+        new Point(midColumnX, targetLeftHeight),
+        new Point(midColumnX, targetRightHeight)
+      );
 
       var newState = { ...this.state };
       newState.liquid.heightDifference = newHeightDifference;
@@ -145,11 +194,21 @@ class Modulo3Manometria extends Component {
       strokeWidth: 40,
       strokeJoin: "round",
     });
-    pipeExterior.add(new Paper.Point(center.x - 200, center.y - 150));
-    pipeExterior.add(new Paper.Point(center.x - 100, center.y - 150));
-    pipeExterior.add(new Paper.Point(center.x - 100, center.y + 350));
-    pipeExterior.add(new Paper.Point(center.x + 200, center.y + 350));
-    pipeExterior.add(new Paper.Point(center.x + 200, center.y - 350));
+    pipeExterior.add(
+      new Paper.Point(center.x + leftColumnXOffset - 100, center.y - 150)
+    );
+    pipeExterior.add(
+      new Paper.Point(center.x + leftColumnXOffset, center.y - 150)
+    );
+    pipeExterior.add(
+      new Paper.Point(center.x + leftColumnXOffset, center.y + 350)
+    );
+    pipeExterior.add(
+      new Paper.Point(center.x + rightColumnXOffset, center.y + 350)
+    );
+    pipeExterior.add(
+      new Paper.Point(center.x + rightColumnXOffset, center.y - 350)
+    );
 
     const pipeInterior = new Paper.Path({
       fillColor: "transparent",
@@ -166,26 +225,70 @@ class Modulo3Manometria extends Component {
       strokeCap: "square",
       strokeJoin: "round",
     });
-    reservoir.pipeShape.add(new Paper.Point(center.x - 200, center.y - 150));
-    reservoir.pipeShape.add(new Paper.Point(center.x - 100, center.y - 150));
-    reservoir.pipeShape.add(new Paper.Point(center.x - 100, center.y + 330));
+    reservoir.pipeShape.add(
+      new Paper.Point(center.x + leftColumnXOffset - 100, center.y - 150)
+    );
+    reservoir.pipeShape.add(
+      new Paper.Point(center.x + leftColumnXOffset, center.y - 150)
+    );
+    reservoir.pipeShape.add(
+      new Paper.Point(center.x + leftColumnXOffset, center.y + 330)
+    );
 
     const liquid = new Paper.Path({
       fillColor: "transparent",
       strokeColor: "#1976D2",
       strokeWidth: 20,
       strokeJoin: "round",
-      strokeCap: "square",
+      strokeCap: "butt",
     });
-    liquid.add(new Paper.Point(center.x - 100, center.y + 100));
-    liquid.add(new Paper.Point(center.x - 100, center.y + 350));
-    liquid.add(new Paper.Point(center.x + 200, center.y + 350));
-    liquid.add(new Paper.Point(center.x + 200, center.y - 50));
+    liquid.add(new Paper.Point(center.x + leftColumnXOffset, center.y + 100));
+    liquid.add(new Paper.Point(center.x + leftColumnXOffset, center.y + 350));
+    liquid.add(new Paper.Point(center.x + rightColumnXOffset, center.y + 350));
+    liquid.add(new Paper.Point(center.x + rightColumnXOffset, center.y - 50));
+
+    const columnInfo = {};
+    const measureLineStyle = {
+      strokeColor: "black",
+      strokeWidth: 4,
+    };
+    columnInfo.heightMeasure = {
+      rightLine: new Paper.Path(measureLineStyle),
+      leftLine: new Paper.Path(measureLineStyle),
+      arrow: new VectorArrow(
+        new Paper.Point(0, 0),
+        new Paper.Point(0, 0),
+        "black",
+        2,
+        5,
+        15,
+        true
+      ),
+    };
+    columnInfo.heightMeasure.rightLine.add(
+      new Point(center.x + 40, center.y + 100)
+    );
+    columnInfo.heightMeasure.rightLine.add(
+      new Point(center.x + 175, center.y + 100)
+    );
+    columnInfo.heightMeasure.leftLine.add(
+      new Point(center.x - 75, center.y + 100)
+    );
+    columnInfo.heightMeasure.leftLine.add(
+      new Point(center.x + 60, center.y + 100)
+    );
+
+    columnInfo.heightMeasure.text = new Paper.PointText(
+      new Point(center.x, center.y)
+    );
+    columnInfo.heightMeasure.text.fontSize = 20;
 
     let newState = { ...this.state };
     newState.background.shape = background;
     newState.liquid.shape = liquid;
-    this.setState({ newState });
+    newState.columnInfo = columnInfo;
+    newState.ready = true;
+    this.setState(newState);
 
     Paper.view.onFrame = (event) => {
       this.updateFluid(event.delta);

@@ -80,6 +80,9 @@ export class VectorArrow {
     const forward = subPoints(this.end, this.start);
     const right = new Point(forward.y, -forward.x);
     let scale = Math.min(this.headLength, length) / this.headLength;
+    if (this.doubleHeaded) {
+      scale = Math.min(this.headLength, length / 2) / this.headLength;
+    }
     forward.length = this.headLength * scale;
     right.length = this.headWidth * scale;
     let arrowStart = subPoints(this.end, forward);
@@ -93,9 +96,9 @@ export class VectorArrow {
 
     if (this.doubleHeaded) {
       arrowStart = addPoints(this.start, forward);
-      this.head.segments[0].point = subPoints(arrowStart, forward);
-      this.head.segments[1].point = subPoints(arrowStart, right);
-      this.head.segments[2].point = addPoints(arrowStart, right);
+      this.secondHead.segments[0].point = subPoints(arrowStart, forward);
+      this.secondHead.segments[1].point = subPoints(arrowStart, right);
+      this.secondHead.segments[2].point = addPoints(arrowStart, right);
     }
   }
 
