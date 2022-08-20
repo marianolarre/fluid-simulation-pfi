@@ -49,19 +49,32 @@ export const pressureGradient = [
 ];
 
 export class VectorArrow {
-  constructor(start, end, color, width, headWidth, headLength, doubleHeaded) {
+  constructor(
+    start,
+    end,
+    color,
+    width,
+    headWidth,
+    headLength,
+    showSecondHead,
+    hideFirstHead
+  ) {
     this.start = start;
     this.end = end;
     this.line = new Path([start, end]);
     this.line.strokeColor = color;
     this.line.strokeWidth = width;
-    this.head = new Path([new Point(0, 0), new Point(0, 0), new Point(0, 0)]);
-    this.head.fillColor = color;
-    this.head.closed = true;
+    this.head = null;
+    this.hideFirstHead = hideFirstHead;
+    if (!hideFirstHead) {
+      this.head = new Path([new Point(0, 0), new Point(0, 0), new Point(0, 0)]);
+      this.head.fillColor = color;
+      this.head.closed = true;
+    }
     this.headWidth = headWidth;
     this.headLength = headLength;
-    this.doubleHeaded = doubleHeaded;
-    if (doubleHeaded) {
+    this.showSecondHead = showSecondHead;
+    if (showSecondHead) {
       this.secondHead = new Path([
         new Point(0, 0),
         new Point(0, 0),
@@ -80,25 +93,34 @@ export class VectorArrow {
     const forward = subPoints(this.end, this.start);
     const right = new Point(forward.y, -forward.x);
     let scale = Math.min(this.headLength, length) / this.headLength;
-    if (this.doubleHeaded) {
+    if (this.showSecondHead) {
       scale = Math.min(this.headLength, length / 2) / this.headLength;
     }
     forward.length = this.headLength * scale;
     right.length = this.headWidth * scale;
-    let arrowStart = subPoints(this.end, forward);
+    let vectorEnd = this.end;
+    if (!this.hideFirstHead) {
+      vectorEnd = subPoints(this.end, forward);
+    }
+    let vectorStart = this.start;
+    if (this.showSecondHead) {
+      vectorStart = addPoints(this.start, forward);
+    }
 
-    this.line.segments[0].point = this.start;
-    this.line.segments[1].point = arrowStart;
+    this.line.segments[0].point = vectorStart;
+    this.line.segments[1].point = vectorEnd;
 
-    this.head.segments[0].point = addPoints(arrowStart, forward);
-    this.head.segments[1].point = addPoints(arrowStart, right);
-    this.head.segments[2].point = subPoints(arrowStart, right);
+    if (!this.hideFirstHead) {
+      this.head.segments[0].point = addPoints(vectorEnd, forward);
+      this.head.segments[1].point = addPoints(vectorEnd, right);
+      this.head.segments[2].point = subPoints(vectorEnd, right);
+    }
 
-    if (this.doubleHeaded) {
-      arrowStart = addPoints(this.start, forward);
-      this.secondHead.segments[0].point = subPoints(arrowStart, forward);
-      this.secondHead.segments[1].point = subPoints(arrowStart, right);
-      this.secondHead.segments[2].point = addPoints(arrowStart, right);
+    if (this.showSecondHead) {
+      vectorEnd = addPoints(this.start, forward);
+      this.secondHead.segments[0].point = subPoints(vectorEnd, forward);
+      this.secondHead.segments[1].point = subPoints(vectorEnd, right);
+      this.secondHead.segments[2].point = addPoints(vectorEnd, right);
     }
   }
 
@@ -120,7 +142,12 @@ export class VectorArrow {
 
   Remove() {
     this.line.remove();
-    this.head.remove();
+    if (!this.hideFirstHead) {
+      this.head.remove();
+    }
+    if (this.showSecondHead) {
+      this.secondHead.remove();
+    }
   }
 }
 
@@ -186,7 +213,8 @@ export class VectorArray {
     distance,
     stepMagnitudes,
     inverted,
-    centered
+    centered,
+    otherEnd
   ) {
     if (this.points == null) {
       this.points = [new Point(0, 0)];
@@ -198,6 +226,7 @@ export class VectorArray {
       this.stepMagnitudes = [0];
       this.inverted = false;
       this.centered = false;
+      this.otherEnd = false;
       this.vectors = [];
       this.profile = new Path({
         strokeColor: "black",
@@ -213,6 +242,7 @@ export class VectorArray {
       this.stepMagnitudes = stepMagnitudes;
       this.inverted = inverted;
       this.centered = centered;
+      this.otherEnd = otherEnd;
       this.vectors = [];
       this.profile = new Path({
         strokeColor: "black",
@@ -222,12 +252,13 @@ export class VectorArray {
     }
   }
 
-  SetValues(points, stepMagnitudes, distance, inverted, centered) {
+  SetValues(points, stepMagnitudes, distance, inverted, centered, otherEnd) {
     this.points = points;
     this.stepMagnitudes = stepMagnitudes;
     if (distance != null && distance != 0) this.distance = distance;
     if (inverted != null) this.inverted = inverted;
     if (centered != null) this.centered = centered;
+    if (otherEnd != null) this.otherEnd = otherEnd;
     this.Update();
   }
 
@@ -297,7 +328,9 @@ export class VectorArray {
             this.color,
             this.width,
             this.headWidth,
-            this.headLength
+            this.headLength,
+            this.otherEnd,
+            this.otherEnd
           );
           this.vectors[vectorId] = creation;
         }

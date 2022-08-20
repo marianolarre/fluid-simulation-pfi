@@ -61,7 +61,7 @@ class ModuloPlantilla extends Component {
             <Grid container spacing="2%" alignItems="stretch">
               <Grid item xs={12}>
                 <SliderWithInput
-                  label="Ancho del contenedor"
+                  label="Valor"
                   step={1}
                   min={0}
                   max={100}
