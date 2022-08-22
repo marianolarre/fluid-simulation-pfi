@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/fluidsim/static/css/main.25f2b391.css",
+    "main.js": "/fluidsim/static/js/main.82adb64c.js",
+    "static/js/787.ab941221.chunk.js": "/fluidsim/static/js/787.ab941221.chunk.js",
+    "index.html": "/fluidsim/index.html",
+    "main.25f2b391.css.map": "/fluidsim/static/css/main.25f2b391.css.map",
+    "main.82adb64c.js.map": "/fluidsim/static/js/main.82adb64c.js.map",
+    "787.ab941221.chunk.js.map": "/fluidsim/static/js/787.ab941221.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.25f2b391.css",
+    "static/js/main.82adb64c.js"
+  ]
+}
