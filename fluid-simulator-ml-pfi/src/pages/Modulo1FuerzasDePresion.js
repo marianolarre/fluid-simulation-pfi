@@ -385,7 +385,9 @@ class Modulo1FuerzasDePresion extends Component {
         arrowPoints.push(segments[i].point);
       }
 
-      this.state.arrows.SetValues(arrowPoints, stepMagnitudes, 20, true, false);
+      this.state.arrows.SetValues(arrowPoints, stepMagnitudes, 20, {
+        inverted: true,
+      });
 
       // Air
     } else {

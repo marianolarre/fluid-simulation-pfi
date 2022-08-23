@@ -449,14 +449,15 @@ class Modulo1FuerzasDePresion extends Component {
         leftPoints.push(points.liquids[count - 1].bottomLeft);
         rightPoints.push(points.liquids[count - 1].bottomRight);
 
-        this.state.arrows.left.SetValues(leftPoints, stepMagnitudes, 25, true);
+        this.state.arrows.left.SetValues(leftPoints, stepMagnitudes, 25, {
+          inverted: true,
+        });
         this.state.arrows.right.SetValues(rightPoints, stepMagnitudes, 25);
         this.state.arrows.bottom.SetValues(
           [points.container.bottomRight, points.container.bottomLeft],
           [bottomPressure * atmToPixels, bottomPressure * atmToPixels],
           25,
-          null,
-          true
+          { centered: true }
         );
       } else {
         leftPoints.push(points.container.topLeft);
@@ -645,9 +646,8 @@ class Modulo1FuerzasDePresion extends Component {
               </Grid>
 
               {this.state.liquids.map((liquid, index) => (
-                <Grid item xs={12}>
+                <Grid item xs={12} key={index}>
                   <Stratum
-                    key={index}
                     id={index}
                     liquid={liquid}
                     max={this.state.container.height}

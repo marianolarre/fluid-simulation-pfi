@@ -140,6 +140,26 @@ export class VectorArrow {
     this.Update();
   }
 
+  bringToFront() {
+    this.line.bringToFront();
+    if (!this.hideFirstHead) {
+      this.head.bringToFront();
+    }
+    if (this.showSecondHead) {
+      this.secondHead.bringToFront();
+    }
+  }
+
+  setVisible(visible) {
+    this.line.visible = visible;
+    if (!this.hideFirstHead) {
+      this.head.visible = visible;
+    }
+    if (this.showSecondHead) {
+      this.secondHead.visible = visible;
+    }
+  }
+
   Remove() {
     this.line.remove();
     if (!this.hideFirstHead) {
@@ -212,9 +232,7 @@ export class VectorArray {
     headLength,
     distance,
     stepMagnitudes,
-    inverted,
-    centered,
-    otherEnd
+    options
   ) {
     if (this.points == null) {
       this.points = [new Point(0, 0)];
@@ -224,9 +242,7 @@ export class VectorArray {
       this.headLength = 15;
       this.distance = 10;
       this.stepMagnitudes = [0];
-      this.inverted = false;
-      this.centered = false;
-      this.otherEnd = false;
+      this.options = {};
       this.vectors = [];
       this.profile = new Path({
         strokeColor: "black",
@@ -240,9 +256,8 @@ export class VectorArray {
       this.headLength = headLength;
       this.distance = distance;
       this.stepMagnitudes = stepMagnitudes;
-      this.inverted = inverted;
-      this.centered = centered;
-      this.otherEnd = otherEnd;
+      this.options = options || {};
+      this.closed = (options && options.closed) || false;
       this.vectors = [];
       this.profile = new Path({
         strokeColor: "black",
@@ -252,13 +267,18 @@ export class VectorArray {
     }
   }
 
-  SetValues(points, stepMagnitudes, distance, inverted, centered, otherEnd) {
+  SetValues(points, stepMagnitudes, distance, options) {
     this.points = points;
     this.stepMagnitudes = stepMagnitudes;
     if (distance != null && distance != 0) this.distance = distance;
-    if (inverted != null) this.inverted = inverted;
-    if (centered != null) this.centered = centered;
-    if (otherEnd != null) this.otherEnd = otherEnd;
+    if (options != null && options.inverted != null)
+      this.options.inverted = options.inverted;
+    if (options != null && options.centered != null)
+      this.options.centered = options.centered;
+    if (options != null && options.otherEnd != null)
+      this.options.otherEnd = options.otherEnd;
+    if (options != null && options.closed != null)
+      this.options.closed = options.closed;
     this.Update();
   }
 
@@ -299,7 +319,7 @@ export class VectorArray {
       forward.length = 1;
       let normal = new Point(forward.y, -forward.x);
 
-      if (this.inverted) {
+      if (this.options.inverted) {
         normal.x = -normal.x;
         normal.y = -normal.y;
       }
@@ -329,8 +349,8 @@ export class VectorArray {
             this.width,
             this.headWidth,
             this.headLength,
-            this.otherEnd,
-            this.otherEnd
+            this.options.otherEnd,
+            this.options.otherEnd
           );
           this.vectors[vectorId] = creation;
         }
@@ -345,17 +365,24 @@ export class VectorArray {
 
     // Profile
     const profilePoints = [];
-    for (let i = 0; i < this.points.length - 1; i++) {
+    for (let _i = 0; _i <= this.points.length - 1; _i++) {
+      let i = _i % (this.points.length - 1);
+      if (!this.options.closed && _i >= this.points.length - 1) {
+        break;
+      }
       const start = this.points[i];
       const end = this.points[i + 1];
       let difference = subPoints(end, start);
       let normal = new Point(difference.y, -difference.x);
-      if (this.inverted) normal = new Point(-difference.y, difference.x);
+      if (this.options.inverted)
+        normal = new Point(-difference.y, difference.x);
       normal.length = 1;
       const startMagnitude = this.stepMagnitudes[i];
       const endMagnitude = this.stepMagnitudes[i + 1];
       profilePoints.push(addPoints(start, mulPoint(normal, startMagnitude)));
-      profilePoints.push(addPoints(end, mulPoint(normal, endMagnitude)));
+      if (!this.options.closed && _i == this.points.length - 2) {
+        profilePoints.push(addPoints(end, mulPoint(normal, endMagnitude)));
+      }
     }
     this.profile.segments = profilePoints;
   }
