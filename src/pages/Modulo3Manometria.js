@@ -59,7 +59,7 @@ class Modulo3Manometria extends Component {
     atmosphericPressure: 1,
     gravity: 1,
   };
-
+  /*
   componentDidUpdate() {}
 
   onReservoirPressureChanged = (newValue) => {
@@ -351,12 +351,14 @@ class Modulo3Manometria extends Component {
 
     return { top: gradientStart, bottom: gradientEnd };
   }
-
+*/
+  canvasFunction(state) {}
   render() {
     return (
       <PanelAndCanvas
         title="Manometría"
         panel={
+          <></> /*
           <>
             <Grid container spacing={2}>
               <Grid item xs={12}>
@@ -394,6 +396,7 @@ class Modulo3Manometria extends Component {
               </Grid>
             </Grid>
           </>
+    */
         }
         canvas={
           <Canvas

@@ -53,7 +53,7 @@ class Modulo1FuerzasDePresion extends Component {
     density: 0.5,
     gravity: 1,
   };
-
+  /*
   componentDidUpdate() {
     this.updateShapes();
     this.updatePressureDisplays(
@@ -158,15 +158,15 @@ class Modulo1FuerzasDePresion extends Component {
   };
 
   handleOverflow(state, ignoreID) {
-    /*liquidSum = state.liquid.height;
-
-    let overflow = liquidSum - state.container.height;
-    if (overflow > 0) {
-      const spilledLiquidsCount = state.liquids.length - 1;
-      const spillage = Math.min(overflow, state.liquid.height);
-      state.liquid.height -= spillage;
-      overflow -= spillage;
-    }*/
+    //liquidSum = state.liquid.height;
+//
+    //let overflow = liquidSum - state.container.height;
+    //if (overflow > 0) {
+    //  const spilledLiquidsCount = state.liquids.length - 1;
+    //  const spillage = Math.min(overflow, state.liquid.height);
+    //  state.liquid.height -= spillage;
+    //  overflow -= spillage;
+    //}
   }
 
   onLiquidDensityChange = (newValue) => {
@@ -435,10 +435,6 @@ class Modulo1FuerzasDePresion extends Component {
       center,
       new Point(this.state.container.width / 2, this.state.container.height / 2)
     );
-
-    /*Paper.view.onFrame = (event) => {
-
-    };*/
   }
 
   getPressureSteps() {
@@ -487,12 +483,16 @@ class Modulo1FuerzasDePresion extends Component {
 
     return { top: gradientStart, bottom: gradientEnd };
   }
+*/
+
+  canvasFunction(state) {}
 
   render() {
     return (
       <PanelAndCanvas
         title="Fuerzas de presión"
         panel={
+          <></> /*
           <>
             <Grid container spacing="2%" alignItems="stretch">
               <Grid item xs={12}>
@@ -563,8 +563,9 @@ class Modulo1FuerzasDePresion extends Component {
                   onChange={this.onPressureTypeChange}
                 ></MyRadio>
               </Grid>
-            </Grid>
+                </Grid>
           </>
+        */
         }
         canvas={
           <Canvas
