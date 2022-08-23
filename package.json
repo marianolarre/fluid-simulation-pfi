@@ -1,5 +1,6 @@
 {
   "name": "fluid-simulator-ml-pfi",
+  "homepage": "https://fluidsim.herokuapp.com/",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
