@@ -39,6 +39,11 @@ const liquidColors = [
   "#6DAAF8",
 ];
 
+// TODO:
+// Hacer que el selector entre presion absoluta y manometrica indique ambas opciones
+// Agregar la posibilidad de agregar y quitar liquidos
+// Que con un boton se organicen por densidad
+
 class Modulo1FuerzasDePresion extends Component {
   state = {
     container: {
@@ -63,7 +68,7 @@ class Modulo1FuerzasDePresion extends Component {
     density: 0.5,
     gravity: 1,
   };
-  /*
+
   componentDidUpdate() {
     this.updateContainerSize();
     this.updatePressureDisplays(
@@ -523,6 +528,10 @@ class Modulo1FuerzasDePresion extends Component {
       center,
       new Point(this.state.container.width / 2, this.state.container.height / 2)
     );
+
+    /*Paper.view.onFrame = (event) => {
+
+    };*/
   }
 
   getPressureSteps() {
@@ -581,14 +590,12 @@ class Modulo1FuerzasDePresion extends Component {
 
     return { top: gradientStart, bottom: gradientEnd };
   }
-*/
-  canvasFunction(state) {}
+
   render() {
     return (
       <PanelAndCanvas
         title="Estratificación"
         panel={
-          <></> /*
           <>
             <Grid container spacing={2}>
               <Grid item xs={12}>
@@ -675,7 +682,6 @@ class Modulo1FuerzasDePresion extends Component {
               )}
             </Grid>
           </>
-              */
         }
         canvas={
           <Canvas

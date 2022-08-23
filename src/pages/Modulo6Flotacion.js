@@ -62,7 +62,7 @@ class Modulo6Flotacion extends Component {
     line: null,
     ready: false,
   };
-  /*
+
   onValueChanged = (event) => {
     var newState = { ...this.state };
     newState.value = event.target.value;
@@ -489,13 +489,12 @@ class Modulo6Flotacion extends Component {
       this.onMouseUp(event);
     };
   }
-*/
+
   render() {
     return (
       <PanelAndCanvas
         title="Plantilla"
         panel={
-          <></> /*
           <>
             <Grid container spacing="2%" alignItems="stretch">
               <Grid item xs={12}>
@@ -575,7 +574,6 @@ class Modulo6Flotacion extends Component {
               </Grid>
             </Grid>
           </>
-                */
         }
         canvas={
           <Canvas
