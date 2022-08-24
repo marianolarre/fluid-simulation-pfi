@@ -75,15 +75,13 @@ class Modulo3Manometria extends Component {
   };
 
   onAtmosphericPressureChanged = (newValue) => {
-    var newState = { ...this.state };
-    newState.atmosphericPressure = newValue;
-    this.setState(newState);
+    this.setState({ atmosphericPressure: newValue });
   };
 
   onLiquidDensityChanged = (newValue) => {
     var newState = { ...this.state };
     newState.liquid.density = newValue;
-    this.setState(newState);
+    this.setState({ newState });
   };
 
   updateFluid(delta) {

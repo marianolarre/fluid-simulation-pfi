@@ -4,10 +4,13 @@ import Canvas from "../components/Canvas";
 import PanelAndCanvas from "../components/PanelAndCanvas";
 
 import MyRadio from "../components/MyRadio";
-import { Grid, Button } from "@mui/material";
+import { Grid, Button, Typography, Box } from "@mui/material";
+import { Paper as MUIPaper } from "@mui/material";
 import Paper from "paper";
 import { Color, Point } from "paper/dist/paper-core";
 import SliderWithInput from "../components/SliderWithInput";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import PauseIcon from "@mui/icons-material/Pause";
 import {
   addPoints,
   subPoints,
@@ -29,7 +32,6 @@ const shapeStyle = {
 
 class Modulo6Flotacion extends Component {
   state = {
-    value: 0,
     background: {
       shape: null,
     },
@@ -53,6 +55,10 @@ class Modulo6Flotacion extends Component {
       weightArrow: null,
       buoyancyArrow: null,
     },
+    paused: true,
+    drawingShape: false,
+    movingShape: false,
+    movingLocalPoint: null,
     atmosphericPressure: 1,
     absolutePressure: false,
     showingPressureForces: false,
@@ -69,7 +75,41 @@ class Modulo6Flotacion extends Component {
     this.setState(newState);
   };
 
+  togglePause = (event) => {
+    var newState = { ...this.state };
+    newState.paused = !this.state.paused;
+    this.setState(newState);
+  };
+
   onMouseDown(event) {
+    if (!this.state.drawing) {
+      this.beginMovingShape(event);
+    }
+  }
+
+  // While the user drags the mouse, points are added to the path
+  // at the position of the mouse:
+  onMouseDrag(event) {
+    if (this.state.drawingShape) {
+      this.dragDrawingShape(event);
+    }
+    if (this.state.movingShape) {
+      this.dragMovingShape(event);
+    }
+  }
+
+  // When the mouse is released, we simplify the path:
+  onMouseUp(event) {
+    if (this.state.drawingShape) {
+      this.finishDrawingShape(event);
+    }
+    if (this.state.movingShape) {
+      this.finishMovingShape(event);
+    }
+  }
+
+  beginDrawingShape = (event) => {
+    console.log({ this: this, event: event });
     this.removeCurrentShape();
 
     // Create a new path and set its stroke color to black:
@@ -78,22 +118,18 @@ class Modulo6Flotacion extends Component {
       strokeColor: "black",
       dashArray: [5, 5],
     });
-    newShape.add(event.point);
 
     let newState = { ...this.state };
     newState.buoy.shape = newShape;
     newState.drawingShape = true;
     this.setState(newState);
-  }
+  };
 
-  // While the user drags the mouse, points are added to the path
-  // at the position of the mouse:
-  onMouseDrag(event) {
+  dragDrawingShape(event) {
     this.state.buoy.shape.add(event.point);
   }
 
-  // When the mouse is released, we simplify the path:
-  onMouseUp(event) {
+  finishDrawingShape(event) {
     var shape = this.state.buoy.shape;
 
     shape.closePath();
@@ -115,6 +151,20 @@ class Modulo6Flotacion extends Component {
     }
 
     this.registerShape(shape);
+  }
+
+  beginMovingShape(event) {
+    let newState = { ...this.state };
+    newState.movingShape = true;
+    this.setState(newState);
+  }
+
+  dragMovingShape(event) {}
+
+  finishMovingShape(event) {
+    let newState = { ...this.state };
+    newState.movingShape = false;
+    this.setState(newState);
   }
 
   onSelectPresetRectangle = (event) => {
@@ -141,6 +191,31 @@ class Modulo6Flotacion extends Component {
       ),
       radius: Paper.view.bounds.height / 6,
     });
+    this.registerShape(newShape);
+  };
+
+  onSelectPresetBoat = (event) => {
+    this.removeCurrentShape();
+    const boatWidth = Paper.view.bounds.width / 2;
+    const center = new Paper.Point(
+      Paper.view.bounds.width / 2,
+      Paper.view.bounds.height / 4
+    );
+    const newShape = new Paper.Path.Circle({
+      center: center,
+      radius: Paper.view.bounds.height / 6,
+    });
+    // Left point
+    newShape.segments[0].point.x = center.x - boatWidth / 2;
+    newShape.segments[0].handleOut.y = 0;
+    // Top point
+    newShape.segments[1].point.y = center.y;
+    // Right point
+    newShape.segments[2].point.x = center.x + boatWidth / 2;
+    newShape.segments[2].handleIn.y = 0;
+    // Bottom point
+    newShape.segments[3].handleOut.x = -boatWidth / 2;
+    newShape.segments[3].handleIn.x = boatWidth / 2;
     this.registerShape(newShape);
   };
 
@@ -207,22 +282,24 @@ class Modulo6Flotacion extends Component {
 
     shape.style = shapeStyle;
 
-    let newState = { ...this.state };
-    newState.buoy.shape = shape;
-    newState.buoy.area = Math.abs(shape.area);
-    newState.buoy.velocity = new Paper.Point(0, 0);
-    newState.buoy.pos = shape.bounds.center;
-    newState.buoy.centerOfMassOffset = centerOfMassOffset;
-    newState.buoy.angularVelocity = 0;
-    newState.buoy.angle = 0;
-    newState.drawingShape = false;
-    this.setState(newState);
+    // Defered
+    setTimeout(() => {
+      let newState = { ...this.state };
+      newState.buoy.shape = shape;
+      newState.buoy.area = Math.abs(shape.area);
+      newState.buoy.velocity = new Paper.Point(0, 0);
+      newState.buoy.pos = shape.bounds.center;
+      newState.buoy.centerOfMassOffset = centerOfMassOffset;
+      newState.buoy.angle = 0;
+      newState.drawingShape = false;
+      this.setState(newState);
+    }, 1);
   }
 
   updateSimulation(delta) {
     const buoy = this.state.buoy;
     if (buoy.shape) {
-      if (!this.state.drawingShape) {
+      if (!this.state.paused && !this.state.drawingShape) {
         // Physics
         let translation = mulPoint(buoy.velocity, delta);
         let bottomBumpPosition = null;
@@ -493,10 +570,21 @@ class Modulo6Flotacion extends Component {
   render() {
     return (
       <PanelAndCanvas
-        title="Plantilla"
+        title="Flotación"
         panel={
           <>
             <Grid container spacing="2%" alignItems="stretch">
+              <Grid item xs={12}>
+                <Button
+                  sx={{ width: "100%" }}
+                  variant="contained"
+                  onClick={this.togglePause}
+                >
+                  {(this.state.paused && <PlayArrowIcon></PlayArrowIcon>) || (
+                    <PauseIcon></PauseIcon>
+                  )}
+                </Button>
+              </Grid>
               <Grid item xs={12}>
                 <SliderWithInput
                   label="Densidad del objeto"
@@ -530,14 +618,14 @@ class Modulo6Flotacion extends Component {
                   onChange={this.onGravityChange}
                 ></SliderWithInput>
               </Grid>
-              <Grid item xs={12} xl={6}>
+              <Grid item xs={6}>
                 <MyToggle
                   label="Fuerzas de presión"
                   checked={this.state.showingPressureForces}
                   onChange={this.toggleShowingPressureForcesChange}
                 />
               </Grid>
-              <Grid item xs={12} xl={6}>
+              <Grid item xs={6}>
                 <MyToggle
                   label="Fuerzas equivalentes"
                   checked={this.state.showEquivalentForcePoints}
@@ -553,6 +641,9 @@ class Modulo6Flotacion extends Component {
                   value={this.state.absolutePressure}
                   onChange={this.onPressureTypeChange}
                 ></MyRadio>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography>Crear forma</Typography>
               </Grid>
               <Grid item xs={6}>
                 <Button
@@ -572,6 +663,36 @@ class Modulo6Flotacion extends Component {
                   Círculo
                 </Button>
               </Grid>
+              <Grid item xs={6}>
+                <Button
+                  sx={{ width: "100%" }}
+                  variant="contained"
+                  onClick={this.onSelectPresetBoat}
+                >
+                  Bote
+                </Button>
+              </Grid>
+              <Grid item xs={6}>
+                <Button
+                  sx={{ width: "100%" }}
+                  color="secondary"
+                  variant="contained"
+                  onClick={this.beginDrawingShape}
+                >
+                  Dibujar
+                </Button>
+              </Grid>
+              {this.state.drawingShape && (
+                <Grid item xs={12}>
+                  <MUIPaper
+                    sx={{ width: "96%", padding: "2%" }}
+                    background="secondary"
+                    variant="contained"
+                  >
+                    Arrastra el cursor por la pantalla para dibujar una figura
+                  </MUIPaper>
+                </Grid>
+              )}
             </Grid>
           </>
         }

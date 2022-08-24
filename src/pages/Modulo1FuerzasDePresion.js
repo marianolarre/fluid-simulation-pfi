@@ -25,8 +25,7 @@ import MyRadio from "../components/MyRadio";
 
 const metersToPixels = 400;
 const atmToPixels = 20;
-const maxPressure = 12;
-let incrementingLiquidLookup = 0;
+const maxPressure = 100;
 const liquidColors = "#1976D2";
 
 class Modulo1FuerzasDePresion extends Component {
@@ -45,6 +44,7 @@ class Modulo1FuerzasDePresion extends Component {
       shape: null,
     },
     atmPressureText: null,
+    bottomPressureText: null,
     arrows: null,
     atmosphericPressure: 1,
     showingPressure: false,
@@ -253,6 +253,10 @@ class Modulo1FuerzasDePresion extends Component {
       points.liquid.topLeft,
       new Point(15 + displacement, -6)
     );
+    this.state.bottomPressureText.point = addPoints(
+      points.liquid.bottomLeft,
+      new Point(15 + radius * 0.7, -6)
+    );
     this.state.liquid.levelSimbol.setPosition(levelSimbolPosition);
 
     this.updatePressureDisplays(
@@ -303,9 +307,9 @@ class Modulo1FuerzasDePresion extends Component {
     showingPressure,
     showingPressureForces
   ) {
+    const pressureSteps = this.getPressureSteps();
     if (showingPressure) {
       const points = this.getImportantPoints();
-      const pressureSteps = this.getPressureSteps();
       const liquid = this.state.liquid;
       const gradientPoints = this.getLiquidGradientPoints(
         points.liquid.topLeft,
@@ -324,6 +328,15 @@ class Modulo1FuerzasDePresion extends Component {
     } else {
       this.state.liquid.shape.fillColor = this.state.liquid.color;
       this.state.liquid.topLineShape.visible = showingPressure;
+    }
+
+    if (this.state.liquid.height > 10) {
+      this.state.bottomPressureText.content =
+        Math.round(pressureSteps[1] * 100) / 100 + " atm";
+      this.state.bottomPressureText.bringToFront();
+      this.state.bottomPressureText.visible = true;
+    } else {
+      this.state.bottomPressureText.visible = false;
     }
 
     this.updateVectors(
@@ -416,6 +429,13 @@ class Modulo1FuerzasDePresion extends Component {
       content: "0 atm",
       visible: true,
     });
+    const bottomPressureText = new Paper.PointText({
+      justification: "left",
+      fillColor: "white",
+      fontSize: 15,
+      content: "0 atm",
+      visible: true,
+    });
 
     let newState = { ...this.state };
     newState.container = {
@@ -428,6 +448,7 @@ class Modulo1FuerzasDePresion extends Component {
     newState.container.shape.bringToFront();
     newState.background.shape = background;
     newState.atmPressureText = atmPressureText;
+    newState.bottomPressureText = bottomPressureText;
     newState.arrows = new VectorArray();
     this.setState(newState);
     createBoxPath(
@@ -448,7 +469,8 @@ class Modulo1FuerzasDePresion extends Component {
       : 0;
     steps.push(currentPressure);
     const liquid = this.state.liquid;
-    currentPressure += (liquid.density * liquid.height) / metersToPixels;
+    currentPressure +=
+      (liquid.density * liquid.height * this.state.gravity) / metersToPixels;
     steps.push(currentPressure);
     return steps;
   }
@@ -459,7 +481,10 @@ class Modulo1FuerzasDePresion extends Component {
     const atmPressure = this.state.absolutePressure
       ? this.state.atmosphericPressure
       : 0;
-    return atmPressure + (this.state.liquid.density * depth) / metersToPixels;
+    return (
+      atmPressure +
+      (this.state.liquid.density * depth * this.state.gravity) / metersToPixels
+    );
   }
 
   getLiquidGradientPoints(

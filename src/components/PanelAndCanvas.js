@@ -15,14 +15,17 @@ class PanelAndCanvas extends Component {
           height: "100vh",
         }}
       >
-        <Stack direction={"row"} sx={{ height: "100%" }}>
+        <Stack
+          direction={{ lg: "row", xs: "column-reverse" }}
+          sx={{ height: "100%" }}
+        >
           <Paper
             elevation={3}
             sx={{
               display: "flex",
               flexDirection: "column",
               flex: "1",
-              height: "100%",
+              height: { lg: "100%", xs: "50%" },
               backgroundColor: blue[100],
             }}
           >
