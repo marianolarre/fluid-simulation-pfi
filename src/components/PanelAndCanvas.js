@@ -10,9 +10,11 @@ class PanelAndCanvas extends Component {
     return (
       <Box
         sx={{
-          padding: "10px",
+          margin: 0,
+          padding: 0,
           boxSizing: "border-box",
           height: "100vh",
+          overflow: "hidden",
         }}
       >
         <Stack
@@ -20,7 +22,7 @@ class PanelAndCanvas extends Component {
           sx={{ height: "100%" }}
         >
           <Paper
-            elevation={3}
+            elevation={0}
             sx={{
               display: "flex",
               flexDirection: "column",

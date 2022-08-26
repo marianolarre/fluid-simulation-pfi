@@ -5,8 +5,13 @@ import Modulo1FuerzasDePresion from "./pages/Modulo1FuerzasDePresion";
 import Modulo2Estratificacion from "./pages/Modulo2Estratificacion";
 import Modulo3Manometria from "./pages/Modulo3Manometria";
 import Modulo6Flotacion from "./pages/Modulo6Flotacion";
+import { useEffect } from "react";
 
 function App() {
+  useEffect(() => {
+    document.title = "Fluidemos";
+  }, []);
+
   return (
     <BrowserRouter>
       <Routes>

@@ -16,27 +16,30 @@ class Menu extends Component {
             padding: 2,
           }}
         >
-          <Typography variant="h4" component="h1">
-            <WavesIcon
-              fontSize="large"
-              sx={{
-                pr: 2,
-              }}
-            ></WavesIcon>
-            Simulador de fluidos
-          </Typography>
+          <Box
+            sx={{
+              display: "block",
+              width: "100%",
+              textAlign: "center",
+            }}
+          >
+            <img
+              src="../../fluidemos light.png"
+              style={{ maxHeight: "100px" }}
+            ></img>
+          </Box>
         </AppBar>
         <Box
           sx={{
             bgcolor: "background.paper",
-            pt: 8,
+            pt: 5,
             pb: 6,
           }}
         >
           <Box>
             <Stack direction="row">
               <Container maxWidth="sm">
-                <Stack spacing={2}>
+                <Stack spacing={1.8}>
                   <Link to="mod1" style={{ textDecoration: "none" }}>
                     <Button variant="contained" style={buttonStyle}>
                       Fuerzas de presión

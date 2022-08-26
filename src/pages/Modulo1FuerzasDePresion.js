@@ -25,7 +25,7 @@ import MyRadio from "../components/MyRadio";
 
 const metersToPixels = 400;
 const atmToPixels = 20;
-const maxPressure = 100;
+const maxPressure = 12;
 const liquidColors = "#1976D2";
 
 class Modulo1FuerzasDePresion extends Component {
