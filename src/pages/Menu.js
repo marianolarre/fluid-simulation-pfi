@@ -24,7 +24,8 @@ class Menu extends Component {
             }}
           >
             <img
-              src="../../fluidemos light.png"
+              src="https://i.imgur.com/aGUTiIo.png"
+              alt="Fluidemos"
               style={{ maxHeight: "100px" }}
             ></img>
           </Box>
