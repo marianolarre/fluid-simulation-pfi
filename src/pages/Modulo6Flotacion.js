@@ -409,7 +409,7 @@ class Modulo6Flotacion extends Component {
           newAngularVelocity += torque / mass;
         } else {
           buoy.buoyancyCenterShape.visible = false;
-          buoy.buoyancyArrow.visible = false;
+          buoy.buoyancyArrow.setVisible(false);
         }
 
         if (bottomBumpPosition != null) {
