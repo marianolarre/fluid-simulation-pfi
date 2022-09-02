@@ -532,6 +532,19 @@ class Modulo1FuerzasDePresion extends Component {
     /*Paper.view.onFrame = (event) => {
 
     };*/
+
+    window.addEventListener(
+      "resize",
+      (event) => {
+        this.updateShapes();
+        this.updatePressureDisplays(
+          this.state.absolutePressure,
+          this.state.showingPressure,
+          this.state.showingPressureForces
+        );
+      },
+      true
+    );
   }
 
   getPressureSteps() {

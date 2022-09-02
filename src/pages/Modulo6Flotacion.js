@@ -55,6 +55,7 @@ class Modulo6Flotacion extends Component {
       weightArrow: null,
       buoyancyArrow: null,
     },
+    intersectionIndicators: [],
     paused: true,
     drawingShape: false,
     movingShape: false,
@@ -109,8 +110,8 @@ class Modulo6Flotacion extends Component {
   }
 
   beginDrawingShape = (event) => {
-    console.log({ this: this, event: event });
     this.removeCurrentShape();
+    this.removeIntersectionErrors();
 
     // Create a new path and set its stroke color to black:
     const newShape = new Paper.Path({
@@ -137,20 +138,23 @@ class Modulo6Flotacion extends Component {
     // When the mouse is released, simplify it:
     shape.simplify(10);
 
+    var ok = true;
     if (Math.abs(shape.area) < 5) {
       shape.remove();
       this.state.buoy.shape = null;
       console.log("Shape is too small");
-      return;
+      ok = false;
     }
     if (shape.intersects(shape)) {
-      shape.remove();
       this.state.buoy.shape = null;
       console.log("Shape intersects itself");
-      return;
+      this.shapeInstersectionError(shape);
+      ok = false;
     }
 
-    this.registerShape(shape);
+    if (ok) {
+      this.registerShape(shape);
+    }
   }
 
   beginMovingShape(event) {
@@ -275,6 +279,45 @@ class Modulo6Flotacion extends Component {
     }
   }
 
+  shapeInstersectionError(shape) {
+    var createdShapes = [];
+
+    var intersections = shape.getIntersections(shape);
+
+    for (let i = 0; i < intersections.length; i++) {
+      var newShape = new Paper.Path({
+        style: { fillColor: "red", strokeColor: "black", strokeWidth: 2 },
+      });
+      newShape.add(new Paper.Point(-20, -10));
+      newShape.add(new Paper.Point(-10, -20));
+      newShape.add(new Paper.Point(0, -10));
+      newShape.add(new Paper.Point(10, -20));
+      newShape.add(new Paper.Point(20, -10));
+      newShape.add(new Paper.Point(10, 0));
+      newShape.add(new Paper.Point(20, 10));
+      newShape.add(new Paper.Point(10, 20));
+      newShape.add(new Paper.Point(0, 10));
+      newShape.add(new Paper.Point(-10, 20));
+      newShape.add(new Paper.Point(-20, 10));
+      newShape.add(new Paper.Point(-10, 0));
+      newShape.closePath();
+      newShape.position = intersections[i].point;
+      createdShapes.push(newShape);
+    }
+    setTimeout(() => {
+      let newState = { ...this.state };
+      newState.buoy.shape = shape;
+      newState.intersectionIndicators = createdShapes;
+      this.setState(newState);
+    }, 1);
+  }
+
+  removeIntersectionErrors() {
+    for (let i = 0; i < this.state.intersectionIndicators.length; i++) {
+      this.state.intersectionIndicators[i].remove();
+    }
+  }
+
   registerShape(shape) {
     const centerOfMass = this.aproximateCenterOfMass(shape);
     const centerOfMassOffset = subPoints(centerOfMass, shape.bounds.center);
@@ -282,6 +325,7 @@ class Modulo6Flotacion extends Component {
 
     shape.style = shapeStyle;
 
+    this.removeIntersectionErrors();
     // Defered
     setTimeout(() => {
       let newState = { ...this.state };

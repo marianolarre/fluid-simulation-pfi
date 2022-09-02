@@ -50,6 +50,14 @@ class ModuloPlantilla extends Component {
     /*Paper.view.onFrame = (event) => {
       this.update(event.delta);
     };*/
+
+    window.addEventListener(
+      "resize",
+      (event) => {
+        // Update
+      },
+      true
+    );
   }
 
   render() {

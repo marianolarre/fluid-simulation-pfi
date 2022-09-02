@@ -182,7 +182,6 @@ class Modulo1FuerzasDePresion extends Component {
   };
 
   onPressureTypeChange = (event) => {
-    console.log(event.target.value);
     var newState = { ...this.state };
     newState.absolutePressure = event.target.value == "true";
     this.setState(newState);
@@ -460,6 +459,19 @@ class Modulo1FuerzasDePresion extends Component {
     /*Paper.view.onFrame = (event) => {
 
     };*/
+
+    window.addEventListener(
+      "resize",
+      (event) => {
+        this.updateShapes();
+        this.updatePressureDisplays(
+          this.state.absolutePressure,
+          this.state.showingPressure,
+          this.state.showingPressureForces
+        );
+      },
+      true
+    );
   }
 
   getPressureSteps() {
