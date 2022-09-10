@@ -56,9 +56,11 @@ class Menu extends Component {
                       Manometría
                     </Button>
                   </Link>
-                  <Button variant="contained" disabled>
-                    Superficie sumergida
-                  </Button>
+                  <Link to="mod4" style={{ textDecoration: "none" }}>
+                    <Button variant="contained" style={buttonStyle}>
+                      Superficie sumergida
+                    </Button>
+                  </Link>
                   <Button variant="contained" disabled>
                     Dique
                   </Button>
