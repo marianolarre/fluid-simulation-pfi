@@ -4,6 +4,7 @@ import Grid from "@mui/material/Grid";
 import Canvas from "../components/Canvas";
 import PanelAndCanvas from "../components/PanelAndCanvas";
 import AddIcon from "@mui/icons-material/Add";
+import { MathComponent } from "mathjax-react";
 
 import Paper from "paper";
 import { Color, Point } from "paper/dist/paper-core";
@@ -22,6 +23,7 @@ import {
 import { Button } from "@mui/material";
 import { HorizontalSplit, ThirteenMp } from "@mui/icons-material";
 import MyRadio from "../components/MyRadio";
+import PanelModule from "../components/PanelModule";
 
 const metersToPixels = 400;
 const atmToPixels = 20;
@@ -599,6 +601,11 @@ class Modulo1FuerzasDePresion extends Component {
                   value={this.state.absolutePressure}
                   onChange={this.onPressureTypeChange}
                 ></MyRadio>
+              </Grid>
+              <Grid item xs={12}>
+                <PanelModule>
+                  <MathComponent tex={String.raw`P =  \rho g  \triangle h`} />
+                </PanelModule>
               </Grid>
             </Grid>
           </>

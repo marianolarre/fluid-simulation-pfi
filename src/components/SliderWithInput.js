@@ -6,6 +6,7 @@ import Typography from "@mui/material/Typography";
 import Slider from "@mui/material/Slider";
 import MuiInput from "@mui/material/Input";
 import { Paper } from "@mui/material";
+import PanelModule from "./PanelModule";
 
 class SliderWithInput extends Component {
   constructor(props) {
@@ -48,14 +49,7 @@ class SliderWithInput extends Component {
 
   render() {
     return (
-      <Paper
-        sx={{
-          width: "96%",
-          padding: "2%",
-          background: blue[50],
-        }}
-        elevation={0}
-      >
+      <PanelModule>
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={4}>
             <Typography id="input-slider" gutterBottom align="right">
@@ -94,7 +88,7 @@ class SliderWithInput extends Component {
             <Typography>{this.props.unit}</Typography>
           </Grid>
         </Grid>
-      </Paper>
+      </PanelModule>
     );
   }
 }

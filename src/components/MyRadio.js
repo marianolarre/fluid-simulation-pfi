@@ -12,6 +12,7 @@ import {
 import { blue } from "@mui/material/colors";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import PanelModule from "./PanelModule";
 
 class MyRadio extends Component {
   constructor(props) {
@@ -20,15 +21,7 @@ class MyRadio extends Component {
 
   render() {
     return (
-      <Paper
-        sx={{
-          width: "92%",
-          background: blue[50],
-          padding: "2%",
-          paddingLeft: "6%",
-        }}
-        elevation={0}
-      >
+      <PanelModule>
         <RadioGroup value={this.props.value} onChange={this.props.onChange} row>
           {this.props.options.map((option, index) => (
             <FormControlLabel
@@ -39,7 +32,7 @@ class MyRadio extends Component {
             />
           ))}
         </RadioGroup>
-      </Paper>
+      </PanelModule>
     );
   }
 }
