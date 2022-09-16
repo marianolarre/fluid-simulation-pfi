@@ -61,9 +61,11 @@ class Menu extends Component {
                       Superficie sumergida
                     </Button>
                   </Link>
-                  <Button variant="contained" disabled>
-                    Dique
-                  </Button>
+                  <Link to="mod5" style={{ textDecoration: "none" }}>
+                    <Button variant="contained" style={buttonStyle}>
+                      Dique
+                    </Button>
+                  </Link>
                   <Link to="mod6" style={{ textDecoration: "none" }}>
                     <Button variant="contained" style={buttonStyle}>
                       Flotación

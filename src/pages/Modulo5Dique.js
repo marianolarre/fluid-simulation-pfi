@@ -10,19 +10,18 @@ import {
   addPoints,
   lerp,
   LevelSimbol,
+  mulPoint,
   VectorArray,
   VectorArrow,
 } from "../paperUtility";
 import { Color, Point } from "paper/dist/paper-core";
 import SliderWithInput from "../components/SliderWithInput";
 
-let previousSkew = 0;
-let cameraAngle = 0;
 const metersToPixels = 400;
 const atmToPixels = 20;
 const maxPressure = 12;
 
-class Modulo4SuperficieSumergida extends Component {
+class Modulo5Dique extends Component {
   state = {
     value: 0,
     background: {
@@ -37,42 +36,35 @@ class Modulo4SuperficieSumergida extends Component {
     },
     line: null,
     ready: false,
-    frontView: false,
     forceVectorArray: null,
     gravity: 9.8,
     atmosphericPressure: 15,
     absolutePressure: false,
-    equivalentForce: {
-      circle: null,
-    },
+    equivalentForce: {},
     liquid: {
       density: 10,
+      shape: null,
     },
   };
 
   updateSurface(liquidSurface) {
     let surface = liquidSurface;
     if (surface == null) {
-      surface = this.state.liquid.surface;
+      surface = this.state.surface;
     }
-
-    const perspectiveFront = Math.sin(cameraAngle);
-    const perspectiveSide = Math.cos(cameraAngle);
 
     const liquidHeight = this.getLiquidHeight();
     const angleInRadians = (surface.angle / 180) * Math.PI;
     const girthOffset = new Paper.Point(
-      surface.girth * Math.cos(angleInRadians) * perspectiveSide,
+      surface.girth * Math.cos(angleInRadians),
       surface.girth * Math.sin(angleInRadians)
     );
     const lengthOffset = new Paper.Point(
-      -surface.length * Math.sin(angleInRadians) * perspectiveSide,
+      -surface.length * Math.sin(angleInRadians),
       surface.length * Math.cos(angleInRadians)
     );
     const top = new Paper.Point(
-      Paper.view.center.x +
-        ((Math.sin(angleInRadians) * surface.length) / 2) * perspectiveSide +
-        (surface.width * perspectiveFront) / 2,
+      Paper.view.center.x + (Math.sin(angleInRadians) * surface.length) / 2,
       liquidHeight + surface.depth
     );
     const front = addPoints(top, lengthOffset);
@@ -86,39 +78,25 @@ class Modulo4SuperficieSumergida extends Component {
       surface.sideShape.segments[3].point.set(front);
     }
 
-    const widthOffset = new Paper.Point(-surface.width * perspectiveFront, 0);
-
-    if (surface.frontShape != null) {
-      surface.frontShape.segments[0].point.set(top);
-      surface.frontShape.segments[1].point.set(front);
-      surface.frontShape.segments[2].point.set(addPoints(front, widthOffset));
-      surface.frontShape.segments[3].point.set(addPoints(top, widthOffset));
-    }
-
-    if (surface.bottomShape != null) {
-      surface.bottomShape.segments[0].point.set(front);
-      surface.bottomShape.segments[1].point.set(bottom);
-      surface.bottomShape.segments[2].point.set(addPoints(bottom, widthOffset));
-      surface.bottomShape.segments[3].point.set(addPoints(front, widthOffset));
-    }
-
     if (surface.forceVectorArray != null) {
       let pressureMax = this.getPressureAtPosition(front);
       let pressureMin = this.getPressureAtPosition(top);
-      let points = [addPoints(top, widthOffset), addPoints(front, widthOffset)];
+      let points = [top, front];
       let magnitudes = [
-        this.getPressureAtPosition(top) * perspectiveSide,
-        this.getPressureAtPosition(front) * perspectiveSide,
+        this.getPressureAtPosition(top),
+        this.getPressureAtPosition(front),
       ];
 
-      if (top.y < liquidHeight && front.y > liquidHeight) {
-        const midPoint = new Paper.Point(
-          top.x +
-            (top.y - liquidHeight) * Math.tan(angleInRadians) * perspectiveSide,
+      let midPoint;
+      let partiallyOutOfWater = false;
+      if (top.y <= liquidHeight && front.y > liquidHeight) {
+        partiallyOutOfWater = true;
+        midPoint = new Paper.Point(
+          top.x + (top.y - liquidHeight) * Math.tan(angleInRadians),
           liquidHeight
         );
         pressureMin = this.getPressureAtPosition(midPoint);
-        points.splice(1, 0, addPoints(midPoint, widthOffset));
+        points.splice(1, 0, midPoint);
         magnitudes.splice(1, 0, this.getPressureAtPosition(midPoint));
       }
 
@@ -130,12 +108,9 @@ class Modulo4SuperficieSumergida extends Component {
       // FuerzaEquivalente
       if (this.state.equivalentForce.arrow != null) {
         const pos = this.getForceScreenPosition();
-        const magnitude =
-          ((pressureMin + (pressureMax - pressureMin) / 2) *
-            this.state.surface.length) /
-          100;
+        const magnitude = ((pressureMin + pressureMax) / 2) * 2;
         const force = new Paper.Point(
-          -Math.cos(angleInRadians) * magnitude * perspectiveSide,
+          -Math.cos(angleInRadians) * magnitude,
           -Math.sin(angleInRadians) * magnitude
         );
         this.state.equivalentForce.arrow.SetPosition(
@@ -144,48 +119,45 @@ class Modulo4SuperficieSumergida extends Component {
         );
         this.state.equivalentForce.arrow.bringToFront();
       }
-    }
 
-    // Lio de transformaciones y trigonometria para ubicar las formas del centro de fuerza
-    if (this.state.equivalentForce.circle != null) {
-      const pos = this.getForceScreenPosition();
-      const matrix = new Paper.Matrix(
-        perspectiveFront,
-        0,
-        -Math.sin(angleInRadians) * perspectiveSide,
-        Math.cos(angleInRadians),
-        pos.x,
-        pos.y
-      );
-      this.state.equivalentForce.circleBackground.bringToFront();
-      this.state.equivalentForce.circleBackground.matrix = matrix;
-      this.state.equivalentForce.circle.matrix = matrix;
-      const xoffset =
-        (this.state.equivalentForce.circleDecoration1.size.width / 2) *
-        (perspectiveFront + perspectiveSide * Math.sin(angleInRadians));
-      const yoffset =
-        (-this.state.equivalentForce.circleDecoration1.size.height / 2) *
-        Math.cos(angleInRadians);
-      const matrix1 = new Paper.Matrix(
-        perspectiveFront,
-        0,
-        -Math.sin(angleInRadians) * perspectiveSide,
-        Math.cos(angleInRadians),
-        pos.x + xoffset,
-        pos.y + yoffset
-      );
-      this.state.equivalentForce.circleDecoration1.bringToFront();
-      this.state.equivalentForce.circleDecoration1.matrix = matrix1;
-      const matrix2 = new Paper.Matrix(
-        perspectiveFront,
-        0,
-        -Math.sin(angleInRadians) * perspectiveSide,
-        Math.cos(angleInRadians),
-        pos.x - xoffset,
-        pos.y - yoffset
-      );
-      this.state.equivalentForce.circleDecoration2.bringToFront();
-      this.state.equivalentForce.circleDecoration2.matrix = matrix2;
+      // Concreto
+      const pivotPosition = mulPoint(addPoints(front, bottom), 0.5);
+      if (this.state.pivot != null) {
+        this.state.pivot.position = pivotPosition;
+      }
+      if (this.state.floor != null) {
+        this.state.floor.bounds.topRight = pivotPosition;
+      }
+      if (this.state.wall != null) {
+        this.state.wall.bounds.bottomLeft = addPoints(
+          back,
+          new Paper.Point(0, 100)
+        );
+      }
+
+      if (this.state.liquid.shape != null) {
+        if (front.y < liquidHeight) {
+          this.state.liquid.shape.segments[1].point.x = front.x;
+          this.state.liquid.shape.segments[2].point.x = front.x;
+          this.state.liquid.shape.segments[3].point = pivotPosition;
+          this.state.liquid.shape.segments[4].point =
+            Paper.view.bounds.bottomLeft;
+        } else {
+          if (partiallyOutOfWater) {
+            this.state.liquid.shape.segments[1].point.x = midPoint.x;
+            this.state.liquid.shape.segments[2].point = midPoint;
+            this.state.liquid.shape.segments[3].point = pivotPosition;
+            this.state.liquid.shape.segments[4].point =
+              Paper.view.bounds.bottomLeft;
+          } else {
+            this.state.liquid.shape.segments[1].point.x = back.x;
+            this.state.liquid.shape.segments[2].point = back;
+            this.state.liquid.shape.segments[3].point = pivotPosition;
+            this.state.liquid.shape.segments[4].point =
+              Paper.view.bounds.bottomLeft;
+          }
+        }
+      }
     }
   }
 
@@ -214,12 +186,6 @@ class Modulo4SuperficieSumergida extends Component {
   onDepthChanged = (newValue) => {
     var newState = { ...this.state };
     newState.surface.depth = newValue;
-    this.setState(newState);
-  };
-
-  onLengthChanged = (newValue) => {
-    var newState = { ...this.state };
-    newState.surface.length = newValue;
     this.setState(newState);
   };
 
@@ -258,23 +224,15 @@ class Modulo4SuperficieSumergida extends Component {
     const L =
       surface.length * lerp(0.5 + cosOfAngle * 0.166, 1, submergePercentage); // el número importante <-----
 
-    const perspectiveFront = Math.sin(cameraAngle);
-    const perspectiveSide = Math.cos(cameraAngle);
     const top = new Paper.Point(
-      Paper.view.center.x +
-        (sinOfAngle * surface.length * perspectiveSide) / 2 +
-        (surface.width * perspectiveFront) / 2,
+      Paper.view.center.x + (sinOfAngle * surface.length) / 2,
       this.getLiquidHeight() + surface.depth
     );
     const lengthOffset = new Paper.Point(
-      -L * Math.sin(angleInRadians) * perspectiveSide,
+      -L * Math.sin(angleInRadians),
       L * Math.cos(angleInRadians)
     );
-    const midPoint = addPoints(top, lengthOffset);
-    return new Paper.Point(
-      midPoint.x - (this.state.surface.width * perspectiveFront) / 2,
-      midPoint.y
-    );
+    return addPoints(top, lengthOffset);
   }
 
   canvasFunction() {
@@ -286,49 +244,23 @@ class Modulo4SuperficieSumergida extends Component {
     background.fillColor = "white";
 
     const liquid = {
-      shape: new Paper.Path.Rectangle(
-        new Paper.Rectangle(
-          Paper.view.bounds.leftCenter,
-          Paper.view.bounds.bottomRight
-        )
-      ),
+      shape: new Paper.Path(),
+      density: 10,
     };
-    const liquidOverlay = {
-      shape: new Paper.Path.Rectangle(
-        new Paper.Rectangle(
-          Paper.view.bounds.leftCenter,
-          Paper.view.bounds.bottomRight
-        )
-      ),
-    };
+    liquid.shape.add(Paper.view.bounds.leftCenter);
+    liquid.shape.add(Paper.view.bounds.rightCenter);
+    liquid.shape.add(Paper.view.bounds.bottomRight);
+    liquid.shape.add(Paper.view.bounds.bottomLeft);
+    liquid.shape.add(Paper.view.bounds.bottomLeft);
     const liquidHeight = this.getLiquidHeight();
+    liquid.shape.segments[0].point.y = liquidHeight;
     liquid.shape.segments[1].point.y = liquidHeight;
-    liquid.shape.segments[2].point.y = liquidHeight;
     liquid.shape.style = {
       fillColor: "#1976D2",
     };
-    liquidOverlay.shape.segments = liquid.shape.segments;
-    liquidOverlay.shape.style = {
-      fillColor: "#1976D250",
-    };
-
     const surface = {
-      frontShape: new Paper.Path({
-        fillColor: "#FB2F68",
-        strokeColor: "black",
-        strokeWidth: 2,
-        closed: true,
-        strokeJoin: "round",
-      }),
       sideShape: new Paper.Path({
         fillColor: "#DB1F48",
-        strokeColor: "black",
-        strokeWidth: 2,
-        closed: true,
-        strokeJoin: "round",
-      }),
-      bottomShape: new Paper.Path({
-        fillColor: "#BB0028",
         strokeColor: "black",
         strokeWidth: 2,
         closed: true,
@@ -340,55 +272,14 @@ class Modulo4SuperficieSumergida extends Component {
       girth: 20,
       angle: 45,
     };
-    surface.frontShape.add(new Paper.Point(0, 0));
-    surface.frontShape.add(new Paper.Point(0, 0));
-    surface.frontShape.add(new Paper.Point(0, 0));
-    surface.frontShape.add(new Paper.Point(0, 0));
     surface.sideShape.add(new Paper.Point(0, 0));
     surface.sideShape.add(new Paper.Point(0, 0));
     surface.sideShape.add(new Paper.Point(0, 0));
     surface.sideShape.add(new Paper.Point(0, 0));
-    surface.bottomShape.add(new Paper.Point(0, 0));
-    surface.bottomShape.add(new Paper.Point(0, 0));
-    surface.bottomShape.add(new Paper.Point(0, 0));
-    surface.bottomShape.add(new Paper.Point(0, 0));
     this.updateSurface(surface);
-
-    liquidOverlay.shape.bringToFront();
 
     const forceVectorArray = new VectorArray();
     surface.forceVectorArray = forceVectorArray;
-
-    const equivalentForceCircleClip = new Paper.Shape.Circle(
-      new Paper.Point(0, 0),
-      50
-    );
-    const circleBackground = new Paper.Shape.Circle(new Paper.Point(0, 0), 50);
-    circleBackground.fillColor = "white";
-    circleBackground.strokeColor = "black";
-    circleBackground.strokeWidth = 4;
-    circleBackground.bringToFront();
-    const circleDecoration1 = new Paper.Shape.Rectangle(
-      new Paper.Point(0, 0),
-      new Paper.Size(50, 50)
-    );
-    circleDecoration1.fillColor = "black";
-    circleDecoration1.strokeColor = "black";
-    circleDecoration1.strokeWidth = 0;
-    const circleDecoration2 = new Paper.Shape.Rectangle(
-      new Paper.Point(0, 0),
-      new Paper.Size(50, 50)
-    );
-    circleDecoration2.fillColor = "black";
-    circleDecoration2.strokeColor = "black";
-    circleDecoration2.strokeWidth = 0;
-    const circleGroup = new Paper.Group([
-      equivalentForceCircleClip,
-      circleBackground,
-      circleDecoration1,
-      circleDecoration2,
-    ]);
-    circleGroup.clipped = true;
 
     const equivalentForceArrow = new VectorArrow(
       new Paper.Point(0, 0),
@@ -402,19 +293,42 @@ class Modulo4SuperficieSumergida extends Component {
     );
 
     const levelSimbol = new LevelSimbol(
-      new Point(Paper.view.bounds.right - 100, this.getLiquidHeight()),
+      new Point(Paper.view.bounds.left + 100, this.getLiquidHeight()),
       "white"
     );
 
+    const floor = new Paper.Shape.Rectangle(
+      new Paper.Rectangle(new Paper.Point(0, 0), new Paper.Point(1000, 1000))
+    );
+    floor.style = {
+      fillColor: "grey",
+      strokeColor: "black",
+      strokeWidth: 2,
+    };
+    const wall = new Paper.Shape.Rectangle(
+      new Paper.Rectangle(new Paper.Point(0, 0), new Paper.Point(1000, 1000))
+    );
+    wall.style = {
+      fillColor: "grey",
+      strokeColor: "black",
+      strokeWidth: 2,
+    };
+    const pivot = new Paper.Shape.Circle(new Paper.Point(0, 0), 20);
+    pivot.style = {
+      fillColor: "grey",
+      strokeColor: "black",
+      strokeWidth: 2,
+    };
+
     let newState = { ...this.state };
     newState.background.shape = background;
+    newState.liquid = liquid;
     newState.surface = surface;
     newState.equivalentForce.arrow = equivalentForceArrow;
-    newState.equivalentForce.circle = equivalentForceCircleClip;
-    newState.equivalentForce.circleBackground = circleBackground;
-    newState.equivalentForce.circleDecoration1 = circleDecoration1;
-    newState.equivalentForce.circleDecoration2 = circleDecoration2;
     newState.ready = true;
+    newState.floor = floor;
+    newState.wall = wall;
+    newState.pivot = pivot;
     this.setState(newState);
 
     Paper.view.onFrame = (event) => {
@@ -432,11 +346,6 @@ class Modulo4SuperficieSumergida extends Component {
 
   update(delta) {
     if (this.state.surface != null) {
-      cameraAngle = lerp(
-        cameraAngle,
-        this.state.frontView ? Math.PI / 2 : 0,
-        Math.min(delta * 3, 0.5)
-      );
       this.updateSurface(this.state.surface);
     }
   }
@@ -453,7 +362,7 @@ class Modulo4SuperficieSumergida extends Component {
                   label="Angulo"
                   step={1}
                   min={0}
-                  max={90}
+                  max={80}
                   unit="º"
                   value={this.state.surface.angle}
                   onChange={this.onAngleChanged}
@@ -468,17 +377,6 @@ class Modulo4SuperficieSumergida extends Component {
                   unit="cm"
                   value={this.state.surface.depth}
                   onChange={this.onDepthChanged}
-                ></SliderWithInput>
-              </Grid>
-              <Grid item xs={12}>
-                <SliderWithInput
-                  label="Largo"
-                  step={1}
-                  min={50}
-                  max={400}
-                  unit="cm"
-                  value={this.state.surface.length}
-                  onChange={this.onLengthChanged}
                 ></SliderWithInput>
               </Grid>
               <Grid item xs={12}>
@@ -502,16 +400,6 @@ class Modulo4SuperficieSumergida extends Component {
                   onChange={this.onLiquidDensityChange}
                 ></SliderWithInput>
               </Grid>
-              <Grid item xs={12}>
-                <MyRadio
-                  options={[
-                    { value: false, label: "Vista frontal" },
-                    { value: true, label: "Vista lateral" },
-                  ]}
-                  value={this.state.frontView}
-                  onChange={this.onFrontViewChange}
-                ></MyRadio>
-              </Grid>
             </Grid>
           </>
         }
@@ -525,4 +413,4 @@ class Modulo4SuperficieSumergida extends Component {
   }
 }
 
-export default Modulo4SuperficieSumergida;
+export default Modulo5Dique;

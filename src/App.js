@@ -7,6 +7,7 @@ import Modulo3Manometria from "./pages/Modulo3Manometria";
 import Modulo6Flotacion from "./pages/Modulo6Flotacion";
 import { useEffect } from "react";
 import Modulo4SuperficieSumergida from "./pages/Modulo4SuperficieSumergida";
+import Modulo5Dique from "./pages/Modulo5Dique";
 
 function App() {
   useEffect(() => {
@@ -33,7 +34,7 @@ function App() {
           path="mod4"
           element={<Modulo4SuperficieSumergida></Modulo4SuperficieSumergida>}
         ></Route>
-
+        <Route path="mod5" element={<Modulo5Dique></Modulo5Dique>}></Route>
         <Route
           path="mod6"
           element={<Modulo6Flotacion></Modulo6Flotacion>}
