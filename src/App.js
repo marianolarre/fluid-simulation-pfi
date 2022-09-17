@@ -8,6 +8,7 @@ import Modulo6Flotacion from "./pages/Modulo6Flotacion";
 import { useEffect } from "react";
 import Modulo4SuperficieSumergida from "./pages/Modulo4SuperficieSumergida";
 import Modulo5Dique from "./pages/Modulo5Dique";
+import Modulo7Cinematica from "./pages/Modulo7Cinematica";
 
 function App() {
   useEffect(() => {
@@ -38,6 +39,10 @@ function App() {
         <Route
           path="mod6"
           element={<Modulo6Flotacion></Modulo6Flotacion>}
+        ></Route>
+        <Route
+          path="mod7"
+          element={<Modulo7Cinematica></Modulo7Cinematica>}
         ></Route>
       </Routes>
     </BrowserRouter>

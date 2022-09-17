@@ -71,9 +71,11 @@ class Menu extends Component {
                       Flotación
                     </Button>
                   </Link>
-                  <Button variant="contained" disabled>
-                    Cinemática
-                  </Button>
+                  <Link to="mod7" style={{ textDecoration: "none" }}>
+                    <Button variant="contained" style={buttonStyle}>
+                      Cinemática
+                    </Button>
+                  </Link>
                   <Button variant="contained" disabled>
                     Volumen de control
                   </Button>
