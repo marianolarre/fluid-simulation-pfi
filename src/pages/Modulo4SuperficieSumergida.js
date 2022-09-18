@@ -255,6 +255,11 @@ class Modulo4SuperficieSumergida extends Component {
       submergePercentage = (liquidHeight - topY) / (frontY - topY);
     }
 
+    // Ixx = ancho*largo^3/12
+    // hcg = profundidad del centro geométrico
+    // A = area sumergida
+    // ycp = posición 'y' del centro de presión, desde el centro geométrico (cg)
+    // - ycp = Ixx*sin(ang)/(hcg*A)
     const L =
       surface.length * lerp(0.5 + cosOfAngle * 0.166, 1, submergePercentage); // el número importante <-----
 

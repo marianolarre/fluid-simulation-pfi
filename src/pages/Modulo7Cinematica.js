@@ -210,7 +210,7 @@ class Modulo7Cinematica extends Component {
       multiplier = 1;
     }
     const x = point.x;
-    const y = point.y;
+    const y = -point.y;
     let xresult = 0;
     let yresult = 0;
     try {
