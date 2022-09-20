@@ -171,18 +171,18 @@ class Modulo1FuerzasDePresion extends Component {
     return liquid;
   }
 
-  onContainerWidthChange = (newValue) => {
+  onContainerWidthChange(newValue) {
     var newState = { ...this.state };
     newState.container.width = newValue;
     this.setState(newState);
-  };
+  }
 
-  onContainerHeightChange = (newValue) => {
+  onContainerHeightChange(newValue) {
     var newState = { ...this.state };
     newState.container.height = newValue;
     this.handleOverflow(newState);
     this.setState(newState);
-  };
+  }
 
   onLiquidHeightChange = (newValue, liquidID) => {
     var newState = { ...this.state };
@@ -239,21 +239,21 @@ class Modulo1FuerzasDePresion extends Component {
     this.setState(newState);
   };
 
-  toggleAbsolutePressureChange = (event) => {
+  toggleAbsolutePressureChange(event) {
     const absPressure = !this.state.absolutePressure;
     var newState = { ...this.state };
     newState.absolutePressure = absPressure;
     this.setState(newState);
-  };
+  }
 
-  onPressureTypeChange = (event) => {
+  onPressureTypeChange(event) {
     console.log(event.target.value);
     var newState = { ...this.state };
     newState.absolutePressure = event.target.value == "true";
     this.setState(newState);
-  };
+  }
 
-  toggleShowingPressureChange = (event) => {
+  toggleShowingPressureChange(event) {
     const showPressure = !this.state.showingPressure;
     var newState = { ...this.state };
     newState.showingPressure = showPressure;
@@ -262,14 +262,14 @@ class Modulo1FuerzasDePresion extends Component {
     for (let l = 0; l < this.state.liquids.length; l++) {
       this.state.liquids[l].topLineShape.visible = showPressure;
     }
-  };
+  }
 
-  toggleShowingPressureForcesChange = (event) => {
+  toggleShowingPressureForcesChange(event) {
     const showingPressureForces = !this.state.showingPressureForces;
     var newState = { ...this.state };
     newState.showingPressureForces = showingPressureForces;
     this.setState(newState);
-  };
+  }
 
   updateContainerSize() {
     const container = this.state.container.shape;
@@ -619,7 +619,7 @@ class Modulo1FuerzasDePresion extends Component {
                   max={600}
                   unit="cm"
                   value={this.state.container.width}
-                  onChange={this.onContainerWidthChange}
+                  onChange={(e) => this.onContainerWidthChange(e)}
                 ></SliderWithInput>
               </Grid>
               <Grid item xs={12}>
@@ -630,21 +630,21 @@ class Modulo1FuerzasDePresion extends Component {
                   max={600}
                   unit="cm"
                   value={this.state.container.height}
-                  onChange={this.onContainerHeightChange}
+                  onChange={(e) => this.onContainerHeightChange(e)}
                 ></SliderWithInput>
               </Grid>
               <Grid item xs={6}>
                 <MyToggle
                   label="Presión"
                   checked={this.state.showingPressure}
-                  onChange={this.toggleShowingPressureChange}
+                  onChange={(e) => this.toggleShowingPressureChange(e)}
                 />
               </Grid>
               <Grid item xs={6}>
                 <MyToggle
                   label="Fuerzas de Presión"
                   checked={this.state.showingPressureForces}
-                  onChange={this.toggleShowingPressureForcesChange}
+                  onChange={(e) => this.toggleShowingPressureForcesChange(e)}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -654,7 +654,7 @@ class Modulo1FuerzasDePresion extends Component {
                     { value: true, label: "Presion Absoluta" },
                   ]}
                   value={this.state.absolutePressure}
-                  onChange={this.onPressureTypeChange}
+                  onChange={(e) => this.onPressureTypeChange(e)}
                 ></MyRadio>
               </Grid>
 

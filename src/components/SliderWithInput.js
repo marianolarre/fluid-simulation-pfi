@@ -58,6 +58,7 @@ class SliderWithInput extends Component {
           </Grid>
           <Grid item xs={4}>
             <Slider
+              marks={this.props.marks}
               value={
                 typeof this.props.value === "number" ? this.props.value : 0
               }
@@ -70,6 +71,7 @@ class SliderWithInput extends Component {
           </Grid>
           <Grid item xs={2}>
             <MuiInput
+              TransitionComponent={<></>}
               value={this.state.temporaryValue || this.props.value}
               size="small"
               onChange={this.handleInputChange}

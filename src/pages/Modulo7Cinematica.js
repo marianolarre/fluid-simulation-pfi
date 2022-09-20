@@ -3,12 +3,23 @@ import MyToggle from "../components/MyToggle";
 import Canvas from "../components/Canvas";
 import PanelAndCanvas from "../components/PanelAndCanvas";
 
-import { Grid, TextField } from "@mui/material";
+import {
+  Button,
+  Grid,
+  TextField,
+  LinearProgress,
+  Typography,
+} from "@mui/material";
 import Paper from "paper";
 import { Color, Point } from "paper/dist/paper-core";
 import SliderWithInput from "../components/SliderWithInput";
 import { addPoints, mulPoint, VectorArrow } from "../paperUtility";
 import ExpressionInput from "../components/ExpressionInput";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import PauseIcon from "@mui/icons-material/Pause";
+import PanelModule from "../components/PanelModule";
+
+const fixedDeltaTime = 0.01;
 
 class Modulo7Cinematica extends Component {
   state = {
@@ -31,15 +42,11 @@ class Modulo7Cinematica extends Component {
       x: "-y",
       y: "x",
     },
+    time: 0,
+    paused: true,
+    timeScale: 1,
     particles: [],
     lines: [],
-  };
-
-  onValueChanged = (event) => {
-    var newState = { ...this.state };
-    newState.value = event.target.value;
-    this.setState(newState);
-    this.updateVectorField();
   };
 
   canvasFunction() {
@@ -84,9 +91,14 @@ class Modulo7Cinematica extends Component {
     this.setState(newState);
 
     Paper.view.onFrame = (event) => {
-      this.updateSimulation(
-        (event.delta * this.state.vectorLengthMultiplier) / 15
-      );
+      const delta = fixedDeltaTime; // event.delta
+
+      if (!this.state.paused) {
+        this.updateSimulation(
+          (delta * this.state.vectorLengthMultiplier * this.state.timeScale) /
+            15
+        );
+      }
     };
 
     Paper.view.onClick = (event) => {
@@ -139,9 +151,34 @@ class Modulo7Cinematica extends Component {
     newParticle.worldPos = worldPosition;
     newParticle.active = true;
     newParticle.shape.visible = true;
+
+    // Line:
+    const points = this.calculateCurrentLine(worldPosition, fixedDeltaTime);
+    const newLine = new Paper.Path(points);
+    newLine.style = {
+      strokeWidth: 2,
+      strokeColor: "grey",
+    };
+    this.state.lines.push({
+      shape: newLine,
+    });
+
+    if (!this.state.paused) {
+      this.setTime(0);
+    }
+  }
+
+  setTime(newTime) {
+    this.setState({ time: newTime });
   }
 
   updateSimulation(delta) {
+    if (!this.state.paused && this.state.timeScale > 0) {
+      const newTime = this.state.time + delta * this.state.timeScale;
+      this.setTime(newTime);
+      this.updateVectorField();
+    }
+
     for (let i = 0; i < this.state.particles.length; i++) {
       const p = this.state.particles[i];
       if (p.active) {
@@ -164,12 +201,66 @@ class Modulo7Cinematica extends Component {
     }
   }
 
-  onVectorLengthMultiplierChange = (newValue) => {
+  clearLinesAndParticles() {
+    for (let i = 0; i < this.state.particles.length; i++) {
+      this.state.particles[i].shape.remove();
+    }
+    for (let i = 0; i < this.state.lines.length; i++) {
+      this.state.lines[i].shape.remove();
+    }
+    this.setState({ particles: [], lines: [] });
+  }
+
+  calculateCurrentLine(pos, delta) {
+    let futurePoints = [this.worldToScreen(pos)];
+    let currentPos = new Paper.Point(pos.x, pos.y);
+    for (let i = 0; i < 500; i++) {
+      // Future
+      currentPos = addPoints(
+        currentPos,
+        mulPoint(this.getFieldValue(currentPos), delta)
+      );
+      futurePoints.push(this.worldToScreen(currentPos));
+    }
+    currentPos.x = pos.x;
+    currentPos.y = pos.y;
+    let pastPoints = [];
+    for (let i = 0; i < 500; i++) {
+      // Past
+      currentPos = addPoints(
+        currentPos,
+        mulPoint(this.getFieldValue(currentPos), -delta)
+      );
+      pastPoints.push(this.worldToScreen(currentPos));
+    }
+    let allPoints = [];
+    for (let i = 499; i >= 0; i--) {
+      allPoints.push(pastPoints[i]);
+    }
+    for (let i = 0; i < 500; i++) {
+      allPoints.push(futurePoints[i]);
+    }
+    return allPoints;
+  }
+
+  togglePause = (event) => {
+    var newState = { ...this.state };
+    newState.paused = !this.state.paused;
+    this.setState(newState);
+  };
+
+  onVectorLengthMultiplierChange(newValue) {
     var newState = { ...this.state };
     newState.vectorLengthMultiplier = newValue;
     this.setState(newState);
     this.updateVectorField();
-  };
+  }
+
+  onTimeScaleChange(newValue) {
+    var newState = { ...this.state };
+    newState.timeScale = newValue;
+    this.setState(newState);
+  }
 
   onXEquationChange(newValue) {
     var newState = { ...this.state };
@@ -202,6 +293,16 @@ class Modulo7Cinematica extends Component {
     expression = expression.replace(/x\^4/g, "x*x*x*x");
     expression = expression.replace(/x\^5/g, "x*x*x*x*x");
     expression = expression.replace(/x\^6/g, "x*x*x*x*x*x");
+    expression = expression.replace(/y\^2/g, "y*y");
+    expression = expression.replace(/y\^3/g, "y*y*y");
+    expression = expression.replace(/y\^4/g, "y*y*y*y");
+    expression = expression.replace(/y\^5/g, "y*y*y*y*y");
+    expression = expression.replace(/y\^6/g, "y*y*y*y*y*y");
+    expression = expression.replace(/t\^2/g, "t*t");
+    expression = expression.replace(/t\^3/g, "t*t*t");
+    expression = expression.replace(/t\^4/g, "t*t*t*t");
+    expression = expression.replace(/t\^5/g, "t*t*t*t*t");
+    expression = expression.replace(/t\^6/g, "t*t*t*t*t*t");
     return expression;
   }
 
@@ -211,6 +312,7 @@ class Modulo7Cinematica extends Component {
     }
     const x = point.x;
     const y = -point.y;
+    const t = this.state.time;
     let xresult = 0;
     let yresult = 0;
     try {
@@ -268,6 +370,43 @@ class Modulo7Cinematica extends Component {
         panel={
           <>
             <Grid container spacing="2%" alignItems="stretch">
+              <Grid item xs={2}>
+                <Button
+                  sx={{ width: "100%" }}
+                  variant="contained"
+                  onClick={this.togglePause}
+                >
+                  {(this.state.paused && <PlayArrowIcon></PlayArrowIcon>) || (
+                    <PauseIcon></PauseIcon>
+                  )}
+                </Button>
+              </Grid>
+              <Grid item xs={10}>
+                <SliderWithInput
+                  label="Escala de tiempo"
+                  min={0}
+                  step={0.1}
+                  max={2}
+                  marks={[
+                    { value: 0, label: "x0" },
+                    { value: 1, label: "x1" },
+                    { value: 2, label: "x2" },
+                  ]}
+                  value={this.state.timeScale}
+                  onChange={(e) => this.onTimeScaleChange(e)}
+                ></SliderWithInput>
+              </Grid>
+              <Grid item xs={12}>
+                <PanelModule>
+                  <Typography>
+                    Tiempo: {Math.floor(this.state.time * 100) / 100}s
+                  </Typography>
+                  <LinearProgress
+                    variant="determinate"
+                    value={(this.state.time / 60) * 100}
+                  ></LinearProgress>
+                </PanelModule>
+              </Grid>
               <Grid item xs={6}>
                 <ExpressionInput
                   label="x:"
@@ -289,8 +428,17 @@ class Modulo7Cinematica extends Component {
                   step={0.1}
                   max={100}
                   value={this.state.vectorLengthMultiplier}
-                  onChange={this.onVectorLengthMultiplierChange}
+                  onChange={(e) => this.onVectorLengthMultiplierChange(e)}
                 ></SliderWithInput>
+              </Grid>
+              <Grid item xs={12}>
+                <Button
+                  sx={{ width: "100%" }}
+                  variant="contained"
+                  onClick={() => this.clearLinesAndParticles()}
+                >
+                  Borrar lineas y partículas
+                </Button>
               </Grid>
             </Grid>
           </>

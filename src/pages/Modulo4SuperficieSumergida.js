@@ -255,6 +255,9 @@ class Modulo4SuperficieSumergida extends Component {
       submergePercentage = (liquidHeight - topY) / (frontY - topY);
     }
 
+    // El circulo que tengo ahora indica en realidad el cg
+    // El cp son dos circulos, uno relleno.
+
     // Ixx = ancho*largo^3/12
     // hcg = profundidad del centro geométrico
     // A = area sumergida

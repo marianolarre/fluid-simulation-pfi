@@ -62,27 +62,27 @@ class Modulo3Manometria extends Component {
 
   componentDidUpdate() {}
 
-  onReservoirPressureChanged = (newValue) => {
+  onReservoirPressureChanged(newValue) {
     var newState = { ...this.state };
     newState.reservoir.pressure = newValue;
     this.setState(newState);
-  };
+  }
 
-  onReservoirDensityChanged = (newValue) => {
+  onReservoirDensityChanged(newValue) {
     var newState = { ...this.state };
     newState.reservoir.density = newValue;
     this.setState(newState);
-  };
+  }
 
-  onAtmosphericPressureChanged = (newValue) => {
+  onAtmosphericPressureChanged(newValue) {
     this.setState({ atmosphericPressure: newValue });
-  };
+  }
 
-  onLiquidDensityChanged = (newValue) => {
+  onLiquidDensityChanged(newValue) {
     var newState = { ...this.state };
     newState.liquid.density = newValue;
     this.setState({ newState });
-  };
+  }
 
   updateFluid(delta) {
     const level = 100;
@@ -365,7 +365,7 @@ class Modulo3Manometria extends Component {
                   max={100}
                   unit="atm"
                   value={this.state.reservoir.pressure}
-                  onChange={this.onReservoirPressureChanged}
+                  onChange={(e) => this.onReservoirPressureChanged(e)}
                 ></SliderWithInput>
               </Grid>
               <Grid item xs={12}>
@@ -376,7 +376,7 @@ class Modulo3Manometria extends Component {
                   max={100}
                   unit="atm"
                   value={this.state.atmosphericPressure}
-                  onChange={this.onAtmosphericPressureChanged}
+                  onChange={(e) => this.onAtmosphericPressureChanged(e)}
                 ></SliderWithInput>
               </Grid>
               <Grid item xs={12}>
@@ -387,7 +387,7 @@ class Modulo3Manometria extends Component {
                   max={50}
                   unit="kg/m³"
                   value={this.state.liquid.density}
-                  onChange={this.onLiquidDensityChanged}
+                  onChange={(e) => this.onLiquidDensityChanged(e)}
                 ></SliderWithInput>
               </Grid>
             </Grid>

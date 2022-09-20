@@ -10,6 +10,9 @@ import Paper from "paper";
 import { Color, Point } from "paper/dist/paper-core";
 import SliderWithInput from "../components/SliderWithInput";
 
+// p de presion va en minuscula
+// indicar que es h en el gráfico
+
 import {
   createBoxPath,
   getColorFromGradient,
@@ -137,27 +140,27 @@ class Modulo1FuerzasDePresion extends Component {
     return liquid;
   }
 
-  onContainerWidthChange = (newValue) => {
+  onContainerWidthChange(newValue) {
     var newState = { ...this.state };
     newState.container.width = newValue;
     this.setState(newState);
-  };
+  }
 
-  onContainerHeightChange = (newValue) => {
+  onContainerHeightChange(newValue) {
     var newState = { ...this.state };
     newState.container.height = newValue;
     this.handleOverflow(newState);
     this.setState(newState);
-  };
+  }
 
-  onLiquidHeightChange = (newValue, liquidID) => {
+  onLiquidHeightChange(newValue, liquidID) {
     var newState = { ...this.state };
     newState.liquid.height = newValue;
 
     this.handleOverflow(newState, liquidID);
 
     this.setState(newState);
-  };
+  }
 
   handleOverflow(state, ignoreID) {
     /*liquidSum = state.liquid.height;
@@ -171,39 +174,39 @@ class Modulo1FuerzasDePresion extends Component {
     }*/
   }
 
-  onLiquidDensityChange = (newValue) => {
+  onLiquidDensityChange(newValue) {
     var newState = { ...this.state };
     newState.liquid.density = newValue;
     this.setState(newState);
-  };
+  }
 
-  onBorderRadiusChange = (newValue) => {
+  onBorderRadiusChange(newValue) {
     var newState = { ...this.state };
     newState.container.borderRadius = newValue;
     this.setState(newState);
-  };
+  }
 
-  onPressureTypeChange = (event) => {
+  onPressureTypeChange(event) {
     var newState = { ...this.state };
     newState.absolutePressure = event.target.value == "true";
     this.setState(newState);
-  };
+  }
 
-  toggleShowingPressureChange = (event) => {
+  toggleShowingPressureChange(event) {
     const showPressure = !this.state.showingPressure;
     var newState = { ...this.state };
     newState.showingPressure = showPressure;
     this.setState(newState);
 
     this.state.liquid.topLineShape.visible = showPressure;
-  };
+  }
 
-  toggleShowingPressureForcesChange = (event) => {
+  toggleShowingPressureForcesChange(event) {
     const showingPressureForces = !this.state.showingPressureForces;
     var newState = { ...this.state };
     newState.showingPressureForces = showingPressureForces;
     this.setState(newState);
-  };
+  }
 
   updateShapes() {
     const container = this.state.container.shape;
@@ -542,7 +545,7 @@ class Modulo1FuerzasDePresion extends Component {
                   max={400}
                   unit="cm"
                   value={this.state.container.width}
-                  onChange={this.onContainerWidthChange}
+                  onChange={(e) => this.onContainerWidthChange(e)}
                 ></SliderWithInput>
               </Grid>
               <Grid item xs={12}>
@@ -553,7 +556,7 @@ class Modulo1FuerzasDePresion extends Component {
                   max={400}
                   value={this.state.liquid.height}
                   unit="cm"
-                  onChange={this.onLiquidHeightChange}
+                  onChange={(e) => this.onLiquidHeightChange(e)}
                 ></SliderWithInput>
               </Grid>
               <Grid item xs={12}>
@@ -564,7 +567,7 @@ class Modulo1FuerzasDePresion extends Component {
                   max={10}
                   unit="kg/m³"
                   value={this.state.liquid.density}
-                  onChange={this.onLiquidDensityChange}
+                  onChange={(e) => this.onLiquidDensityChange(e)}
                 ></SliderWithInput>
               </Grid>
               <Grid item xs={12}>
@@ -575,21 +578,21 @@ class Modulo1FuerzasDePresion extends Component {
                   max={200}
                   unit="cm"
                   value={this.state.container.borderRadius}
-                  onChange={this.onBorderRadiusChange}
+                  onChange={(e) => this.onBorderRadiusChange(e)}
                 ></SliderWithInput>
               </Grid>
               <Grid item xs={12} xl={6}>
                 <MyToggle
                   label="Presión"
                   checked={this.state.showingPressure}
-                  onChange={this.toggleShowingPressureChange}
+                  onChange={(e) => this.toggleShowingPressureChange(e)}
                 />
               </Grid>
               <Grid item xs={12} xl={6}>
                 <MyToggle
                   label="Fuerzas de presión"
                   checked={this.state.showingPressureForces}
-                  onChange={this.toggleShowingPressureForcesChange}
+                  onChange={(e) => this.toggleShowingPressureForcesChange(e)}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -599,7 +602,7 @@ class Modulo1FuerzasDePresion extends Component {
                     { value: true, label: "Presion Absoluta" },
                   ]}
                   value={this.state.absolutePressure}
-                  onChange={this.onPressureTypeChange}
+                  onChange={(e) => this.onPressureTypeChange(e)}
                 ></MyRadio>
               </Grid>
               <Grid item xs={12}>
