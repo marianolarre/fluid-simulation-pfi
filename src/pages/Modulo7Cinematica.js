@@ -19,7 +19,7 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
 import PanelModule from "../components/PanelModule";
 
-const fixedDeltaTime = 0.01;
+const fixedDeltaTime = 0.016;
 
 class Modulo7Cinematica extends Component {
   state = {
@@ -94,10 +94,7 @@ class Modulo7Cinematica extends Component {
       const delta = fixedDeltaTime; // event.delta
 
       if (!this.state.paused) {
-        this.updateSimulation(
-          (delta * this.state.vectorLengthMultiplier * this.state.timeScale) /
-            15
-        );
+        this.updateSimulation((delta * this.state.timeScale) / 15);
       }
     };
 
@@ -182,7 +179,10 @@ class Modulo7Cinematica extends Component {
     for (let i = 0; i < this.state.particles.length; i++) {
       const p = this.state.particles[i];
       if (p.active) {
-        const field = this.getFieldValue(p.worldPos);
+        const field = this.getFieldValue(
+          p.worldPos,
+          this.state.vectorLengthMultiplier
+        );
         if (field != null) {
           p.worldPos = addPoints(p.worldPos, mulPoint(field, delta));
           p.shape.position = this.worldToScreen(p.worldPos);
@@ -287,6 +287,8 @@ class Modulo7Cinematica extends Component {
     expression = expression.replace(/tan\(/g, "Math.tan(");
     expression = expression.replace(/sin\(/g, "Math.sin(");
     expression = expression.replace(/cos\(/g, "Math.cos(");
+    expression = expression.replace(/max\(/g, "Math.max(");
+    expression = expression.replace(/min\(/g, "Math.min(");
     expression = expression.replace(/sqrt\(/g, "Math.sqrt(");
     expression = expression.replace(/x\^2/g, "x*x");
     expression = expression.replace(/x\^3/g, "x*x*x");
