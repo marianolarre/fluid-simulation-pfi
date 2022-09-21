@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import MyToggle from "../components/MyToggle";
 import Canvas from "../components/Canvas";
 import PanelAndCanvas from "../components/PanelAndCanvas";
+import MenuIcon from "@mui/icons-material/Menu";
 
 import {
   Button,
@@ -9,17 +10,43 @@ import {
   TextField,
   LinearProgress,
   Typography,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Tooltip,
+  Stack,
 } from "@mui/material";
 import Paper from "paper";
 import { Color, Point } from "paper/dist/paper-core";
 import SliderWithInput from "../components/SliderWithInput";
-import { addPoints, mulPoint, VectorArrow } from "../paperUtility";
+import { addPoints, mulPoint, subPoints, VectorArrow } from "../paperUtility";
 import ExpressionInput from "../components/ExpressionInput";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
 import PanelModule from "../components/PanelModule";
+import { SkipPrevious } from "@mui/icons-material";
 
 const fixedDeltaTime = 0.016;
+const physicsSteps = 20;
+const simulationSpeed = 0.025;
+const gridPoints = 11;
+const vertexSkip = 5;
+
+const presets = [
+  { name: "Giratorio", x: "-y", y: "x" },
+  { name: "Ondulado", x: "cos(y*5)", y: "1" },
+  { name: "Remolinos", x: "cos(y*8)", y: "sin(x*8)" },
+  { name: "Marea", x: "cos(y*5 + t)", y: "sin(x*5 + t*0.5) + cos(t)*0.5" },
+];
+
+let frame = 0;
+let lastSmoke = null;
+let emisionTimer = 0;
 
 class Modulo7Cinematica extends Component {
   state = {
@@ -35,18 +62,29 @@ class Modulo7Cinematica extends Component {
     },
     ready: false,
     writtenExpression: {
-      x: "-y",
-      y: "x",
+      x: "1",
+      y: "1",
     },
     expression: {
-      x: "-y",
-      y: "x",
+      x: "1",
+      y: "1",
     },
     time: 0,
     paused: true,
     timeScale: 1,
     particles: [],
     lines: [],
+    clickPosition: null,
+    clickPositionShape: null,
+    showingTrayectory: false,
+    showingSmoke: false,
+    showingCurrent: false,
+    periodicParticles: false,
+    period: 0.3,
+    autoClean: false,
+    smokeLine: null,
+    smoke: [],
+    expressionDialogOpen: false,
   };
 
   canvasFunction() {
@@ -57,7 +95,22 @@ class Modulo7Cinematica extends Component {
     );
     background.fillColor = "white";
 
-    const gridPoints = 15;
+    const clickPositionShape = new Paper.Shape.Circle(
+      new Paper.Point(0, 0),
+      20
+    );
+    clickPositionShape.style = {
+      fillColor: "white",
+      strokeColor: "grey",
+      strokeWidth: 2,
+    };
+    clickPositionShape.visible = false;
+
+    const smokeLine = new Paper.Path({
+      strokeColor: "green",
+      strokeWidth: 2,
+    });
+
     for (let x = 0; x <= gridPoints; x++) {
       this.state.vectors[x] = [];
       for (let y = 0; y <= gridPoints; y++) {
@@ -77,7 +130,7 @@ class Modulo7Cinematica extends Component {
           start,
           addPoints(start, result),
           "grey",
-          2,
+          1,
           3,
           10
         );
@@ -85,21 +138,40 @@ class Modulo7Cinematica extends Component {
       }
     }
 
-    let newState = { ...this.state };
-    newState.background.shape = background;
-    newState.ready = true;
-    this.setState(newState);
+    const newBackground = { ...this.state.background };
+    newBackground.shape = background;
+    this.setState({
+      background: newBackground,
+      ready: true,
+      clickPositionShape: clickPositionShape,
+      smokeLine: smokeLine,
+    });
 
     Paper.view.onFrame = (event) => {
       const delta = fixedDeltaTime; // event.delta
 
       if (!this.state.paused) {
-        this.updateSimulation((delta * this.state.timeScale) / 15);
+        this.updateSimulation(delta * this.state.timeScale);
       }
     };
 
     Paper.view.onClick = (event) => {
-      this.placeParticle(event.point);
+      if (this.state.autoClean) this.clearLinesAndParticles();
+      if (
+        this.state.showingCurrent ||
+        this.state.showingTrayectory ||
+        !this.state.showingSmoke
+      ) {
+        this.placeParticle(
+          event.point,
+          this.state.showingCurrent,
+          this.state.showingTrayectory
+        );
+      }
+      this.setState({ clickPosition: event.point });
+      this.state.clickPositionShape.position = event.point;
+      this.state.clickPositionShape.visible = true;
+      this.removeSmoke();
     };
 
     Paper.view.onMouseDrag = (event) => {};
@@ -113,7 +185,7 @@ class Modulo7Cinematica extends Component {
     );
   }
 
-  placeParticle(screenPosition) {
+  placeParticle(screenPosition, current, trayectory) {
     const worldPosition = this.screenToWorld(screenPosition);
     if (
       worldPosition.x > 1 ||
@@ -125,22 +197,25 @@ class Modulo7Cinematica extends Component {
     }
     let newParticle = null;
     for (let i = 0; i < this.state.particles.length; i++) {
-      if (!this.state.particles[i].active) {
+      if (!this.state.particles[i].active && !this.state.particles[i].isSmoke) {
         newParticle = this.state.particles[i];
         break;
       }
     }
     if (newParticle == null) {
-      const particleShape = new Paper.Shape.Circle(screenPosition, 10);
+      let particleShape = null;
+      particleShape = new Paper.Shape.Circle(screenPosition, 10);
       particleShape.style = {
         strokeWidth: 2,
-        fillColor: "blue",
+        fillColor: "cyan",
         strokeColor: "black",
       };
       newParticle = {
         shape: particleShape,
         worldPos: worldPosition,
         active: true,
+        isSmoke: false,
+        lifeTime: 0,
       };
       this.state.particles.push(newParticle);
     }
@@ -148,21 +223,85 @@ class Modulo7Cinematica extends Component {
     newParticle.worldPos = worldPosition;
     newParticle.active = true;
     newParticle.shape.visible = true;
+    newParticle.shape.position = screenPosition;
+    newParticle.lifeTime = 0;
 
-    // Line:
-    const points = this.calculateCurrentLine(worldPosition, fixedDeltaTime);
-    const newLine = new Paper.Path(points);
-    newLine.style = {
-      strokeWidth: 2,
-      strokeColor: "grey",
-    };
-    this.state.lines.push({
-      shape: newLine,
-    });
-
-    if (!this.state.paused) {
-      this.setTime(0);
+    // Linea de corriente:
+    if (current) {
+      const points = this.calculateCurrentLine(worldPosition, fixedDeltaTime);
+      const newLine = new Paper.Path(points);
+      newLine.style = {
+        strokeWidth: 2,
+        strokeColor: "blue",
+      };
+      this.state.lines.push({
+        shape: newLine,
+      });
     }
+
+    // Linea de trayectoria:
+    if (trayectory) {
+      const newLine = new Paper.Path();
+      newLine.add(screenPosition);
+      newLine.style = {
+        strokeWidth: 2,
+        strokeColor: "red",
+      };
+      this.state.lines.push({
+        shape: newLine,
+      });
+      newParticle.trayectory = newLine;
+    }
+    // Esto predice el futuro, lo que puede ser confuso
+    /*if (trayectory) {
+      const points = this.calculateTrayectoryLine(
+        worldPosition,
+        fixedDeltaTime
+      );
+      const newLine = new Paper.Path(points);
+      newLine.style = {
+        strokeWidth: 2,
+        strokeColor: "red",
+      };
+      this.state.lines.push({
+        shape: newLine,
+      });
+    }*/
+  }
+
+  placeSmoke(screenPosition, current, trayectory) {
+    const worldPosition = this.screenToWorld(screenPosition);
+    if (
+      worldPosition.x > 1 ||
+      worldPosition.x < -1 ||
+      worldPosition.y > 1 ||
+      worldPosition.y < -1
+    ) {
+      return;
+    }
+    let newParticle = null;
+    for (let i = 0; i < this.state.particles.length; i++) {
+      if (!this.state.particles[i].active && this.state.particles[i].isSmoke) {
+        newParticle = this.state.particles[i];
+        break;
+      }
+    }
+    if (newParticle == null) {
+      newParticle = {
+        worldPos: worldPosition,
+        active: true,
+        previousSmoke: lastSmoke,
+        isSmoke: true,
+        lifeTime: 0,
+      };
+      this.state.smoke.push(newParticle);
+    }
+
+    newParticle.worldPos = worldPosition;
+    newParticle.active = true;
+    newParticle.lifeTime = 0;
+
+    lastSmoke = newParticle;
   }
 
   setTime(newTime) {
@@ -171,111 +310,306 @@ class Modulo7Cinematica extends Component {
 
   updateSimulation(delta) {
     if (!this.state.paused && this.state.timeScale > 0) {
-      const newTime = this.state.time + delta * this.state.timeScale;
+      frame++;
+      const newTime = this.state.time + delta;
       this.setTime(newTime);
       this.updateVectorField();
+
+      if (this.state.clickPosition != null) {
+        if (this.state.showingSmoke) {
+          if (frame % vertexSkip == 0) {
+            this.placeSmoke(this.state.clickPosition, true);
+          }
+        }
+        if (this.state.periodicParticles) {
+          emisionTimer -= delta;
+          if (emisionTimer < 0) {
+            this.placeParticle(
+              this.state.clickPosition,
+              this.state.showingCurrent,
+              this.state.showingTrayectory
+            );
+            emisionTimer = this.state.period;
+          }
+        }
+      }
     }
 
+    // Particles
     for (let i = 0; i < this.state.particles.length; i++) {
       const p = this.state.particles[i];
       if (p.active) {
-        const field = this.getFieldValue(
-          p.worldPos,
-          this.state.vectorLengthMultiplier
-        );
-        if (field != null) {
-          p.worldPos = addPoints(p.worldPos, mulPoint(field, delta));
-          p.shape.position = this.worldToScreen(p.worldPos);
+        for (let j = 0; j < physicsSteps; j++) {
+          const field = this.getFieldValue(
+            p.worldPos,
+            this.state.vectorLengthMultiplier
+          );
+          if (field != null) {
+            p.worldPos = addPoints(
+              p.worldPos,
+              mulPoint(field, (delta / physicsSteps) * simulationSpeed)
+            );
+            const screenPos = this.worldToScreen(p.worldPos);
+            p.shape.position = screenPos;
+            if (p.trayectory != null && p.lifeTime < 30) {
+              if (frame % vertexSkip == 0) p.trayectory.add(screenPos);
+            }
+            if (this.isOutOfBounds(p.worldPos)) {
+              p.active = false;
+              p.shape.visible = false;
+            }
+          }
+        }
+      }
+    }
 
-          if (
-            p.worldPos.x > 1 ||
-            p.worldPos.x < -1 ||
-            p.worldPos.y > 1 ||
-            p.worldPos.y < -1
-          ) {
-            p.active = false;
-            p.shape.visible = false;
+    // Smoke
+    if (this.state.showingSmoke) {
+      if (lastSmoke != null) {
+        let currentSmoke = lastSmoke;
+        this.state.smokeLine.removeSegments();
+        this.state.smokeLine.add(this.state.clickPosition);
+        while (
+          currentSmoke.previousSmoke != null &&
+          currentSmoke.active &&
+          currentSmoke.previousSmoke.active
+        ) {
+          let dif = subPoints(
+            currentSmoke.worldPos,
+            currentSmoke.previousSmoke.worldPos
+          );
+          if (dif.length > 0.1) {
+            break;
+          }
+          this.state.smokeLine.add(this.worldToScreen(currentSmoke.worldPos));
+          currentSmoke = currentSmoke.previousSmoke;
+        }
+        //this.state.smokeLine.simplify();
+
+        for (let i = 0; i < this.state.smoke.length; i++) {
+          const p = this.state.smoke[i];
+          if (p.active) {
+            for (let j = 0; j < physicsSteps; j++) {
+              const field = this.getFieldValue(
+                p.worldPos,
+                this.state.vectorLengthMultiplier
+              );
+              if (field != null) {
+                p.worldPos = addPoints(
+                  p.worldPos,
+                  mulPoint(field, (delta / physicsSteps) * simulationSpeed)
+                );
+                if (this.isOutOfBounds(p.worldPos)) {
+                  p.active = false;
+                }
+              }
+            }
+            p.lifeTime += delta;
           }
         }
       }
     }
   }
 
+  isOutOfBounds(point) {
+    return point.x > 1.5 || point.x < -1.5 || point.y > 1.5 || point.y < -1.5;
+  }
+
   clearLinesAndParticles() {
     for (let i = 0; i < this.state.particles.length; i++) {
-      this.state.particles[i].shape.remove();
+      if (this.state.particles[i].shape != null) {
+        this.state.particles[i].shape.visible = false;
+        this.state.particles[i].active = false;
+      }
     }
     for (let i = 0; i < this.state.lines.length; i++) {
-      this.state.lines[i].shape.remove();
+      this.state.lines[i].shape.visible = false;
+      this.state.lines[i].active = false;
     }
-    this.setState({ particles: [], lines: [] });
+    this.removeSmoke();
+  }
+
+  removeSmoke() {
+    lastSmoke = null;
+    this.setState({ smoke: [] });
+    this.state.smokeLine.removeSegments();
   }
 
   calculateCurrentLine(pos, delta) {
     let futurePoints = [this.worldToScreen(pos)];
     let currentPos = new Paper.Point(pos.x, pos.y);
-    for (let i = 0; i < 500; i++) {
-      // Future
-      currentPos = addPoints(
-        currentPos,
-        mulPoint(this.getFieldValue(currentPos), delta)
-      );
+    for (let i = 0; i < 250; i++) {
+      for (let j = 0; j < physicsSteps; j++) {
+        // Future
+        currentPos = addPoints(
+          currentPos,
+          mulPoint(
+            this.getFieldValue(currentPos, 1, this.state.time),
+            delta / physicsSteps
+          )
+        );
+      }
       futurePoints.push(this.worldToScreen(currentPos));
     }
     currentPos.x = pos.x;
     currentPos.y = pos.y;
     let pastPoints = [];
-    for (let i = 0; i < 500; i++) {
-      // Past
-      currentPos = addPoints(
-        currentPos,
-        mulPoint(this.getFieldValue(currentPos), -delta)
-      );
+    for (let i = 0; i < 250; i++) {
+      for (let j = 0; j < physicsSteps; j++) {
+        // Past
+        currentPos = addPoints(
+          currentPos,
+          mulPoint(
+            this.getFieldValue(currentPos, 1, this.state.time),
+            -delta / physicsSteps
+          )
+        );
+      }
       pastPoints.push(this.worldToScreen(currentPos));
     }
     let allPoints = [];
-    for (let i = 499; i >= 0; i--) {
+    for (let i = pastPoints.length - 1; i >= 0; i--) {
       allPoints.push(pastPoints[i]);
     }
-    for (let i = 0; i < 500; i++) {
+    for (let i = 0; i < futurePoints.length; i++) {
       allPoints.push(futurePoints[i]);
     }
     return allPoints;
   }
 
+  calculateTrayectoryLine(pos, delta) {
+    let futurePoints = [this.worldToScreen(pos)];
+    let currentPos = new Paper.Point(pos.x, pos.y);
+    let t = this.state.time;
+    for (let i = 0; i < 2000; i++) {
+      for (let j = 0; j < physicsSteps; j++) {
+        // Future
+        currentPos = addPoints(
+          currentPos,
+          mulPoint(
+            this.getFieldValue(
+              currentPos,
+              this.state.vectorLengthMultiplier,
+              t
+            ),
+            (delta / physicsSteps) * simulationSpeed
+          )
+        );
+      }
+      t += delta / 2;
+      futurePoints.push(this.worldToScreen(currentPos));
+      if (this.isOutOfBounds(currentPos)) {
+        break;
+      }
+    }
+
+    /*currentPos.x = pos.x;
+    currentPos.y = pos.y;
+    let pastPoints = [];
+    for (let i = 0; i < 500 * physicsSteps; i++) {
+      // Past
+      currentPos = addPoints(
+        currentPos,
+        mulPoint(this.getFieldValue(currentPos), -delta / physicsSteps)
+      );
+      pastPoints.push(this.worldToScreen(currentPos));
+    }*/
+    let allPoints = [];
+    /*for (let i = 500 * physicsSteps - 1; i >= 0; i--) {
+      allPoints.push(pastPoints[i]);
+    }*/
+    for (let i = 0; i < futurePoints.length; i++) {
+      allPoints.push(futurePoints[i]);
+    }
+    return allPoints;
+  }
+
+  handleExpressionDialogOpen() {
+    this.setState({ expressionDialogOpen: true });
+  }
+
+  handleExpressionDialogClose() {
+    this.setState({ expressionDialogOpen: false });
+  }
+
+  handlePresetSelection(index) {
+    this.loadExpressionPreset(presets[index]);
+    this.handleExpressionDialogClose();
+  }
+
   togglePause = (event) => {
     var newState = { ...this.state };
     newState.paused = !this.state.paused;
+
+    if (
+      this.state.showingSmoke &&
+      !newState.paused &&
+      this.state.clickPosition != null
+    ) {
+      this.placeSmoke(this.state.clickPosition, true);
+    }
+
     this.setState(newState);
   };
 
+  toggleAutoClean = (event) => {
+    this.setState({ autoClean: !this.state.autoClean });
+  };
+  toggleShowingCurrent = (event) => {
+    this.setState({ showingCurrent: !this.state.showingCurrent });
+  };
+  toggleShowingTrayectory = (event) => {
+    this.setState({ showingTrayectory: !this.state.showingTrayectory });
+  };
+  toggleShowingSmoke = (event) => {
+    if (this.state.showingSmoke) {
+      this.removeSmoke();
+    }
+    this.setState({ showingSmoke: !this.state.showingSmoke });
+  };
+  togglePeriodicParticles = (event) => {
+    this.setState({ periodicParticles: !this.state.periodicParticles });
+  };
+
   onVectorLengthMultiplierChange(newValue) {
-    var newState = { ...this.state };
-    newState.vectorLengthMultiplier = newValue;
-    this.setState(newState);
+    this.setState({ vectorLengthMultiplier: newValue });
     this.updateVectorField();
   }
 
   onTimeScaleChange(newValue) {
-    var newState = { ...this.state };
-    newState.timeScale = newValue;
-    this.setState(newState);
+    this.setState({ timeScale: newValue });
+  }
+
+  onPeriodChange(newValue) {
+    this.setState({ period: newValue });
   }
 
   onXEquationChange(newValue) {
-    var newState = { ...this.state };
-    newState.writtenExpression.x = newValue;
-    newState.expression.x = this.cleanExpression(newValue);
-    this.setState(newState);
-    this.updateVectorField();
+    const writtenExpression = { ...this.state.writtenExpression };
+    const expression = { ...this.state.expression };
+    writtenExpression.x = newValue;
+    expression.x = this.cleanExpression(newValue);
+    this.setState(
+      {
+        writtenExpression: writtenExpression,
+        expression: expression,
+      },
+      () => this.updateVectorField()
+    );
   }
 
   onYEquationChange(newValue) {
-    var newState = { ...this.state };
-    newState.writtenExpression.y = newValue;
-    newState.expression.y = this.cleanExpression(newValue);
-    this.setState(newState);
-    this.updateVectorField();
+    const writtenExpression = { ...this.state.writtenExpression };
+    const expression = { ...this.state.expression };
+    writtenExpression.y = newValue;
+    expression.y = this.cleanExpression(newValue);
+    this.setState(
+      {
+        writtenExpression: writtenExpression,
+        expression: expression,
+      },
+      () => this.updateVectorField()
+    );
   }
 
   cleanExpression(expression) {
@@ -308,25 +642,54 @@ class Modulo7Cinematica extends Component {
     return expression;
   }
 
-  getFieldValue(point, multiplier) {
+  loadExpressionPreset(preset) {
+    let writtenExpression = { x: preset.x, y: preset.y };
+    let expression = { x: "", y: "" };
+    expression.x = this.cleanExpression(preset.x);
+    expression.y = this.cleanExpression(preset.y);
+    this.setState(
+      {
+        writtenExpression: writtenExpression,
+        expression: expression,
+      },
+      () => this.updateVectorField()
+    );
+  }
+
+  getFieldValue(point, multiplier, time) {
     if (multiplier == null) {
       multiplier = 1;
     }
+    if (time == null) {
+      time = this.state.time;
+    }
     const x = point.x;
     const y = -point.y;
-    const t = this.state.time;
+    const t = time;
     let xresult = 0;
     let yresult = 0;
     try {
       xresult = eval(this.state.expression.x);
     } catch {
+      if (xresult === undefined) {
+        return null;
+      }
+    }
+    if (xresult === undefined) {
       return null;
     }
+
     try {
       yresult = -eval(this.state.expression.y);
     } catch {
+      if (yresult === undefined) {
+        return null;
+      }
+    }
+    if (yresult === undefined) {
       return null;
     }
+
     return new Paper.Point(xresult * multiplier, yresult * multiplier);
   }
 
@@ -345,7 +708,6 @@ class Modulo7Cinematica extends Component {
   }
 
   updateVectorField() {
-    const gridPoints = 15;
     for (let x = 0; x <= gridPoints; x++) {
       for (let y = 0; y <= gridPoints; y++) {
         const worldPos = new Paper.Point(
@@ -373,15 +735,17 @@ class Modulo7Cinematica extends Component {
           <>
             <Grid container spacing="2%" alignItems="stretch">
               <Grid item xs={2}>
-                <Button
-                  sx={{ width: "100%" }}
-                  variant="contained"
-                  onClick={this.togglePause}
-                >
-                  {(this.state.paused && <PlayArrowIcon></PlayArrowIcon>) || (
-                    <PauseIcon></PauseIcon>
-                  )}
-                </Button>
+                <Tooltip title="Resumir / Pausar">
+                  <Button
+                    sx={{ width: "100%" }}
+                    variant="contained"
+                    onClick={this.togglePause}
+                  >
+                    {(this.state.paused && <PlayArrowIcon></PlayArrowIcon>) || (
+                      <PauseIcon></PauseIcon>
+                    )}
+                  </Button>
+                </Tooltip>
               </Grid>
               <Grid item xs={10}>
                 <SliderWithInput
@@ -389,36 +753,70 @@ class Modulo7Cinematica extends Component {
                   min={0}
                   step={0.1}
                   max={2}
-                  marks={[
-                    { value: 0, label: "x0" },
-                    { value: 1, label: "x1" },
-                    { value: 2, label: "x2" },
-                  ]}
                   value={this.state.timeScale}
                   onChange={(e) => this.onTimeScaleChange(e)}
                 ></SliderWithInput>
               </Grid>
-              <Grid item xs={12}>
-                <PanelModule>
-                  <Typography>
-                    Tiempo: {Math.floor(this.state.time * 100) / 100}s
-                  </Typography>
-                  <LinearProgress
-                    variant="determinate"
-                    value={(this.state.time / 60) * 100}
-                  ></LinearProgress>
-                </PanelModule>
+              <Grid item xs={2}>
+                <Tooltip title="Reiniciar tiempo">
+                  <Button
+                    sx={{ width: "100%" }}
+                    variant="contained"
+                    onClick={() => this.setTime(0)}
+                  >
+                    <SkipPrevious></SkipPrevious>
+                  </Button>
+                </Tooltip>
               </Grid>
-              <Grid item xs={6}>
+              {(this.state.paused && (
+                <Grid item xs={10}>
+                  <SliderWithInput
+                    label="Tiempo"
+                    step={0.01}
+                    min={0}
+                    max={10}
+                    value={this.state.time}
+                    onChange={(e) => {
+                      this.setTime(e);
+                      this.updateVectorField();
+                    }}
+                  ></SliderWithInput>
+                </Grid>
+              )) || (
+                <Grid item xs={10}>
+                  <PanelModule>
+                    <Typography>
+                      Tiempo: {Math.floor(this.state.time * 100) / 100}s
+                    </Typography>
+                    <LinearProgress
+                      variant="determinate"
+                      value={(this.state.time / 60) * 100}
+                    ></LinearProgress>
+                  </PanelModule>
+                </Grid>
+              )}
+
+              <Grid item xs={2}>
+                <Tooltip title="Campos vectoriales predeterminados">
+                  <Button
+                    sx={{ width: "100%" }}
+                    variant="contained"
+                    onClick={() => this.handleExpressionDialogOpen()}
+                  >
+                    <MenuIcon></MenuIcon>
+                  </Button>
+                </Tooltip>
+              </Grid>
+              <Grid item xs={5}>
                 <ExpressionInput
-                  label="x:"
+                  label="x':"
                   value={this.state.writtenExpression.x}
                   onChange={(e) => this.onXEquationChange(e)}
                 ></ExpressionInput>
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={5}>
                 <ExpressionInput
-                  label="y:"
+                  label="y':"
                   value={this.state.writtenExpression.y}
                   onChange={(e) => this.onYEquationChange(e)}
                 ></ExpressionInput>
@@ -433,6 +831,51 @@ class Modulo7Cinematica extends Component {
                   onChange={(e) => this.onVectorLengthMultiplierChange(e)}
                 ></SliderWithInput>
               </Grid>
+              <Grid item xs={4}>
+                <MyToggle
+                  label="Mostrar línea de corriente"
+                  checked={this.state.showingCurrent}
+                  onChange={(e) => this.toggleShowingCurrent(e)}
+                ></MyToggle>
+              </Grid>
+              <Grid item xs={4}>
+                <MyToggle
+                  label="Mostrar línea de trayectoria"
+                  checked={this.state.showingTrayectory}
+                  onChange={(e) => this.toggleShowingTrayectory(e)}
+                ></MyToggle>
+              </Grid>
+              <Grid item xs={4}>
+                <MyToggle
+                  label="Mostrar línea de humo"
+                  checked={this.state.showingSmoke}
+                  onChange={(e) => this.toggleShowingSmoke(e)}
+                ></MyToggle>
+              </Grid>
+              <Grid item xs={4}>
+                <MyToggle
+                  label="Emisión periodica"
+                  checked={this.state.periodicParticles}
+                  onChange={(e) => this.togglePeriodicParticles(e)}
+                ></MyToggle>
+              </Grid>
+              <Grid item xs={8}>
+                <SliderWithInput
+                  label="Periodo de emisión"
+                  min={0.05}
+                  step={0.05}
+                  max={3}
+                  value={this.state.period}
+                  onChange={(e) => this.onPeriodChange(e)}
+                ></SliderWithInput>
+              </Grid>
+              <Grid item xs={12}>
+                <MyToggle
+                  label="Borrar lineas y partículas al cliquear"
+                  checked={this.state.autoClean}
+                  onChange={(e) => this.toggleAutoClean(e)}
+                ></MyToggle>
+              </Grid>
               <Grid item xs={12}>
                 <Button
                   sx={{ width: "100%" }}
@@ -443,6 +886,30 @@ class Modulo7Cinematica extends Component {
                 </Button>
               </Grid>
             </Grid>
+            <Dialog
+              open={this.state.expressionDialogOpen}
+              onClose={() => this.handleExpressionDialogClose()}
+            >
+              <DialogTitle>Seleccione un campo vectorial</DialogTitle>
+              <DialogContent>
+                <Stack spacing={2}>
+                  {presets.map((p, index) => (
+                    <Button
+                      key={index}
+                      onClick={() => this.handlePresetSelection(index)}
+                      variant="contained"
+                    >
+                      {p.name + " → [ " + p.x + " ; " + p.y + " ]"}
+                    </Button>
+                  ))}
+                </Stack>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => this.handleExpressionDialogClose()}>
+                  Cancelar
+                </Button>
+              </DialogActions>
+            </Dialog>
           </>
         }
         canvas={

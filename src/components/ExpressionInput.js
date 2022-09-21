@@ -14,7 +14,6 @@ class ExpressionInput extends Component {
   }
 
   handleInputChange = (event) => {
-    console.log(event);
     this.props.onChange(event.target.value);
   };
 
