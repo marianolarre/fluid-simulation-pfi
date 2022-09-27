@@ -11,7 +11,7 @@ import SliderWithInput from "./SliderWithInput";
 import BackspaceIcon from "@mui/icons-material/Backspace";
 import MyToggle from "./MyToggle";
 
-const marks = [
+const angleMarks = [
   {
     value: 0,
     label: "0º",
@@ -31,6 +31,21 @@ const marks = [
   {
     value: 360,
     label: "360º",
+  },
+];
+
+const velocityMarks = [
+  {
+    value: -10,
+    label: "-10",
+  },
+  {
+    value: 0,
+    label: "0",
+  },
+  {
+    value: 10,
+    label: "10",
   },
 ];
 
@@ -63,7 +78,7 @@ class CVPipe extends Component {
           step={15}
           min={0}
           max={360}
-          marks={marks}
+          marks={angleMarks}
           unit="º"
           value={this.props.pipe.angle}
           onChange={(newValue) =>
@@ -98,6 +113,7 @@ class CVPipe extends Component {
                 step={0.1}
                 min={-10}
                 max={10}
+                marks={velocityMarks}
                 unit="m/s"
                 value={this.props.pipe.velocity}
                 onChange={(newValue) =>

@@ -23,7 +23,7 @@ class Modulo8VolumenDeControl extends Component {
     },
     ready: false,
     volume: {
-      radius: 250,
+      radius: 200,
       outlineShape: null,
       fillShape: null,
     },
