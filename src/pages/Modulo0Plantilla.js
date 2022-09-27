@@ -19,9 +19,7 @@ class ModuloPlantilla extends Component {
   };
 
   onValueChanged = (event) => {
-    var newState = { ...this.state };
-    newState.value = event.target.value;
-    this.setState(newState);
+    this.setState({ value: event.target.value });
   };
 
   canvasFunction() {

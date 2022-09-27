@@ -59,10 +59,12 @@ export class VectorArrow {
     showSecondHead,
     hideFirstHead
   ) {
+    this.scale = 1;
     this.start = start;
     this.end = end;
     this.line = new Path([start, end]);
     this.line.strokeColor = color;
+    this.width = width;
     this.line.strokeWidth = width;
     this.head = null;
     this.hideFirstHead = hideFirstHead;
@@ -96,8 +98,8 @@ export class VectorArrow {
     if (this.showSecondHead) {
       scale = Math.min(this.headLength, length / 2) / this.headLength;
     }
-    forward.length = this.headLength * scale;
-    right.length = this.headWidth * scale;
+    forward.length = this.headLength * scale * this.scale;
+    right.length = this.headWidth * scale * this.scale;
     let vectorEnd = this.end;
     if (!this.hideFirstHead) {
       vectorEnd = subPoints(this.end, forward);
@@ -122,6 +124,22 @@ export class VectorArrow {
       this.secondHead.segments[1].point = subPoints(vectorEnd, right);
       this.secondHead.segments[2].point = addPoints(vectorEnd, right);
     }
+  }
+
+  SetColor(newColor) {
+    this.line.strokeColor = newColor;
+    if (!this.hideFirstHead) {
+      this.head.fillColor = newColor;
+    }
+    if (this.showSecondHead) {
+      this.secondHead.fillColor = newColor;
+    }
+  }
+
+  SetScale(newScale) {
+    this.scale = newScale;
+    this.line.strokeWidth = newScale * this.width;
+    this.Update();
   }
 
   SetStart(newStart) {

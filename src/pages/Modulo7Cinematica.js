@@ -35,7 +35,7 @@ const fixedDeltaTime = 0.016;
 const physicsSteps = 20;
 const simulationSpeed = 0.025;
 const gridPoints = 11;
-const vertexSkip = 5;
+const vertexSkip = 1;
 
 const presets = [
   { name: "Giratorio", x: "-y", y: "x" },
@@ -730,7 +730,7 @@ class Modulo7Cinematica extends Component {
   render() {
     return (
       <PanelAndCanvas
-        title="Plantilla"
+        title="Cinemática"
         panel={
           <>
             <Grid container spacing="2%" alignItems="stretch">

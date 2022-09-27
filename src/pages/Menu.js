@@ -76,9 +76,11 @@ class Menu extends Component {
                       Cinemática
                     </Button>
                   </Link>
-                  <Button variant="contained" disabled>
-                    Volumen de control
-                  </Button>
+                  <Link to="mod8" style={{ textDecoration: "none" }}>
+                    <Button variant="contained" style={buttonStyle}>
+                      Volumen de control
+                    </Button>
+                  </Link>
                   <Button variant="contained" disabled>
                     Flujo no viscoso
                   </Button>

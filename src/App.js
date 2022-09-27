@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import Modulo4SuperficieSumergida from "./pages/Modulo4SuperficieSumergida";
 import Modulo5Dique from "./pages/Modulo5Dique";
 import Modulo7Cinematica from "./pages/Modulo7Cinematica";
+import Modulo8VolumenDeControl from "./pages/Modulo8VolumenDeControl";
 
 function App() {
   useEffect(() => {
@@ -43,6 +44,10 @@ function App() {
         <Route
           path="mod7"
           element={<Modulo7Cinematica></Modulo7Cinematica>}
+        ></Route>
+        <Route
+          path="mod8"
+          element={<Modulo8VolumenDeControl></Modulo8VolumenDeControl>}
         ></Route>
       </Routes>
     </BrowserRouter>
