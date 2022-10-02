@@ -4,7 +4,16 @@ import Canvas from "../components/Canvas";
 import PanelAndCanvas from "../components/PanelAndCanvas";
 
 import { Grid } from "@mui/material";
-import Paper from "paper";
+import {
+  view,
+  Point,
+  Size,
+  Path,
+  Shape,
+  Matrix,
+  Rectangle,
+  Group,
+} from "paper";
 import MyRadio from "../components/MyRadio";
 import {
   addPoints,
@@ -13,7 +22,6 @@ import {
   VectorArray,
   VectorArrow,
 } from "../paperUtility";
-import { Color, Point } from "paper/dist/paper-core";
 import SliderWithInput from "../components/SliderWithInput";
 
 let previousSkew = 0;
@@ -61,16 +69,16 @@ class Modulo4SuperficieSumergida extends Component {
 
     const liquidHeight = this.getLiquidHeight();
     const angleInRadians = (surface.angle / 180) * Math.PI;
-    const girthOffset = new Paper.Point(
+    const girthOffset = new Point(
       surface.girth * Math.cos(angleInRadians) * perspectiveSide,
       surface.girth * Math.sin(angleInRadians)
     );
-    const lengthOffset = new Paper.Point(
+    const lengthOffset = new Point(
       -surface.length * Math.sin(angleInRadians) * perspectiveSide,
       surface.length * Math.cos(angleInRadians)
     );
-    const top = new Paper.Point(
-      Paper.view.center.x +
+    const top = new Point(
+      view.center.x +
         ((Math.sin(angleInRadians) * surface.length) / 2) * perspectiveSide +
         (surface.width * perspectiveFront) / 2,
       liquidHeight + surface.depth
@@ -86,7 +94,7 @@ class Modulo4SuperficieSumergida extends Component {
       surface.sideShape.segments[3].point.set(front);
     }
 
-    const widthOffset = new Paper.Point(-surface.width * perspectiveFront, 0);
+    const widthOffset = new Point(-surface.width * perspectiveFront, 0);
 
     if (surface.frontShape != null) {
       surface.frontShape.segments[0].point.set(top);
@@ -112,7 +120,7 @@ class Modulo4SuperficieSumergida extends Component {
       ];
 
       if (top.y < liquidHeight && front.y > liquidHeight) {
-        const midPoint = new Paper.Point(
+        const midPoint = new Point(
           top.x +
             (top.y - liquidHeight) * Math.tan(angleInRadians) * perspectiveSide,
           liquidHeight
@@ -134,7 +142,7 @@ class Modulo4SuperficieSumergida extends Component {
           ((pressureMin + (pressureMax - pressureMin) / 2) *
             this.state.surface.length) /
           100;
-        const force = new Paper.Point(
+        const force = new Point(
           -Math.cos(angleInRadians) * magnitude * perspectiveSide,
           -Math.sin(angleInRadians) * magnitude
         );
@@ -149,7 +157,7 @@ class Modulo4SuperficieSumergida extends Component {
     // Lio de transformaciones y trigonometria para ubicar las formas del centro de fuerza
     if (this.state.equivalentForce.circle != null) {
       const pos = this.getForceScreenPosition();
-      const matrix = new Paper.Matrix(
+      const matrix = new Matrix(
         perspectiveFront,
         0,
         -Math.sin(angleInRadians) * perspectiveSide,
@@ -166,7 +174,7 @@ class Modulo4SuperficieSumergida extends Component {
       const yoffset =
         (-this.state.equivalentForce.circleDecoration1.size.height / 2) *
         Math.cos(angleInRadians);
-      const matrix1 = new Paper.Matrix(
+      const matrix1 = new Matrix(
         perspectiveFront,
         0,
         -Math.sin(angleInRadians) * perspectiveSide,
@@ -176,7 +184,7 @@ class Modulo4SuperficieSumergida extends Component {
       );
       this.state.equivalentForce.circleDecoration1.bringToFront();
       this.state.equivalentForce.circleDecoration1.matrix = matrix1;
-      const matrix2 = new Paper.Matrix(
+      const matrix2 = new Matrix(
         perspectiveFront,
         0,
         -Math.sin(angleInRadians) * perspectiveSide,
@@ -190,7 +198,7 @@ class Modulo4SuperficieSumergida extends Component {
   }
 
   getLiquidHeight() {
-    return Paper.view.size.height * 0.2;
+    return view.size.height * 0.2;
   }
 
   onPressureTypeChange = (event) => {
@@ -268,45 +276,39 @@ class Modulo4SuperficieSumergida extends Component {
 
     const perspectiveFront = Math.sin(cameraAngle);
     const perspectiveSide = Math.cos(cameraAngle);
-    const top = new Paper.Point(
-      Paper.view.center.x +
+    const top = new Point(
+      view.center.x +
         (sinOfAngle * surface.length * perspectiveSide) / 2 +
         (surface.width * perspectiveFront) / 2,
       this.getLiquidHeight() + surface.depth
     );
-    const lengthOffset = new Paper.Point(
+    const lengthOffset = new Point(
       -L * Math.sin(angleInRadians) * perspectiveSide,
       L * Math.cos(angleInRadians)
     );
     const midPoint = addPoints(top, lengthOffset);
-    return new Paper.Point(
+    return new Point(
       midPoint.x - (this.state.surface.width * perspectiveFront) / 2,
       midPoint.y
     );
   }
 
   canvasFunction() {
-    const center = Paper.view.center;
+    const center = view.center;
 
-    const background = new Paper.Path.Rectangle(
-      new Paper.Rectangle(new Paper.Point(0, 0), Paper.view.size)
+    const background = new Path.Rectangle(
+      new Rectangle(new Point(0, 0), view.size)
     );
     background.fillColor = "white";
 
     const liquid = {
-      shape: new Paper.Path.Rectangle(
-        new Paper.Rectangle(
-          Paper.view.bounds.leftCenter,
-          Paper.view.bounds.bottomRight
-        )
+      shape: new Path.Rectangle(
+        new Rectangle(view.bounds.leftCenter, view.bounds.bottomRight)
       ),
     };
     const liquidOverlay = {
-      shape: new Paper.Path.Rectangle(
-        new Paper.Rectangle(
-          Paper.view.bounds.leftCenter,
-          Paper.view.bounds.bottomRight
-        )
+      shape: new Path.Rectangle(
+        new Rectangle(view.bounds.leftCenter, view.bounds.bottomRight)
       ),
     };
     const liquidHeight = this.getLiquidHeight();
@@ -321,21 +323,21 @@ class Modulo4SuperficieSumergida extends Component {
     };
 
     const surface = {
-      frontShape: new Paper.Path({
+      frontShape: new Path({
         fillColor: "#FB2F68",
         strokeColor: "black",
         strokeWidth: 2,
         closed: true,
         strokeJoin: "round",
       }),
-      sideShape: new Paper.Path({
+      sideShape: new Path({
         fillColor: "#DB1F48",
         strokeColor: "black",
         strokeWidth: 2,
         closed: true,
         strokeJoin: "round",
       }),
-      bottomShape: new Paper.Path({
+      bottomShape: new Path({
         fillColor: "#BB0028",
         strokeColor: "black",
         strokeWidth: 2,
@@ -348,18 +350,18 @@ class Modulo4SuperficieSumergida extends Component {
       girth: 20,
       angle: 45,
     };
-    surface.frontShape.add(new Paper.Point(0, 0));
-    surface.frontShape.add(new Paper.Point(0, 0));
-    surface.frontShape.add(new Paper.Point(0, 0));
-    surface.frontShape.add(new Paper.Point(0, 0));
-    surface.sideShape.add(new Paper.Point(0, 0));
-    surface.sideShape.add(new Paper.Point(0, 0));
-    surface.sideShape.add(new Paper.Point(0, 0));
-    surface.sideShape.add(new Paper.Point(0, 0));
-    surface.bottomShape.add(new Paper.Point(0, 0));
-    surface.bottomShape.add(new Paper.Point(0, 0));
-    surface.bottomShape.add(new Paper.Point(0, 0));
-    surface.bottomShape.add(new Paper.Point(0, 0));
+    surface.frontShape.add(new Point(0, 0));
+    surface.frontShape.add(new Point(0, 0));
+    surface.frontShape.add(new Point(0, 0));
+    surface.frontShape.add(new Point(0, 0));
+    surface.sideShape.add(new Point(0, 0));
+    surface.sideShape.add(new Point(0, 0));
+    surface.sideShape.add(new Point(0, 0));
+    surface.sideShape.add(new Point(0, 0));
+    surface.bottomShape.add(new Point(0, 0));
+    surface.bottomShape.add(new Point(0, 0));
+    surface.bottomShape.add(new Point(0, 0));
+    surface.bottomShape.add(new Point(0, 0));
     this.updateSurface(surface);
 
     liquidOverlay.shape.bringToFront();
@@ -367,30 +369,27 @@ class Modulo4SuperficieSumergida extends Component {
     const forceVectorArray = new VectorArray();
     surface.forceVectorArray = forceVectorArray;
 
-    const equivalentForceCircleClip = new Paper.Shape.Circle(
-      new Paper.Point(0, 0),
-      50
-    );
-    const circleBackground = new Paper.Shape.Circle(new Paper.Point(0, 0), 50);
+    const equivalentForceCircleClip = new Shape.Circle(new Point(0, 0), 50);
+    const circleBackground = new Shape.Circle(new Point(0, 0), 50);
     circleBackground.fillColor = "white";
     circleBackground.strokeColor = "black";
     circleBackground.strokeWidth = 4;
     circleBackground.bringToFront();
-    const circleDecoration1 = new Paper.Shape.Rectangle(
-      new Paper.Point(0, 0),
-      new Paper.Size(50, 50)
+    const circleDecoration1 = new Shape.Rectangle(
+      new Point(0, 0),
+      new Size(50, 50)
     );
     circleDecoration1.fillColor = "black";
     circleDecoration1.strokeColor = "black";
     circleDecoration1.strokeWidth = 0;
-    const circleDecoration2 = new Paper.Shape.Rectangle(
-      new Paper.Point(0, 0),
-      new Paper.Size(50, 50)
+    const circleDecoration2 = new Shape.Rectangle(
+      new Point(0, 0),
+      new Size(50, 50)
     );
     circleDecoration2.fillColor = "black";
     circleDecoration2.strokeColor = "black";
     circleDecoration2.strokeWidth = 0;
-    const circleGroup = new Paper.Group([
+    const circleGroup = new Group([
       equivalentForceCircleClip,
       circleBackground,
       circleDecoration1,
@@ -399,8 +398,8 @@ class Modulo4SuperficieSumergida extends Component {
     circleGroup.clipped = true;
 
     const equivalentForceArrow = new VectorArrow(
-      new Paper.Point(0, 0),
-      new Paper.Point(0, 0),
+      new Point(0, 0),
+      new Point(0, 0),
       "#ff8040",
       8,
       20,
@@ -410,7 +409,7 @@ class Modulo4SuperficieSumergida extends Component {
     );
 
     const levelSimbol = new LevelSimbol(
-      new Point(Paper.view.bounds.right - 100, this.getLiquidHeight()),
+      new Point(view.bounds.right - 100, this.getLiquidHeight()),
       "white"
     );
 
@@ -425,7 +424,7 @@ class Modulo4SuperficieSumergida extends Component {
     newState.ready = true;
     this.setState(newState);
 
-    Paper.view.onFrame = (event) => {
+    view.onFrame = (event) => {
       this.update(event.delta);
     };
 

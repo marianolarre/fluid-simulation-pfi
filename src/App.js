@@ -10,6 +10,8 @@ import Modulo4SuperficieSumergida from "./pages/Modulo4SuperficieSumergida";
 import Modulo5Dique from "./pages/Modulo5Dique";
 import Modulo7Cinematica from "./pages/Modulo7Cinematica";
 import Modulo8VolumenDeControl from "./pages/Modulo8VolumenDeControl";
+import Modulo9FlujoNoViscoso from "./pages/Modulo9FlujoNoViscoso";
+import Modulo10FlujoViscoso from "./pages/Modulo10FlujoViscoso";
 
 function App() {
   useEffect(() => {
@@ -48,6 +50,14 @@ function App() {
         <Route
           path="mod8"
           element={<Modulo8VolumenDeControl></Modulo8VolumenDeControl>}
+        ></Route>
+        <Route
+          path="mod9"
+          element={<Modulo9FlujoNoViscoso></Modulo9FlujoNoViscoso>}
+        ></Route>
+        <Route
+          path="mod10"
+          element={<Modulo10FlujoViscoso></Modulo10FlujoViscoso>}
         ></Route>
       </Routes>
     </BrowserRouter>

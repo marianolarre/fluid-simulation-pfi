@@ -21,7 +21,7 @@ import {
   Tooltip,
   Stack,
 } from "@mui/material";
-import { view, Point, Size, Path, Shape, Rectangle } from "paper";
+import { view, Point, Size, Path, Shape, Rectangle, Raster } from "paper";
 import SliderWithInput from "../components/SliderWithInput";
 import { addPoints, mulPoint, subPoints, VectorArrow } from "../paperUtility";
 import ExpressionInput from "../components/ExpressionInput";
@@ -33,8 +33,15 @@ import { SkipPrevious } from "@mui/icons-material";
 const fixedDeltaTime = 0.016;
 const physicsSteps = 20;
 const simulationSpeed = 0.025;
-const gridPoints = 11;
+const xGridPoints = 17;
+const yGridPoints = 9;
 const vertexSkip = 1;
+
+const xScale = 2.5;
+const yScale = 1.5;
+const xOffset = 0;
+const yOffset = -0.25;
+const pixelSize = 20;
 
 const presets = [
   { name: "Giratorio", x: "-y", y: "x" },
@@ -47,7 +54,7 @@ let frame = 0;
 let lastSmoke = null;
 let emisionTimer = 0;
 
-class Modulo7Cinematica extends Component {
+class Modulo9FlujoNoViscoso extends Component {
   state = {
     value: 0,
     background: {
@@ -84,7 +91,63 @@ class Modulo7Cinematica extends Component {
     smokeLine: null,
     smoke: [],
     expressionDialogOpen: false,
+    colorMap: {},
   };
+
+  updateColorMap(colorMap) {
+    if (colorMap == null) {
+      colorMap = this.state.colorMap;
+    }
+    let red = 0.5;
+    let green = 0.5;
+    let imageData = colorMap.raster.getImageData();
+    var startingX = colorMap.cornerPoint.x;
+    var width = xScale * this.state.screen.size;
+    var x = startingX;
+    var y = colorMap.cornerPoint.y;
+    var velocity = null;
+    const mul = this.state.vectorLengthMultiplier * 6;
+    for (var i = 0; i < imageData.data.length; i += 4) {
+      velocity = this.getFieldValue(this.screenToWorld(new Point(x, y)));
+      imageData.data[i] = velocity.x * mul + 127;
+      imageData.data[i + 1] = -velocity.y * mul + 127;
+      imageData.data[i + 2] = 255;
+      imageData.data[i + 3] = 255;
+      x += pixelSize;
+      if (x >= startingX + width) {
+        x = startingX;
+        y += pixelSize;
+      }
+    }
+    colorMap.raster.setImageData(imageData);
+    /*for (var i = 0; i < colorMap.width; i++) {
+      for (var j = 0; j < colorMap.height; j++) {
+        // ...set a random color.
+        var pixelWorldPos = this.screenToWorld(
+          new Point(
+            colorMap.cornerPoint.x + i * pixelSize,
+            colorMap.cornerPoint.y + j * pixelSize
+          )
+        );
+        var velocity = this.getFieldValue(pixelWorldPos);
+        red = Math.min(
+          1,
+          Math.max(
+            0,
+            0.5 + (velocity.x / 30) * this.state.vectorLengthMultiplier
+          )
+        );
+        green = Math.min(
+          1,
+          Math.max(
+            0,
+            0.5 - (velocity.y / 30) * this.state.vectorLengthMultiplier
+          )
+        );
+        colorMap.raster.setPixel(i, j, new Color(red, green, 0.5));
+      }
+    }*/
+  }
 
   canvasFunction() {
     const center = view.center;
@@ -93,6 +156,29 @@ class Modulo7Cinematica extends Component {
       new Rectangle(new Point(0, 0), view.size)
     );
     background.fillColor = "white";
+
+    const size = this.state.screen.size;
+    const rasterWidth = Math.floor((size * xScale) / pixelSize);
+    const rasterHeight = Math.floor((size * yScale) / pixelSize);
+    const raster = new Raster(
+      new Size(0, 0),
+      new Point(rasterWidth, rasterHeight)
+    );
+    const translation = addPoints(
+      view.center,
+      new Point(size * xOffset, size * yOffset)
+    );
+    raster.translate(translation);
+    raster.scale(pixelSize);
+    const colorMap = {
+      raster: raster,
+      width: rasterWidth,
+      height: rasterHeight,
+      cornerPoint: addPoints(
+        translation,
+        new Point((-size * xScale) / 2, (-size * yScale) / 2)
+      ),
+    };
 
     const clickPositionShape = new Shape.Circle(new Point(0, 0), 20);
     clickPositionShape.style = {
@@ -107,12 +193,12 @@ class Modulo7Cinematica extends Component {
       strokeWidth: 2,
     });
 
-    for (let x = 0; x <= gridPoints; x++) {
+    for (let x = 0; x <= xGridPoints; x++) {
       this.state.vectors[x] = [];
-      for (let y = 0; y <= gridPoints; y++) {
+      for (let y = 0; y <= yGridPoints; y++) {
         const worldPos = new Point(
-          (x / gridPoints - 0.5) * 2,
-          (y / gridPoints - 0.5) * 2
+          (x / xGridPoints - 0.5) * xScale,
+          (y / yGridPoints - 0.5) * yScale
         );
         const start = this.worldToScreen(worldPos);
         const result = this.getFieldValue(
@@ -125,9 +211,9 @@ class Modulo7Cinematica extends Component {
         const newVector = new VectorArrow(
           start,
           addPoints(start, result),
-          "grey",
-          1,
+          "black",
           3,
+          5,
           10
         );
         this.state.vectors[x][y] = newVector;
@@ -136,12 +222,16 @@ class Modulo7Cinematica extends Component {
 
     const newBackground = { ...this.state.background };
     newBackground.shape = background;
-    this.setState({
-      background: newBackground,
-      ready: true,
-      clickPositionShape: clickPositionShape,
-      smokeLine: smokeLine,
-    });
+    this.setState(
+      {
+        background: newBackground,
+        ready: true,
+        clickPositionShape: clickPositionShape,
+        smokeLine: smokeLine,
+        colorMap: colorMap,
+      },
+      this.updateColorMap
+    );
 
     view.onFrame = (event) => {
       const delta = fixedDeltaTime; // event.delta
@@ -184,10 +274,10 @@ class Modulo7Cinematica extends Component {
   placeParticle(screenPosition, current, trayectory) {
     const worldPosition = this.screenToWorld(screenPosition);
     if (
-      worldPosition.x > 1 ||
-      worldPosition.x < -1 ||
-      worldPosition.y > 1 ||
-      worldPosition.y < -1
+      worldPosition.x > 1.5 ||
+      worldPosition.x < -1.5 ||
+      worldPosition.y > 1.5 ||
+      worldPosition.y < -1.5
     ) {
       return;
     }
@@ -691,24 +781,24 @@ class Modulo7Cinematica extends Component {
 
   worldToScreen(point) {
     return new Point(
-      point.x * this.state.screen.size + view.center.x,
-      point.y * this.state.screen.size + view.center.y
+      (point.x + xOffset) * this.state.screen.size + view.center.x,
+      (point.y + yOffset) * this.state.screen.size + view.center.y
     );
   }
 
   screenToWorld(point) {
     return new Point(
-      (point.x - view.center.x) / this.state.screen.size,
-      (point.y - view.center.y) / this.state.screen.size
+      (point.x - view.center.x) / this.state.screen.size - xOffset,
+      (point.y - view.center.y) / this.state.screen.size - yOffset
     );
   }
 
   updateVectorField() {
-    for (let x = 0; x <= gridPoints; x++) {
-      for (let y = 0; y <= gridPoints; y++) {
+    for (let x = 0; x <= xGridPoints; x++) {
+      for (let y = 0; y <= yGridPoints; y++) {
         const worldPos = new Point(
-          (x / gridPoints - 0.5) * 2,
-          (y / gridPoints - 0.5) * 2
+          (x / xGridPoints - 0.5) * xScale,
+          (y / yGridPoints - 0.5) * yScale
         );
         const start = this.worldToScreen(worldPos);
         const field = this.getFieldValue(
@@ -721,12 +811,13 @@ class Modulo7Cinematica extends Component {
         this.state.vectors[x][y].SetPosition(start, addPoints(start, field));
       }
     }
+    this.updateColorMap();
   }
 
   render() {
     return (
       <PanelAndCanvas
-        title="Cinemática"
+        title="Flujo no viscoso"
         panel={
           <>
             <Grid container spacing="2%" alignItems="stretch">
@@ -918,4 +1009,4 @@ class Modulo7Cinematica extends Component {
   }
 }
 
-export default Modulo7Cinematica;
+export default Modulo9FlujoNoViscoso;

@@ -81,12 +81,16 @@ class Menu extends Component {
                       Volumen de control
                     </Button>
                   </Link>
-                  <Button variant="contained" disabled>
-                    Flujo no viscoso
-                  </Button>
-                  <Button variant="contained" disabled>
-                    Flujo viscoso
-                  </Button>
+                  <Link to="mod9" style={{ textDecoration: "none" }}>
+                    <Button variant="contained" style={buttonStyle}>
+                      Flujo no viscoso
+                    </Button>
+                  </Link>
+                  <Link to="mod10" style={{ textDecoration: "none" }}>
+                    <Button variant="contained" style={buttonStyle}>
+                      Flujo viscoso
+                    </Button>
+                  </Link>
                   <Button variant="contained" disabled>
                     Flujo viscoso laminar
                   </Button>

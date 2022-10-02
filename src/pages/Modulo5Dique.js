@@ -4,7 +4,7 @@ import Canvas from "../components/Canvas";
 import PanelAndCanvas from "../components/PanelAndCanvas";
 
 import { Grid } from "@mui/material";
-import Paper from "paper";
+import { view, Point, Size, Path, Shape, Rectangle } from "paper";
 import MyRadio from "../components/MyRadio";
 import {
   addPoints,
@@ -14,7 +14,6 @@ import {
   VectorArray,
   VectorArrow,
 } from "../paperUtility";
-import { Color, Point } from "paper/dist/paper-core";
 import SliderWithInput from "../components/SliderWithInput";
 
 const metersToPixels = 400;
@@ -55,16 +54,16 @@ class Modulo5Dique extends Component {
 
     const liquidHeight = this.getLiquidHeight();
     const angleInRadians = (surface.angle / 180) * Math.PI;
-    const girthOffset = new Paper.Point(
+    const girthOffset = new Point(
       surface.girth * Math.cos(angleInRadians),
       surface.girth * Math.sin(angleInRadians)
     );
-    const lengthOffset = new Paper.Point(
+    const lengthOffset = new Point(
       -surface.length * Math.sin(angleInRadians),
       surface.length * Math.cos(angleInRadians)
     );
-    const top = new Paper.Point(
-      Paper.view.center.x + (Math.sin(angleInRadians) * surface.length) / 2,
+    const top = new Point(
+      view.center.x + (Math.sin(angleInRadians) * surface.length) / 2,
       liquidHeight + surface.depth
     );
     const front = addPoints(top, lengthOffset);
@@ -91,7 +90,7 @@ class Modulo5Dique extends Component {
       let partiallyOutOfWater = false;
       if (top.y <= liquidHeight && front.y > liquidHeight) {
         partiallyOutOfWater = true;
-        midPoint = new Paper.Point(
+        midPoint = new Point(
           top.x + (top.y - liquidHeight) * Math.tan(angleInRadians),
           liquidHeight
         );
@@ -109,7 +108,7 @@ class Modulo5Dique extends Component {
       if (this.state.equivalentForce.arrow != null) {
         const pos = this.getForceScreenPosition();
         const magnitude = ((pressureMin + pressureMax) / 2) * 2;
-        const force = new Paper.Point(
+        const force = new Point(
           -Math.cos(angleInRadians) * magnitude,
           -Math.sin(angleInRadians) * magnitude
         );
@@ -129,10 +128,7 @@ class Modulo5Dique extends Component {
         this.state.floor.bounds.topRight = pivotPosition;
       }
       if (this.state.wall != null) {
-        this.state.wall.bounds.bottomLeft = addPoints(
-          back,
-          new Paper.Point(0, 100)
-        );
+        this.state.wall.bounds.bottomLeft = addPoints(back, new Point(0, 100));
       }
 
       if (this.state.liquid.shape != null) {
@@ -140,21 +136,18 @@ class Modulo5Dique extends Component {
           this.state.liquid.shape.segments[1].point.x = front.x;
           this.state.liquid.shape.segments[2].point.x = front.x;
           this.state.liquid.shape.segments[3].point = pivotPosition;
-          this.state.liquid.shape.segments[4].point =
-            Paper.view.bounds.bottomLeft;
+          this.state.liquid.shape.segments[4].point = view.bounds.bottomLeft;
         } else {
           if (partiallyOutOfWater) {
             this.state.liquid.shape.segments[1].point.x = midPoint.x;
             this.state.liquid.shape.segments[2].point = midPoint;
             this.state.liquid.shape.segments[3].point = pivotPosition;
-            this.state.liquid.shape.segments[4].point =
-              Paper.view.bounds.bottomLeft;
+            this.state.liquid.shape.segments[4].point = view.bounds.bottomLeft;
           } else {
             this.state.liquid.shape.segments[1].point.x = back.x;
             this.state.liquid.shape.segments[2].point = back;
             this.state.liquid.shape.segments[3].point = pivotPosition;
-            this.state.liquid.shape.segments[4].point =
-              Paper.view.bounds.bottomLeft;
+            this.state.liquid.shape.segments[4].point = view.bounds.bottomLeft;
           }
         }
       }
@@ -162,7 +155,7 @@ class Modulo5Dique extends Component {
   }
 
   getLiquidHeight() {
-    return Paper.view.size.height * 0.2;
+    return view.size.height * 0.2;
   }
 
   onPressureTypeChange = (event) => {
@@ -224,11 +217,11 @@ class Modulo5Dique extends Component {
     const L =
       surface.length * lerp(0.5 + cosOfAngle * 0.166, 1, submergePercentage); // el número importante <-----
 
-    const top = new Paper.Point(
-      Paper.view.center.x + (sinOfAngle * surface.length) / 2,
+    const top = new Point(
+      view.center.x + (sinOfAngle * surface.length) / 2,
       this.getLiquidHeight() + surface.depth
     );
-    const lengthOffset = new Paper.Point(
+    const lengthOffset = new Point(
       -L * Math.sin(angleInRadians),
       L * Math.cos(angleInRadians)
     );
@@ -236,22 +229,22 @@ class Modulo5Dique extends Component {
   }
 
   canvasFunction() {
-    const center = Paper.view.center;
+    const center = view.center;
 
-    const background = new Paper.Path.Rectangle(
-      new Paper.Rectangle(new Paper.Point(0, 0), Paper.view.size)
+    const background = new Path.Rectangle(
+      new Rectangle(new Point(0, 0), view.size)
     );
     background.fillColor = "white";
 
     const liquid = {
-      shape: new Paper.Path(),
+      shape: new Path(),
       density: 10,
     };
-    liquid.shape.add(Paper.view.bounds.leftCenter);
-    liquid.shape.add(Paper.view.bounds.rightCenter);
-    liquid.shape.add(Paper.view.bounds.bottomRight);
-    liquid.shape.add(Paper.view.bounds.bottomLeft);
-    liquid.shape.add(Paper.view.bounds.bottomLeft);
+    liquid.shape.add(view.bounds.leftCenter);
+    liquid.shape.add(view.bounds.rightCenter);
+    liquid.shape.add(view.bounds.bottomRight);
+    liquid.shape.add(view.bounds.bottomLeft);
+    liquid.shape.add(view.bounds.bottomLeft);
     const liquidHeight = this.getLiquidHeight();
     liquid.shape.segments[0].point.y = liquidHeight;
     liquid.shape.segments[1].point.y = liquidHeight;
@@ -259,7 +252,7 @@ class Modulo5Dique extends Component {
       fillColor: "#1976D2",
     };
     const surface = {
-      sideShape: new Paper.Path({
+      sideShape: new Path({
         fillColor: "#DB1F48",
         strokeColor: "black",
         strokeWidth: 2,
@@ -272,18 +265,18 @@ class Modulo5Dique extends Component {
       girth: 20,
       angle: 45,
     };
-    surface.sideShape.add(new Paper.Point(0, 0));
-    surface.sideShape.add(new Paper.Point(0, 0));
-    surface.sideShape.add(new Paper.Point(0, 0));
-    surface.sideShape.add(new Paper.Point(0, 0));
+    surface.sideShape.add(new Point(0, 0));
+    surface.sideShape.add(new Point(0, 0));
+    surface.sideShape.add(new Point(0, 0));
+    surface.sideShape.add(new Point(0, 0));
     this.updateSurface(surface);
 
     const forceVectorArray = new VectorArray();
     surface.forceVectorArray = forceVectorArray;
 
     const equivalentForceArrow = new VectorArrow(
-      new Paper.Point(0, 0),
-      new Paper.Point(0, 0),
+      new Point(0, 0),
+      new Point(0, 0),
       "#ff8040",
       8,
       20,
@@ -293,27 +286,27 @@ class Modulo5Dique extends Component {
     );
 
     const levelSimbol = new LevelSimbol(
-      new Point(Paper.view.bounds.left + 100, this.getLiquidHeight()),
+      new Point(view.bounds.left + 100, this.getLiquidHeight()),
       "white"
     );
 
-    const floor = new Paper.Shape.Rectangle(
-      new Paper.Rectangle(new Paper.Point(0, 0), new Paper.Point(1000, 1000))
+    const floor = new Shape.Rectangle(
+      new Rectangle(new Point(0, 0), new Point(1000, 1000))
     );
     floor.style = {
       fillColor: "grey",
       strokeColor: "black",
       strokeWidth: 2,
     };
-    const wall = new Paper.Shape.Rectangle(
-      new Paper.Rectangle(new Paper.Point(0, 0), new Paper.Point(1000, 1000))
+    const wall = new Shape.Rectangle(
+      new Rectangle(new Point(0, 0), new Point(1000, 1000))
     );
     wall.style = {
       fillColor: "grey",
       strokeColor: "black",
       strokeWidth: 2,
     };
-    const pivot = new Paper.Shape.Circle(new Paper.Point(0, 0), 20);
+    const pivot = new Shape.Circle(new Point(0, 0), 20);
     pivot.style = {
       fillColor: "grey",
       strokeColor: "black",
@@ -331,7 +324,7 @@ class Modulo5Dique extends Component {
     newState.pivot = pivot;
     this.setState(newState);
 
-    Paper.view.onFrame = (event) => {
+    view.onFrame = (event) => {
       this.update(event.delta);
     };
 

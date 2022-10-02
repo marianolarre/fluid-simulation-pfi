@@ -6,8 +6,7 @@ import PanelAndCanvas from "../components/PanelAndCanvas";
 import AddIcon from "@mui/icons-material/Add";
 import { MathComponent } from "mathjax-react";
 
-import Paper from "paper";
-import { Color, Point } from "paper/dist/paper-core";
+import { view, Point, Size, Path, PointText, Rectangle } from "paper";
 import SliderWithInput from "../components/SliderWithInput";
 
 // p de presion va en minuscula
@@ -69,7 +68,7 @@ class Modulo1FuerzasDePresion extends Component {
   }
 
   getImportantPoints() {
-    const center = Paper.view.center;
+    const center = view.center;
     const halfContainerWidth = this.state.container.width / 2;
     const halfContainerHeight = this.state.container.height / 2;
     const left = center.x - halfContainerWidth;
@@ -110,7 +109,7 @@ class Modulo1FuerzasDePresion extends Component {
       density: newDensity,
       color: liquidColors,
     };
-    liquid.shape = new Paper.Path({
+    liquid.shape = new Path({
       fillColor: liquidColors,
     });
     liquid.shape.add(new Point(0, 0));
@@ -118,7 +117,7 @@ class Modulo1FuerzasDePresion extends Component {
     liquid.shape.add(new Point(0, 0));
     liquid.shape.add(new Point(0, 0));
 
-    liquid.topLineShape = new Paper.Path({
+    liquid.topLineShape = new Path({
       strokeColor: "white",
       strokeWidth: 3,
       dashArray: [12, 13],
@@ -127,7 +126,7 @@ class Modulo1FuerzasDePresion extends Component {
     liquid.topLineShape.add(new Point(0, 0));
     liquid.topLineShape.add(new Point(0, 0));
 
-    liquid.pressureText = new Paper.PointText({
+    liquid.pressureText = new PointText({
       justification: "left",
       fillColor: "white",
       fontSize: 15,
@@ -413,27 +412,27 @@ class Modulo1FuerzasDePresion extends Component {
   }
 
   canvasFunction() {
-    const center = Paper.view.center;
+    const center = view.center;
 
-    const background = new Paper.Path.Rectangle(
-      new Paper.Rectangle(new Paper.Point(0, 0), Paper.view.size)
+    const background = new Path.Rectangle(
+      new Rectangle(new Point(0, 0), view.size)
     );
     background.fillColor = "#ffffff";
 
-    const container = new Paper.Path({
+    const container = new Path({
       fillColor: "transparent",
       strokeColor: "black",
       strokeWidth: 5,
     });
 
-    const atmPressureText = new Paper.PointText({
+    const atmPressureText = new PointText({
       justification: "left",
       fillColor: "black",
       fontSize: 15,
       content: "0 atm",
       visible: true,
     });
-    const bottomPressureText = new Paper.PointText({
+    const bottomPressureText = new PointText({
       justification: "left",
       fillColor: "white",
       fontSize: 15,
@@ -461,7 +460,7 @@ class Modulo1FuerzasDePresion extends Component {
       new Point(this.state.container.width / 2, this.state.container.height / 2)
     );
 
-    /*Paper.view.onFrame = (event) => {
+    /*view.onFrame = (event) => {
 
     };*/
 

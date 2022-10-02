@@ -4,10 +4,11 @@ import Canvas from "../components/Canvas";
 import PanelAndCanvas from "../components/PanelAndCanvas";
 
 import { Grid } from "@mui/material";
-import { Color, view, Point } from "paper";
+import { Path, view, Color, Point, Size, Rectangle } from "paper";
 import SliderWithInput from "../components/SliderWithInput";
+import { ScrollingRectangle } from "../paperUtility";
 
-class ModuloPlantilla extends Component {
+class Modulo10FlujoViscoso extends Component {
   state = {
     value: 0,
     background: {
@@ -21,6 +22,12 @@ class ModuloPlantilla extends Component {
     this.setState({ value: event.target.value });
   };
 
+  update(delta) {
+    if (this.state.ready) {
+      this.state.scrollingRectangle.update(delta);
+    }
+  }
+
   canvasFunction() {
     const center = view.center;
 
@@ -29,21 +36,25 @@ class ModuloPlantilla extends Component {
     );
     background.fillColor = "white";
 
-    const line = new Path.Line(new Point(100, 100), new Point(200, 200));
-    line.style = {
-      strokeColor: "black",
-      strokeWidth: 4,
-    };
+    const scrollingRectangle = new ScrollingRectangle(
+      new Point(200, 200),
+      new Size(100, 50),
+      45,
+      -30,
+      3,
+      "#0088aa",
+      "#00ccff"
+    );
 
     let newState = { ...this.state };
     newState.background.shape = background;
-    newState.line = line;
     newState.ready = true;
+    newState.scrollingRectangle = scrollingRectangle;
     this.setState(newState);
 
-    /*view.onFrame = (event) => {
+    view.onFrame = (event) => {
       this.update(event.delta);
-    };*/
+    };
 
     window.addEventListener(
       "resize",
@@ -57,21 +68,11 @@ class ModuloPlantilla extends Component {
   render() {
     return (
       <PanelAndCanvas
-        title="Plantilla"
+        title="Flujo viscoso"
         panel={
           <>
             <Grid container spacing="2%" alignItems="stretch">
-              <Grid item xs={12}>
-                <SliderWithInput
-                  label="Valor"
-                  step={1}
-                  min={0}
-                  max={100}
-                  unit="cm"
-                  value={this.state.value}
-                  onChange={this.onValueChanged}
-                ></SliderWithInput>
-              </Grid>
+              <Grid item xs={12}></Grid>
             </Grid>
           </>
         }
@@ -85,4 +86,4 @@ class ModuloPlantilla extends Component {
   }
 }
 
-export default ModuloPlantilla;
+export default Modulo10FlujoViscoso;

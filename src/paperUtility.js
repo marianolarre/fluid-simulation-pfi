@@ -1,5 +1,4 @@
-import { Point, Color, Path } from "paper";
-import { Group } from "paper/dist/paper-core";
+import { Point, Color, Path, Group, Rectangle, Shape, Size } from "paper";
 
 export function addPoints(a, b) {
   return new Point(a.x + b.x, a.y + b.y);
@@ -403,5 +402,111 @@ export class VectorArray {
       }
     }
     this.profile.segments = profilePoints;
+  }
+}
+
+export class ScrollingRectangle {
+  constructor(
+    position,
+    size,
+    angle,
+    waveSpeed,
+    waveCount,
+    backgroundColor,
+    waveColor
+  ) {
+    this.clipMask = new Shape.Rectangle(new Point(0, 0), size);
+    this.background = new Shape.Rectangle(new Point(0, 0), size);
+    this.background.fillColor = backgroundColor;
+    this.position = position;
+    this.size = size;
+    this.waveSpeed = waveSpeed;
+    this.waveCount = waveCount;
+    this.waves = [];
+    const group = new Group([this.clipMask, this.background]);
+    group.clipped = true;
+    const waveSize = new Size(size.width / waveCount, size.height);
+    for (let i = 0; i < this.getWaveShapeCount(); i++) {
+      const newWave = new Shape.Rectangle(
+        new Point((i * size.width * 2) / waveCount, 0),
+        waveSize
+      );
+      newWave.fillColor = waveColor;
+      this.waves.push(newWave);
+      group.addChild(newWave);
+    }
+    group.applyMatrix = false;
+    group.translate(position);
+    group.rotate(angle);
+    this.group = group;
+  }
+
+  update(delta) {
+    const motion = new Point(delta * this.waveSpeed, 0);
+    const waveWidth = this.size.width / this.waveCount;
+    if (this.waveSpeed > 0) {
+      for (let i = 0; i < this.getWaveShapeCount(); i++) {
+        if (this.waves[i].position.x < this.size.width + waveWidth / 2) {
+          this.waves[i].translate(motion);
+        } else {
+          if (this.waveCount % 2 == 0) {
+            this.waves[i].translate(
+              motion.x - waveWidth * 2 - this.size.width,
+              0
+            );
+          } else {
+            this.waves[i].translate(motion.x - waveWidth - this.size.width, 0);
+          }
+        }
+      }
+    }
+    if (this.waveSpeed < 0) {
+      for (let i = 0; i < this.getWaveShapeCount(); i++) {
+        if (this.waves[i].position.x > -waveWidth / 2) {
+          this.waves[i].translate(motion);
+        } else {
+          if (this.waveCount % 2 == 0) {
+            this.waves[i].translate(
+              motion.x + waveWidth * 2 + this.size.width,
+              0
+            );
+          } else {
+            this.waves[i].translate(motion.x + waveWidth + this.size.width, 0);
+          }
+        }
+      }
+    }
+  }
+
+  getWaveShapeCount() {
+    return (this.waveCount + 1) / 2;
+  }
+
+  bringToFront() {
+    this.group.bringToFront();
+  }
+
+  sendToBack() {
+    this.group.sendToBack();
+  }
+
+  setSpeed(newSpeed) {
+    this.waveSpeed = newSpeed;
+  }
+
+  setPosition(point) {
+    this.group.position.set(point);
+  }
+
+  setRotation(rotation) {
+    this.group.rotation = rotation;
+  }
+
+  setHeight(newHeight) {
+    this.clipMask.size.height = newHeight;
+    this.background.size.height = newHeight;
+    for (let i = 0; i < this.getWaveShapeCount(); i++) {
+      this.waves[i].size.height = newHeight;
+    }
   }
 }

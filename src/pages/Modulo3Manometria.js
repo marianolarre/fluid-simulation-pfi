@@ -4,8 +4,7 @@ import Canvas from "../components/Canvas";
 import PanelAndCanvas from "../components/PanelAndCanvas";
 import AddIcon from "@mui/icons-material/Add";
 
-import Paper from "paper";
-import { Color, Point } from "paper/dist/paper-core";
+import { view, Point, Size, Path, Shape, Rectangle, PointText } from "paper";
 import SliderWithInput from "../components/SliderWithInput";
 
 import {
@@ -91,7 +90,7 @@ class Modulo3Manometria extends Component {
     const minDifference = -11;
     const maxDifference = 12;
 
-    const center = Paper.view.center;
+    const center = view.center;
 
     const airPressureDifference =
       this.state.reservoir.pressure - this.state.atmosphericPressure;
@@ -172,43 +171,35 @@ class Modulo3Manometria extends Component {
   }
 
   canvasFunction() {
-    const center = Paper.view.center;
+    const center = view.center;
 
-    const background = new Paper.Path.Rectangle(
-      new Paper.Rectangle(new Paper.Point(0, 0), Paper.view.size)
+    const background = new Path.Rectangle(
+      new Rectangle(new Point(0, 0), view.size)
     );
     background.fillColor = "#ffffff";
 
-    const reservoir = new Paper.Shape.Circle(
-      new Paper.Point(center.x - 250, center.y - 150),
+    const reservoir = new Shape.Circle(
+      new Point(center.x - 250, center.y - 150),
       50
     );
     reservoir.strokeColor = "black";
     reservoir.fillColor = this.state.reservoir.color;
     reservoir.strokeWidth = 10;
-    const pipeExterior = new Paper.Path({
+    const pipeExterior = new Path({
       fillColor: "transparent",
       strokeColor: "black",
       strokeWidth: 40,
       strokeJoin: "round",
     });
     pipeExterior.add(
-      new Paper.Point(center.x + leftColumnXOffset - 100, center.y - 150)
+      new Point(center.x + leftColumnXOffset - 100, center.y - 150)
     );
-    pipeExterior.add(
-      new Paper.Point(center.x + leftColumnXOffset, center.y - 150)
-    );
-    pipeExterior.add(
-      new Paper.Point(center.x + leftColumnXOffset, center.y + 350)
-    );
-    pipeExterior.add(
-      new Paper.Point(center.x + rightColumnXOffset, center.y + 350)
-    );
-    pipeExterior.add(
-      new Paper.Point(center.x + rightColumnXOffset, center.y - 350)
-    );
+    pipeExterior.add(new Point(center.x + leftColumnXOffset, center.y - 150));
+    pipeExterior.add(new Point(center.x + leftColumnXOffset, center.y + 350));
+    pipeExterior.add(new Point(center.x + rightColumnXOffset, center.y + 350));
+    pipeExterior.add(new Point(center.x + rightColumnXOffset, center.y - 350));
 
-    const pipeInterior = new Paper.Path({
+    const pipeInterior = new Path({
       fillColor: "transparent",
       strokeColor: "white",
       strokeWidth: 20,
@@ -217,33 +208,33 @@ class Modulo3Manometria extends Component {
     });
     pipeInterior.segments = pipeExterior.segments;
 
-    reservoir.pipeShape = new Paper.Path({
+    reservoir.pipeShape = new Path({
       strokeColor: this.state.reservoir.color,
       strokeWidth: 20,
       strokeCap: "square",
       strokeJoin: "round",
     });
     reservoir.pipeShape.add(
-      new Paper.Point(center.x + leftColumnXOffset - 100, center.y - 150)
+      new Point(center.x + leftColumnXOffset - 100, center.y - 150)
     );
     reservoir.pipeShape.add(
-      new Paper.Point(center.x + leftColumnXOffset, center.y - 150)
+      new Point(center.x + leftColumnXOffset, center.y - 150)
     );
     reservoir.pipeShape.add(
-      new Paper.Point(center.x + leftColumnXOffset, center.y + 330)
+      new Point(center.x + leftColumnXOffset, center.y + 330)
     );
 
-    const liquid = new Paper.Path({
+    const liquid = new Path({
       fillColor: "transparent",
       strokeColor: "#1976D2",
       strokeWidth: 20,
       strokeJoin: "round",
       strokeCap: "butt",
     });
-    liquid.add(new Paper.Point(center.x + leftColumnXOffset, center.y + 100));
-    liquid.add(new Paper.Point(center.x + leftColumnXOffset, center.y + 350));
-    liquid.add(new Paper.Point(center.x + rightColumnXOffset, center.y + 350));
-    liquid.add(new Paper.Point(center.x + rightColumnXOffset, center.y - 50));
+    liquid.add(new Point(center.x + leftColumnXOffset, center.y + 100));
+    liquid.add(new Point(center.x + leftColumnXOffset, center.y + 350));
+    liquid.add(new Point(center.x + rightColumnXOffset, center.y + 350));
+    liquid.add(new Point(center.x + rightColumnXOffset, center.y - 50));
 
     const columnInfo = {};
     const measureLineStyle = {
@@ -251,11 +242,11 @@ class Modulo3Manometria extends Component {
       strokeWidth: 4,
     };
     columnInfo.heightMeasure = {
-      rightLine: new Paper.Path(measureLineStyle),
-      leftLine: new Paper.Path(measureLineStyle),
+      rightLine: new Path(measureLineStyle),
+      leftLine: new Path(measureLineStyle),
       arrow: new VectorArrow(
-        new Paper.Point(0, 0),
-        new Paper.Point(0, 0),
+        new Point(0, 0),
+        new Point(0, 0),
         "black",
         2,
         5,
@@ -276,7 +267,7 @@ class Modulo3Manometria extends Component {
       new Point(center.x + 60, center.y + 100)
     );
 
-    columnInfo.heightMeasure.text = new Paper.PointText(
+    columnInfo.heightMeasure.text = new PointText(
       new Point(center.x, center.y)
     );
     columnInfo.heightMeasure.text.fontSize = 20;
@@ -288,7 +279,7 @@ class Modulo3Manometria extends Component {
     newState.ready = true;
     this.setState(newState);
 
-    Paper.view.onFrame = (event) => {
+    view.onFrame = (event) => {
       this.updateFluid(event.delta);
     };
   }

@@ -6,8 +6,7 @@ import PanelAndCanvas from "../components/PanelAndCanvas";
 import MyRadio from "../components/MyRadio";
 import { Grid, Button, Typography, Box } from "@mui/material";
 import { Paper as MUIPaper } from "@mui/material";
-import Paper from "paper";
-import { Color, Point } from "paper/dist/paper-core";
+import { view, Point, Size, Path, Shape, Rectangle } from "paper";
 import SliderWithInput from "../components/SliderWithInput";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
@@ -44,12 +43,12 @@ class Modulo6Flotacion extends Component {
     buoy: {
       shape: null,
       area: 0,
-      velocity: new Paper.Point(0, 0),
+      velocity: new Point(0, 0),
       angularVelocity: 0,
       density: 1.5,
-      pos: new Paper.Point(0, 0),
+      pos: new Point(0, 0),
       angle: 0,
-      centerOfMass: new Paper.Point(0, 0),
+      centerOfMass: new Point(0, 0),
       buoyancyCenterShape: null,
       massCenterShape: null,
       weightArrow: null,
@@ -114,7 +113,7 @@ class Modulo6Flotacion extends Component {
     this.removeIntersectionErrors();
 
     // Create a new path and set its stroke color to black:
-    const newShape = new Paper.Path({
+    const newShape = new Path({
       strokeWidth: 3,
       strokeColor: "black",
       dashArray: [5, 5],
@@ -173,41 +172,29 @@ class Modulo6Flotacion extends Component {
 
   onSelectPresetRectangle = (event) => {
     this.removeCurrentShape();
-    const newShape = new Paper.Path.Rectangle({
-      point: new Paper.Point(
-        Paper.view.bounds.width / 4,
-        Paper.view.bounds.height / 8
-      ),
-      size: new Paper.Size(
-        Paper.view.bounds.width / 2,
-        Paper.view.bounds.height / 5
-      ),
+    const newShape = new Path.Rectangle({
+      point: new Point(view.bounds.width / 4, view.bounds.height / 8),
+      size: new Size(view.bounds.width / 2, view.bounds.height / 5),
     });
     this.registerShape(newShape);
   };
 
   onSelectPresetCircle = (event) => {
     this.removeCurrentShape();
-    const newShape = new Paper.Path.Circle({
-      center: new Paper.Point(
-        Paper.view.bounds.width / 2,
-        Paper.view.bounds.height / 4
-      ),
-      radius: Paper.view.bounds.height / 6,
+    const newShape = new Path.Circle({
+      center: new Point(view.bounds.width / 2, view.bounds.height / 4),
+      radius: view.bounds.height / 6,
     });
     this.registerShape(newShape);
   };
 
   onSelectPresetBoat = (event) => {
     this.removeCurrentShape();
-    const boatWidth = Paper.view.bounds.width / 2;
-    const center = new Paper.Point(
-      Paper.view.bounds.width / 2,
-      Paper.view.bounds.height / 4
-    );
-    const newShape = new Paper.Path.Circle({
+    const boatWidth = view.bounds.width / 2;
+    const center = new Point(view.bounds.width / 2, view.bounds.height / 4);
+    const newShape = new Path.Circle({
       center: center,
-      radius: Paper.view.bounds.height / 6,
+      radius: view.bounds.height / 6,
     });
     // Left point
     newShape.segments[0].point.x = center.x - boatWidth / 2;
@@ -285,21 +272,21 @@ class Modulo6Flotacion extends Component {
     var intersections = shape.getIntersections(shape);
 
     for (let i = 0; i < intersections.length; i++) {
-      var newShape = new Paper.Path({
+      var newShape = new Path({
         style: { fillColor: "red", strokeColor: "black", strokeWidth: 2 },
       });
-      newShape.add(new Paper.Point(-20, -10));
-      newShape.add(new Paper.Point(-10, -20));
-      newShape.add(new Paper.Point(0, -10));
-      newShape.add(new Paper.Point(10, -20));
-      newShape.add(new Paper.Point(20, -10));
-      newShape.add(new Paper.Point(10, 0));
-      newShape.add(new Paper.Point(20, 10));
-      newShape.add(new Paper.Point(10, 20));
-      newShape.add(new Paper.Point(0, 10));
-      newShape.add(new Paper.Point(-10, 20));
-      newShape.add(new Paper.Point(-20, 10));
-      newShape.add(new Paper.Point(-10, 0));
+      newShape.add(new Point(-20, -10));
+      newShape.add(new Point(-10, -20));
+      newShape.add(new Point(0, -10));
+      newShape.add(new Point(10, -20));
+      newShape.add(new Point(20, -10));
+      newShape.add(new Point(10, 0));
+      newShape.add(new Point(20, 10));
+      newShape.add(new Point(10, 20));
+      newShape.add(new Point(0, 10));
+      newShape.add(new Point(-10, 20));
+      newShape.add(new Point(-20, 10));
+      newShape.add(new Point(-10, 0));
       newShape.closePath();
       newShape.position = intersections[i].point;
       createdShapes.push(newShape);
@@ -331,7 +318,7 @@ class Modulo6Flotacion extends Component {
       let newState = { ...this.state };
       newState.buoy.shape = shape;
       newState.buoy.area = Math.abs(shape.area);
-      newState.buoy.velocity = new Paper.Point(0, 0);
+      newState.buoy.velocity = new Point(0, 0);
       newState.buoy.pos = shape.bounds.center;
       newState.buoy.centerOfMassOffset = centerOfMassOffset;
       newState.buoy.angle = 0;
@@ -350,15 +337,13 @@ class Modulo6Flotacion extends Component {
         if (buoy.shape.bounds.leftCenter.x < 0) {
           translation.x -= buoy.shape.bounds.leftCenter.x;
         }
-        if (buoy.shape.bounds.rightCenter.x > Paper.view.bounds.rightCenter.x) {
+        if (buoy.shape.bounds.rightCenter.x > view.bounds.rightCenter.x) {
           translation.x +=
-            Paper.view.bounds.rightCenter.x - buoy.shape.bounds.rightCenter.x;
+            view.bounds.rightCenter.x - buoy.shape.bounds.rightCenter.x;
         }
-        if (
-          buoy.shape.bounds.bottomCenter.y > Paper.view.bounds.bottomCenter.y
-        ) {
+        if (buoy.shape.bounds.bottomCenter.y > view.bounds.bottomCenter.y) {
           translation.y +=
-            Paper.view.bounds.bottomCenter.y - buoy.shape.bounds.bottomCenter.y;
+            view.bounds.bottomCenter.y - buoy.shape.bounds.bottomCenter.y;
           const intersections = buoy.shape.getIntersections(
             this.state.liquid.shape
           );
@@ -425,7 +410,7 @@ class Modulo6Flotacion extends Component {
         buoy.weightArrow.bringToFront();
         buoy.weightArrow.SetPosition(
           centerOfMass,
-          addPoints(centerOfMass, new Paper.Point(0, gravitationalForce / 8000))
+          addPoints(centerOfMass, new Point(0, gravitationalForce / 8000))
         );
         buoy.weightArrow.setVisible(showingEqForces);
 
@@ -447,7 +432,7 @@ class Modulo6Flotacion extends Component {
           buoy.buoyancyArrow.setVisible(showingEqForces);
           buoy.buoyancyArrow.SetPosition(
             submergedCenter,
-            addPoints(submergedCenter, new Paper.Point(0, buoyancyForce / 8000))
+            addPoints(submergedCenter, new Point(0, buoyancyForce / 8000))
           );
 
           newAngularVelocity += torque / mass;
@@ -490,7 +475,7 @@ class Modulo6Flotacion extends Component {
   }
 
   getPressureAtPosition(position) {
-    const level = Paper.view.center.y;
+    const level = view.center.y;
     const depth = Math.max(0, position.y - level);
     const atmPressure = this.state.absolutePressure
       ? this.state.atmosphericPressure
@@ -510,9 +495,9 @@ class Modulo6Flotacion extends Component {
     const chunks = [];
     for (let x = bounds.x; x < bounds.x + bounds.width; x += w) {
       for (let y = bounds.y; y < bounds.y + bounds.height; y += h) {
-        const section = new Paper.Path.Rectangle(
-          new Paper.Point(x, y),
-          new Paper.Point(x + w, y + h)
+        const section = new Path.Rectangle(
+          new Point(x, y),
+          new Point(x + w, y + h)
         );
         const intersection = section.intersect(shape);
         section.remove();
@@ -531,42 +516,39 @@ class Modulo6Flotacion extends Component {
       weight += chunkWeight;
       chunks[c].remove();
     }
-    return new Paper.Point(xsum / weight, ysum / weight);
+    return new Point(xsum / weight, ysum / weight);
   }
 
   canvasFunction() {
-    const center = Paper.view.center;
+    const center = view.center;
 
-    const background = new Paper.Path.Rectangle(
-      new Paper.Rectangle(new Paper.Point(0, 0), Paper.view.size)
+    const background = new Path.Rectangle(
+      new Rectangle(new Point(0, 0), view.size)
     );
     background.fillColor = "white";
 
-    const liquidShape = new Paper.Path.Rectangle(
-      new Paper.Rectangle(
-        Paper.view.bounds.leftCenter,
-        Paper.view.bounds.bottomRight
-      )
+    const liquidShape = new Path.Rectangle(
+      new Rectangle(view.bounds.leftCenter, view.bounds.bottomRight)
     );
     liquidShape.style = {
       fillColor: this.state.liquid.color,
     };
 
     const levelSimbol = new LevelSimbol(
-      addPoints(Paper.view.bounds.rightCenter, new Point(-50, 0)),
+      addPoints(view.bounds.rightCenter, new Point(-50, 0)),
       "white"
     );
 
-    const buoyancyCenterShape = new Paper.Path.Circle(new Paper.Point(0, 0), 8);
+    const buoyancyCenterShape = new Path.Circle(new Point(0, 0), 8);
     buoyancyCenterShape.style = { fillColor: "black" };
     buoyancyCenterShape.visible = false;
-    const massCenterShape = new Paper.Path.Circle(new Paper.Point(0, 0), 10);
+    const massCenterShape = new Path.Circle(new Point(0, 0), 10);
     massCenterShape.style = { fillColor: "yellow" };
     massCenterShape.visible = false;
 
     const weightArrow = new VectorArrow(
-      new Paper.Point(0, 0),
-      new Paper.Point(0, 0),
+      new Point(0, 0),
+      new Point(0, 0),
       "yellow",
       12,
       17,
@@ -575,8 +557,8 @@ class Modulo6Flotacion extends Component {
     weightArrow.setVisible(false);
 
     const buoyancyArrow = new VectorArrow(
-      new Paper.Point(0, 0),
-      new Paper.Point(0, 0),
+      new Point(0, 0),
+      new Point(0, 0),
       "black",
       8,
       17,
@@ -596,17 +578,17 @@ class Modulo6Flotacion extends Component {
     newState.ready = true;
     this.setState(newState);
 
-    Paper.view.onFrame = (event) => {
+    view.onFrame = (event) => {
       this.updateSimulation(event.delta);
     };
 
-    Paper.view.onMouseDown = (event) => {
+    view.onMouseDown = (event) => {
       this.onMouseDown(event);
     };
-    Paper.view.onMouseDrag = (event) => {
+    view.onMouseDrag = (event) => {
       this.onMouseDrag(event);
     };
-    Paper.view.onMouseUp = (event) => {
+    view.onMouseUp = (event) => {
       this.onMouseUp(event);
     };
   }

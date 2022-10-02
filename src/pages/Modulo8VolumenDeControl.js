@@ -7,10 +7,9 @@ import AddIcon from "@mui/icons-material/Add";
 
 import { Button } from "@mui/material";
 import { Grid } from "@mui/material";
-import Paper from "paper";
-import { Color, Point } from "paper/dist/paper-core";
+import { view, Point, Size, Path, Shape, Group, Rectangle } from "paper";
 import SliderWithInput from "../components/SliderWithInput";
-import { addPoints, VectorArrow } from "../paperUtility";
+import { addPoints, ScrollingRectangle, VectorArrow } from "../paperUtility";
 
 const pipeLength = 100;
 const pipeStroke = 4;
@@ -30,7 +29,11 @@ class Modulo8VolumenDeControl extends Component {
     pipes: [],
   };
 
-  update(delta) {}
+  update(delta) {
+    for (let i = 0; i < this.state.pipes.length; i++) {
+      this.state.pipes[i].scrollingRectangle.update(delta);
+    }
+  }
 
   handleAddPipe() {
     var newState = { ...this.state };
@@ -79,10 +82,10 @@ class Modulo8VolumenDeControl extends Component {
 
   createNewPipe(angle, section, locked, velocity) {
     const radius = this.state.volume.radius;
-    const outlineShape = new Paper.Shape.Rectangle(
-      new Paper.Rectangle(
-        new Paper.Point(pipeStroke + 1, 0),
-        new Paper.Size(pipeLength + radius - pipeStroke * 2 - 2, section)
+    const outlineShape = new Shape.Rectangle(
+      new Rectangle(
+        new Point(pipeStroke + 1, 0),
+        new Size(pipeLength + radius - pipeStroke * 2 - 2, section)
       )
     );
     outlineShape.sendToBack();
@@ -91,19 +94,16 @@ class Modulo8VolumenDeControl extends Component {
       strokeWidth: pipeStroke * 2,
       fillColor: "#aaaaaa",
     };
-    const fillShape = new Paper.Shape.Rectangle(
-      new Paper.Rectangle(
-        new Paper.Point(0, 0),
-        new Paper.Size(pipeLength + radius, section)
-      )
+    const fillShape = new Shape.Rectangle(
+      new Rectangle(new Point(0, 0), new Size(pipeLength + radius, section))
     );
     fillShape.bringToFront();
     fillShape.style = {
       fillColor: "#dddddd",
     };
     const arrow = new VectorArrow(
-      new Paper.Point(0, 0),
-      new Paper.Point(50, 50),
+      new Point(0, 0),
+      new Point(50, 50),
       "#0088ff",
       5,
       10,
@@ -111,19 +111,29 @@ class Modulo8VolumenDeControl extends Component {
     );
     const angleInRads = (angle * Math.PI) / 180;
     const offset = radius / 2 + pipeLength / 2 - pipeStroke;
-    const position = new Paper.Point(
+    const position = new Point(
       addPoints(
-        Paper.view.center,
-        new Paper.Point(
+        view.center,
+        new Point(
           Math.cos(angleInRads) * offset,
           Math.sin(angleInRads) * offset
         )
       )
     );
-    const group = new Paper.Group([outlineShape, fillShape]);
+    const scrollingRectangle = new ScrollingRectangle(
+      new Point(0, 0),
+      new Size(100, section),
+      0,
+      0,
+      3,
+      "#0088aa",
+      "#00ccff"
+    );
+    const group = new Group([outlineShape, fillShape]);
     group.applyMatrix = false;
     group.position = position;
     group.rotation = angle;
+    scrollingRectangle.bringToFront();
     var newPipe = {
       active: true,
       section: section,
@@ -134,6 +144,7 @@ class Modulo8VolumenDeControl extends Component {
       outlineShape: outlineShape,
       fillShape: fillShape,
       velocityArrow: arrow,
+      scrollingRectangle: scrollingRectangle,
     };
     return newPipe;
   }
@@ -153,8 +164,8 @@ class Modulo8VolumenDeControl extends Component {
     const distanceFromCenter =
       this.state.volume.radius / 2 + pipeLength / 2 - pipeStroke;
     let position = addPoints(
-      Paper.view.center,
-      new Paper.Point(dirX * distanceFromCenter, dirY * distanceFromCenter)
+      view.center,
+      new Point(dirX * distanceFromCenter, dirY * distanceFromCenter)
     );
     let totalSharedSection = 0;
     let sectionBeforeMe = 0;
@@ -177,13 +188,24 @@ class Modulo8VolumenDeControl extends Component {
       const offset = sectionBeforeMe - totalSharedSection / 2;
       position = addPoints(
         position,
-        new Paper.Point(sideDirX * offset, sideDirY * offset)
+        new Point(sideDirX * offset, sideDirY * offset)
       );
     }
     group.position = position;
     group.rotation = pipe.angle;
-    pipe.outlineShape.size.height = pipe.section;
-    pipe.fillShape.size.height = pipe.section;
+    pipe.scrollingRectangle.setPosition(
+      addPoints(
+        position,
+        new Point(
+          dirX * (distanceFromCenter - 46),
+          dirY * (distanceFromCenter - 46)
+        )
+      )
+    );
+    pipe.scrollingRectangle.setRotation(pipe.angle);
+    pipe.scrollingRectangle.setHeight(pipe.section);
+    pipe.outlineShape.size.height = pipe.section + 10;
+    pipe.fillShape.size.height = pipe.section + 10;
     this.updateAllVelocities();
   }
 
@@ -229,7 +251,7 @@ class Modulo8VolumenDeControl extends Component {
     pipe.velocityArrow.SetPosition(
       addPoints(
         pipe.shapeGroup.position,
-        new Paper.Point(
+        new Point(
           dirX *
             (this.state.volume.radius / 2 + pipeLength / 2 + startDist + 10),
           dirY *
@@ -238,7 +260,7 @@ class Modulo8VolumenDeControl extends Component {
       ),
       addPoints(
         pipe.shapeGroup.position,
-        new Paper.Point(
+        new Point(
           dirX * (this.state.volume.radius / 2 + pipeLength / 2 + endDist + 10),
           dirY * (this.state.volume.radius / 2 + pipeLength / 2 + endDist + 10)
         )
@@ -246,17 +268,18 @@ class Modulo8VolumenDeControl extends Component {
     );
     pipe.velocityArrow.SetColor(pipe.lockedVelocity ? "#ff2266" : "#0088ff");
     pipe.velocityArrow.bringToFront();
+    pipe.scrollingRectangle.setSpeed(pipe.velocity * velocityToPixels);
   }
 
   canvasFunction() {
-    const center = Paper.view.center;
+    const center = view.center;
 
-    const background = new Paper.Shape.Rectangle(
-      new Paper.Rectangle(new Paper.Point(0, 0), Paper.view.size)
+    const background = new Shape.Rectangle(
+      new Rectangle(new Point(0, 0), view.size)
     );
     background.fillColor = "white";
 
-    const controlVolumeOutlineShape = new Paper.Shape.Circle(
+    const controlVolumeOutlineShape = new Shape.Circle(
       center,
       this.state.volume.radius
     );
@@ -265,7 +288,7 @@ class Modulo8VolumenDeControl extends Component {
       strokeWidth: pipeStroke,
       fillColor: "#dddddd",
     };
-    const controlVolumeFillShape = new Paper.Shape.Circle(
+    const controlVolumeFillShape = new Shape.Circle(
       center,
       this.state.volume.radius - pipeStroke / 2
     );
@@ -288,7 +311,7 @@ class Modulo8VolumenDeControl extends Component {
     );
 
     controlVolumeFillShape.bringToFront();
-    Paper.view.onFrame = (event) => {
+    view.onFrame = (event) => {
       this.update(event.delta);
     };
 
