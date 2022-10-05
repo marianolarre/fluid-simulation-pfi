@@ -16,6 +16,10 @@ export function lerp(a, b, t) {
   return a * (1 - t) + b * t;
 }
 
+export function randomRange(a, b) {
+  return lerp(a, b, Math.random());
+}
+
 export function createBoxPath(shape, center, size) {
   shape.add(new Point(center.x + size.x, center.y - size.y));
   shape.add(new Point(center.x + size.x, center.y + size.y));
@@ -508,5 +512,69 @@ export class ScrollingRectangle {
     for (let i = 0; i < this.getWaveShapeCount(); i++) {
       this.waves[i].size.height = newHeight;
     }
+  }
+
+  remove() {
+    this.background.remove();
+    for (let i = 0; i < this.getWaveShapeCount(); i++) {
+      this.waves[i].remove();
+    }
+  }
+}
+
+export class VelocityParticle {
+  constructor(position, velocity, color, lengthScale, widthScale, lifeTime) {
+    this.line = new Path();
+    this.line.add(subPoints(position, mulPoint(velocity, this.lengthScale)));
+    this.line.add(addPoints(position, mulPoint(velocity, this.lengthScale)));
+    this.initialize(
+      position,
+      velocity,
+      color,
+      lengthScale,
+      widthScale,
+      lifeTime
+    );
+  }
+
+  initialize(position, velocity, color, lengthScale, widthScale, lifeTime) {
+    this.position = position;
+    this.velocity = velocity;
+    this.lengthScale = lengthScale || this.lengthScale;
+    this.widthScale = widthScale || this.widthScale;
+    this.lifeTime = lifeTime || this.lifeTime;
+    this.currentLife = lifeTime || this.lifeTime;
+    this.color = color || this.color;
+    this.line.segments[0].point = subPoints(
+      position,
+      mulPoint(velocity, this.lengthScale)
+    );
+    this.line.segments[1].point = addPoints(
+      position,
+      mulPoint(velocity, this.lengthScale)
+    );
+    this.line.strokeColor = this.color;
+    this.line.strokeCap = "round";
+    this.strokeWidth = widthScale;
+    this.active = true;
+    this.line.visible = true;
+  }
+
+  update(delta) {
+    if (!this.active) return;
+
+    var n = this.currentLife / this.lifeTime;
+    var size = (-(n * n) + n) * 4 * this.widthScale;
+    this.line.strokeWidth = size;
+    this.line.translate(mulPoint(this.velocity, delta));
+    this.currentLife -= delta;
+    if (this.currentLife <= 0) {
+      this.active = false;
+      this.line.visible = false;
+    }
+  }
+
+  remove() {
+    this.line.remove();
   }
 }

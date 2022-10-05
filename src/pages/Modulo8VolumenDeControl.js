@@ -26,6 +26,7 @@ class Modulo8VolumenDeControl extends Component {
       outlineShape: null,
       fillShape: null,
     },
+    density: 10,
     pipes: [],
   };
 
@@ -73,6 +74,7 @@ class Modulo8VolumenDeControl extends Component {
 
     pipes[pipeID].shapeGroup.remove();
     pipes[pipeID].velocityArrow.Remove();
+    pipes[pipeID].scrollingRectangle.remove();
     console.log(pipes);
     pipes.splice(pipeID, 1);
     console.log(pipes);
@@ -122,10 +124,10 @@ class Modulo8VolumenDeControl extends Component {
     );
     const scrollingRectangle = new ScrollingRectangle(
       new Point(0, 0),
-      new Size(100, section),
+      new Size(125, section),
       0,
       0,
-      3,
+      2,
       "#0088aa",
       "#00ccff"
     );
@@ -197,8 +199,8 @@ class Modulo8VolumenDeControl extends Component {
       addPoints(
         position,
         new Point(
-          dirX * (distanceFromCenter - 46),
-          dirY * (distanceFromCenter - 46)
+          dirX * (distanceFromCenter - 60),
+          dirY * (distanceFromCenter - 60)
         )
       )
     );
@@ -211,19 +213,25 @@ class Modulo8VolumenDeControl extends Component {
 
   updateAllVelocities() {
     const pipes = [...this.state.pipes];
-    // Mass conservation
+    // Conservacion de masa
     let lockedMass = 0;
+
+    // Sumo los caudales de los tubos bloqueados
     for (let i = 0; i < pipes.length; i++) {
       if (pipes[i].lockedVelocity) {
         lockedMass += pipes[i].velocity * pipes[i].section;
       }
     }
+
+    // Sumo las secciónes de los tubos desbloqueados
     let unlockedTotalSection = 0;
     for (let i = 0; i < pipes.length; i++) {
       if (!pipes[i].lockedVelocity) {
         unlockedTotalSection += pipes[i].section;
       }
     }
+
+    // Asigno velocidades según el porcentaje de sección
     for (let i = 0; i < pipes.length; i++) {
       if (!pipes[i].lockedVelocity) {
         pipes[i].velocity =
@@ -231,6 +239,8 @@ class Modulo8VolumenDeControl extends Component {
           unlockedTotalSection;
       }
     }
+
+    // Cambio de momento en x
 
     this.setState({ pipes: pipes }, () => {
       for (let i = 0; i < pipes.length; i++) {
@@ -244,7 +254,7 @@ class Modulo8VolumenDeControl extends Component {
     const dirX = Math.cos(angleInRads);
     const dirY = Math.sin(angleInRads);
     const length = Math.max(Math.min(pipe.velocity, 15), -15);
-    const scale = Math.max(1, Math.abs(pipe.velocity / 15));
+    const scale = Math.min(8, Math.max(1, Math.abs(pipe.velocity / 15)));
     const startDist = Math.max(0, -length * velocityToPixels);
     const endDist = Math.max(0, length * velocityToPixels);
     pipe.velocityArrow.SetScale(scale);

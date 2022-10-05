@@ -61,27 +61,21 @@ class Modulo3Manometria extends Component {
 
   componentDidUpdate() {}
 
-  onReservoirPressureChanged(newValue) {
-    var newState = { ...this.state };
-    newState.reservoir.pressure = newValue;
-    this.setState(newState);
-  }
+  onReservoirPressureChanged = (newValue) => {
+    var reservoirCopy = { ...this.state.reservoir };
+    reservoirCopy.pressure = newValue;
+    this.setState({ reservoir: reservoirCopy });
+  };
 
-  onReservoirDensityChanged(newValue) {
-    var newState = { ...this.state };
-    newState.reservoir.density = newValue;
-    this.setState(newState);
-  }
-
-  onAtmosphericPressureChanged(newValue) {
+  onAtmosphericPressureChanged = (newValue) => {
     this.setState({ atmosphericPressure: newValue });
-  }
+  };
 
-  onLiquidDensityChanged(newValue) {
-    var newState = { ...this.state };
-    newState.liquid.density = newValue;
-    this.setState({ newState });
-  }
+  onLiquidDensityChanged = (newValue) => {
+    var liquidCopy = { ...this.state.liquid };
+    liquidCopy.density = newValue;
+    this.setState({ liquid: liquidCopy });
+  };
 
   updateFluid(delta) {
     const level = 100;
@@ -356,7 +350,7 @@ class Modulo3Manometria extends Component {
                   max={100}
                   unit="atm"
                   value={this.state.reservoir.pressure}
-                  onChange={(e) => this.onReservoirPressureChanged(e)}
+                  onChange={this.onReservoirPressureChanged}
                 ></SliderWithInput>
               </Grid>
               <Grid item xs={12}>
@@ -367,7 +361,7 @@ class Modulo3Manometria extends Component {
                   max={100}
                   unit="atm"
                   value={this.state.atmosphericPressure}
-                  onChange={(e) => this.onAtmosphericPressureChanged(e)}
+                  onChange={this.onAtmosphericPressureChanged}
                 ></SliderWithInput>
               </Grid>
               <Grid item xs={12}>
@@ -378,7 +372,7 @@ class Modulo3Manometria extends Component {
                   max={50}
                   unit="kg/m³"
                   value={this.state.liquid.density}
-                  onChange={(e) => this.onLiquidDensityChanged(e)}
+                  onChange={this.onLiquidDensityChanged}
                 ></SliderWithInput>
               </Grid>
             </Grid>
