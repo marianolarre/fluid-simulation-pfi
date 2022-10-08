@@ -97,9 +97,11 @@ class Menu extends Component {
                   <Button variant="contained" disabled>
                     Flujo interno en conducto
                   </Button>
-                  <Button variant="contained" disabled>
-                    Tiro oblicuo con arrastre
-                  </Button>
+                  <Link to="mod13" style={{ textDecoration: "none" }}>
+                    <Button variant="contained" style={buttonStyle}>
+                      Tiro oblicuo con arrastre
+                    </Button>
+                  </Link>
                   <Button variant="contained" disabled>
                     Perfil alar
                   </Button>

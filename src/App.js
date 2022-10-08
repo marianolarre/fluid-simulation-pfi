@@ -12,6 +12,7 @@ import Modulo7Cinematica from "./pages/Modulo7Cinematica";
 import Modulo8VolumenDeControl from "./pages/Modulo8VolumenDeControl";
 import Modulo9FlujoNoViscoso from "./pages/Modulo9FlujoNoViscoso";
 import Modulo10FlujoViscoso from "./pages/Modulo10FlujoViscoso";
+import Modulo13TiroOblicuo from "./pages/Modulo13TiroOblicuo";
 
 function App() {
   useEffect(() => {
@@ -58,6 +59,11 @@ function App() {
         <Route
           path="mod10"
           element={<Modulo10FlujoViscoso></Modulo10FlujoViscoso>}
+        ></Route>
+
+        <Route
+          path="mod13"
+          element={<Modulo13TiroOblicuo></Modulo13TiroOblicuo>}
         ></Route>
       </Routes>
     </BrowserRouter>

@@ -14,6 +14,7 @@ import {
   VelocityParticle,
   addPoints,
   mulPoint,
+  VectorArrow,
 } from "../paperUtility";
 
 const liquidWidth = 1000;
@@ -69,7 +70,7 @@ class Modulo10FlujoViscoso extends Component {
 
   onShowingTensionToggle = (event) => {
     const showingTension = !this.state.showingTension;
-    this.setState({ showingTension: showingTension });
+    this.setState({ showingTension: showingTension }, this.updateLine);
   };
 
   createParticle(position, velocity) {
@@ -144,34 +145,82 @@ class Modulo10FlujoViscoso extends Component {
     }
     this.state.vectorArray.SetValues(points, magnitudes);
 
-    let topTension = -this.getTensionAtPoint(
-      new Point(0, view.center.y - liquidHeight / 2),
-      1
-    );
-    var slope = topTension / this.state.viscosity;
-    var zeroTop = new Point(linex, view.center.y - liquidHeight / 2);
-    let lineTop = addPoints(
-      zeroTop,
-      new Point(this.getSpeedAtPoint(zeroTop), 0)
-    );
-    console.log(slope);
-    var topTensionSlopeDirection = new Point(0, 50);
-    if (topTension != 0) {
-      topTensionSlopeDirection = new Point(1, 1 / slope);
-      topTensionSlopeDirection.length = 50;
-    }
-    this.state.topTangent.segments[0].point = addPoints(
-      lineTop,
-      topTensionSlopeDirection
-    );
-    this.state.topTangent.segments[1].point = addPoints(
-      lineTop,
-      mulPoint(topTensionSlopeDirection, -1)
-    );
+    this.state.topTangent.visible = this.state.showingTension;
+    this.state.bottomTangent.visible = this.state.showingTension;
+    this.state.topTensionVector.setVisible(this.state.showingTension);
+    this.state.bottomTensionVector.setVisible(this.state.showingTension);
+    if (this.state.showingTension) {
+      let topTension = -this.getTensionAtPoint(
+        new Point(0, view.center.y - liquidHeight / 2),
+        1
+      );
+      var topSlope = topTension / this.state.viscosity;
+      var zeroTop = new Point(linex, view.center.y - liquidHeight / 2);
+      let lineTop = addPoints(
+        zeroTop,
+        new Point(this.getSpeedAtPoint(zeroTop), 0)
+      );
+      var topTensionSlopeDirection = new Point(0, 100);
+      if (topTension != 0) {
+        topTensionSlopeDirection = new Point(1, 1 / topSlope);
+        topTensionSlopeDirection.length = 100;
+      }
+      this.state.topTangent.segments[0].point = addPoints(
+        lineTop,
+        topTensionSlopeDirection
+      );
+      this.state.topTangent.segments[1].point = addPoints(
+        lineTop,
+        mulPoint(topTensionSlopeDirection, -1)
+      );
 
-    let bottomTension = this.getTensionAtPoint(
-      new Point(0, view.center.y + liquidHeight / 2)
-    );
+      this.state.topTensionVector.SetPosition(
+        new Point(
+          view.center.x + liquidWidth * 0.2 - topTension * 25,
+          lineTop.y
+        ),
+        new Point(
+          view.center.x + liquidWidth * 0.2 + topTension * 25,
+          lineTop.y
+        )
+      );
+
+      let bottomTension = this.getTensionAtPoint(
+        new Point(0, view.center.y + liquidHeight / 2),
+        1
+      );
+      console.log(bottomTension);
+      var bottomSlope = -bottomTension / this.state.viscosity;
+      var zeroBottom = new Point(linex, view.center.y + liquidHeight / 2);
+      let lineBottom = addPoints(
+        zeroBottom,
+        new Point(this.getSpeedAtPoint(zeroBottom), 0)
+      );
+      var bottomTensionSlopeDirection = new Point(0, 100);
+      if (bottomTension != 0) {
+        bottomTensionSlopeDirection = new Point(1, 1 / bottomSlope);
+        bottomTensionSlopeDirection.length = 100;
+      }
+      this.state.bottomTangent.segments[0].point = addPoints(
+        lineBottom,
+        bottomTensionSlopeDirection
+      );
+      this.state.bottomTangent.segments[1].point = addPoints(
+        lineBottom,
+        mulPoint(bottomTensionSlopeDirection, -1)
+      );
+
+      this.state.bottomTensionVector.SetPosition(
+        new Point(
+          view.center.x + liquidWidth * 0.2 - bottomTension * 25,
+          lineBottom.y
+        ),
+        new Point(
+          view.center.x + liquidWidth * 0.2 + bottomTension * 25,
+          lineBottom.y
+        )
+      );
+    }
   }
 
   getSpeedAtPoint(point) {
@@ -212,8 +261,34 @@ class Modulo10FlujoViscoso extends Component {
       0,
       this.state.speed * scale,
       5,
-      "#004400",
-      "#229922"
+      "#448844",
+      "#66dd66"
+    );
+    const floorRectangle = new ScrollingRectangle(
+      new Point(center.x - liquidWidth / 2, center.y + liquidHeight / 2),
+      new Size(liquidWidth, 30),
+      0,
+      0,
+      5,
+      "#448844",
+      "#55aa55"
+    );
+
+    const topTensionVector = new VectorArrow(
+      new Point(0, 0),
+      new Point(0, 0),
+      "blue",
+      20,
+      20,
+      30
+    );
+    const bottomTensionVector = new VectorArrow(
+      new Point(0, 0),
+      new Point(0, 0),
+      "blue",
+      20,
+      20,
+      30
     );
 
     const liquidRectangle = new Shape.Rectangle(
@@ -223,14 +298,6 @@ class Modulo10FlujoViscoso extends Component {
       )
     );
     liquidRectangle.style.fillColor = "#88aaff";
-
-    const floorRectangle = new Shape.Rectangle(
-      new Rectangle(
-        new Point(center.x - liquidWidth / 2, center.y + liquidHeight / 2),
-        new Size(liquidWidth, 30)
-      )
-    );
-    floorRectangle.style.fillColor = "#004400";
 
     var points = [];
     var magnitudes = [];
@@ -257,15 +324,17 @@ class Modulo10FlujoViscoso extends Component {
     topTangent.add(new Point(0, 0));
     topTangent.add(new Point(0, 0));
     topTangent.style = {
-      strokeWidth: 4,
-      strokeColor: "red",
+      strokeWidth: 2,
+      strokeColor: "black",
+      dashArray: [10, 10],
     };
     const bottomTangent = new Path();
     bottomTangent.add(new Point(0, 0));
     bottomTangent.add(new Point(0, 0));
     bottomTangent.style = {
-      strokeWidth: 4,
-      strokeColor: "red",
+      strokeWidth: 2,
+      strokeColor: "black",
+      dashArray: [10, 10],
     };
 
     let newState = { ...this.state };
@@ -274,7 +343,9 @@ class Modulo10FlujoViscoso extends Component {
     newState.scrollingRectangle = scrollingRectangle;
     newState.vectorArray = vectorArray;
     newState.topTangent = topTangent;
+    newState.topTensionVector = topTensionVector;
     newState.bottomTangent = bottomTangent;
+    newState.bottomTensionVector = bottomTensionVector;
     this.setState(newState);
 
     view.onFrame = (event) => {

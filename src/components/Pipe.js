@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import SliderWithInput from "./SliderWithInput";
 import BackspaceIcon from "@mui/icons-material/Backspace";
-import MyToggle from "./MyToggle";
+import PanelModule from "./PanelModule";
 
 const angleMarks = [
   {
@@ -97,31 +97,42 @@ class CVPipe extends Component {
           }
         ></SliderWithInput>
         <Grid container>
-          <Grid item xs={4}>
-            <MyToggle
-              label="Velocidad fija"
-              checked={this.props.pipe.lockedVelocity}
-              onChange={(newValue) =>
-                this.props.onLockedVelocityChange(newValue, this.props.id)
-              }
-            ></MyToggle>
-          </Grid>
-          <Grid item xs={8}>
-            {this.props.pipe.lockedVelocity && (
-              <SliderWithInput
-                label="Velocidad"
-                step={0.1}
-                min={-10}
-                max={10}
-                marks={velocityMarks}
-                unit="m/s"
-                value={this.props.pipe.velocity}
-                onChange={(newValue) =>
-                  this.props.onVelocityChange(newValue, this.props.id)
-                }
-              ></SliderWithInput>
-            )}
-          </Grid>
+          {(this.props.pipe.lockedVelocity && (
+            <>
+              <Grid item xs={4}>
+                <Button
+                  variant="contained"
+                  onClick={(newValue) =>
+                    this.props.onUnlockedVelocity(newValue, this.props.id)
+                  }
+                >
+                  Hacer velocidad incógnita
+                </Button>
+              </Grid>
+              <Grid item xs={8}>
+                <SliderWithInput
+                  label="Velocidad"
+                  step={0.1}
+                  min={-10}
+                  max={10}
+                  marks={velocityMarks}
+                  unit="m/s"
+                  value={this.props.pipe.velocity}
+                  onChange={(newValue) =>
+                    this.props.onVelocityChange(newValue, this.props.id)
+                  }
+                ></SliderWithInput>
+              </Grid>
+            </>
+          )) || (
+            <PanelModule>
+              <Grid item xs={12}>
+                La velocidad de este tubo es una incógnita, calculada con la
+                ecuación de conservación de la masa:{" "}
+                {Math.round(this.props.pipe.velocity * 100) / 100} m/s^2
+              </Grid>
+            </PanelModule>
+          )}
         </Grid>
       </Paper>
     );

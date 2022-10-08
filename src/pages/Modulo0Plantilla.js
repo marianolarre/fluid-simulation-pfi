@@ -4,7 +4,7 @@ import Canvas from "../components/Canvas";
 import PanelAndCanvas from "../components/PanelAndCanvas";
 
 import { Grid } from "@mui/material";
-import { Color, view, Point } from "paper";
+import { view, Point, Path, Rectangle } from "paper";
 import SliderWithInput from "../components/SliderWithInput";
 
 class ModuloPlantilla extends Component {

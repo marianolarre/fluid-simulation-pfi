@@ -97,12 +97,15 @@ export class VectorArrow {
     const length = this.start.getDistance(this.end);
     const forward = subPoints(this.end, this.start);
     const right = new Point(forward.y, -forward.x);
-    let scale = Math.min(this.headLength, length) / this.headLength;
+    let scale = Math.min(this.headLength, length * 0.75) / this.headLength;
     if (this.showSecondHead) {
-      scale = Math.min(this.headLength, length / 2) / this.headLength;
+      scale = Math.min(this.headLength, length * 0.5) / this.headLength;
     }
     forward.length = this.headLength * scale * this.scale;
-    right.length = this.headWidth * scale * this.scale;
+    right.length = Math.max(
+      this.width * 0.75,
+      this.headWidth * scale * this.scale
+    );
     let vectorEnd = this.end;
     if (!this.hideFirstHead) {
       vectorEnd = subPoints(this.end, forward);

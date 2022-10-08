@@ -38,7 +38,11 @@ class Modulo8VolumenDeControl extends Component {
 
   handleAddPipe() {
     var newState = { ...this.state };
-    newState.pipes.push(this.createNewPipe(0, 50, false));
+    var locked = false;
+    if (this.state.pipes.length >= 1) {
+      locked = true;
+    }
+    newState.pipes.push(this.createNewPipe(0, 50, locked));
     this.setState(newState, () => {
       this.state.volume.fillShape.bringToFront();
       this.updateAllPipes();
@@ -63,9 +67,12 @@ class Modulo8VolumenDeControl extends Component {
     this.setState(newState, this.updateAllPipes);
   }
 
-  handleLockedVelocityChange(event, pipeID) {
+  handleSetAsUnlockedVelocityChange(event, pipeID) {
     var newState = { ...this.state };
-    newState.pipes[pipeID].lockedVelocity = event.target.checked;
+    for (let i = 0; i < newState.pipes.length; i++) {
+      newState.pipes[i].lockedVelocity = true;
+    }
+    newState.pipes[pipeID].lockedVelocity = false;
     this.setState(newState, this.updateAllPipes);
   }
 
@@ -75,9 +82,7 @@ class Modulo8VolumenDeControl extends Component {
     pipes[pipeID].shapeGroup.remove();
     pipes[pipeID].velocityArrow.Remove();
     pipes[pipeID].scrollingRectangle.remove();
-    console.log(pipes);
     pipes.splice(pipeID, 1);
-    console.log(pipes);
 
     this.setState({ pipes: pipes }, this.updateAllPipes);
   }
@@ -141,7 +146,7 @@ class Modulo8VolumenDeControl extends Component {
       section: section,
       angle: angle,
       lockedVelocity: locked,
-      velocity: locked ? velocity : 0,
+      velocity: 0,
       shapeGroup: group,
       outlineShape: outlineShape,
       fillShape: fillShape,
@@ -152,6 +157,17 @@ class Modulo8VolumenDeControl extends Component {
   }
 
   updateAllPipes() {
+    let incognitas = 0;
+    for (let i = 0; i < this.state.pipes.length; i++) {
+      if (!this.state.pipes[i].lockedVelocity) {
+        incognitas += 1;
+      }
+    }
+    if (this.state.pipes.length > 0) {
+      if (incognitas == 0) {
+        this.state.pipes[0].lockedVelocity = false;
+      }
+    }
     for (let i = 0; i < this.state.pipes.length; i++) {
       this.updatePipe(this.state.pipes[i], i);
     }
@@ -313,7 +329,6 @@ class Modulo8VolumenDeControl extends Component {
     let newPipes = [];
     newPipes.push(this.createNewPipe(180, 50, true, -10));
     newPipes.push(this.createNewPipe(0, 25, false));
-    newPipes.push(this.createNewPipe(45, 75, false));
 
     this.setState(
       { volume: volumeCopy, ready: true, pipes: newPipes },
@@ -355,8 +370,8 @@ class Modulo8VolumenDeControl extends Component {
                     onSectionChange={(e, index) =>
                       this.handleSectionChange(e, index)
                     }
-                    onLockedVelocityChange={(e, index) =>
-                      this.handleLockedVelocityChange(e, index)
+                    onUnlockedVelocity={(e, index) =>
+                      this.handleSetAsUnlockedVelocityChange(e, index)
                     }
                     onRemoveButtonClicked={(e) => this.handlePipeRemoved(e)}
                   ></CVPipe>
