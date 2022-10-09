@@ -5,7 +5,7 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import Slider from "@mui/material/Slider";
 import MuiInput from "@mui/material/Input";
-import { Paper } from "@mui/material";
+import { Icon } from "@mui/material";
 import PanelModule from "./PanelModule";
 
 class SliderWithInput extends Component {
@@ -51,11 +51,16 @@ class SliderWithInput extends Component {
     return (
       <PanelModule>
         <Grid container spacing={2} alignItems="center">
-          <Grid item xs={4}>
+          <Grid item xs={this.props.icon != null ? 4 : 5}>
             <Typography id="input-slider" gutterBottom align="right">
               {this.props.label}
             </Typography>
           </Grid>
+          {this.props.icon != null && (
+            <Grid item xs={1}>
+              <Icon xs={{ margin: 0 }}>{this.props.icon}</Icon>
+            </Grid>
+          )}
           <Grid item xs={4}>
             <Slider
               marks={this.props.marks}

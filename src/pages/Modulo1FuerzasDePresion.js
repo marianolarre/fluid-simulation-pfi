@@ -23,7 +23,16 @@ import {
   LevelSimbol,
 } from "../paperUtility";
 import { Button } from "@mui/material";
-import { HorizontalSplit, ThirteenMp } from "@mui/icons-material";
+import {
+  CenterFocusStrong,
+  Gradient,
+  Height,
+  HorizontalSplit,
+  RadioButtonUnchecked,
+  SwapHoriz,
+  ThirteenMp,
+  ZoomInMap,
+} from "@mui/icons-material";
 import MyRadio from "../components/MyRadio";
 import PanelModule from "../components/PanelModule";
 
