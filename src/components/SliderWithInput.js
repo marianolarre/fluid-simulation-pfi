@@ -51,7 +51,7 @@ class SliderWithInput extends Component {
     return (
       <PanelModule>
         <Grid container spacing={2} alignItems="center">
-          <Grid item xs={this.props.icon != null ? 4 : 5}>
+          <Grid item xs={this.props.icon != null ? 3 : 4}>
             <Typography id="input-slider" gutterBottom align="right">
               {this.props.label}
             </Typography>
@@ -61,7 +61,7 @@ class SliderWithInput extends Component {
               <Icon xs={{ margin: 0 }}>{this.props.icon}</Icon>
             </Grid>
           )}
-          <Grid item xs={4}>
+          <Grid item xs={5}>
             <Slider
               marks={this.props.marks}
               value={

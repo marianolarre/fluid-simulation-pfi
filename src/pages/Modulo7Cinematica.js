@@ -613,6 +613,7 @@ class Modulo7Cinematica extends Component {
     expression = expression.replace(/{/g, "");
     expression = expression.replace(/}/g, "");
     // Expresiones matematicas
+    expression = expression.replace(/pi/g, "Math.PI");
     expression = expression.replace(/abs\(/g, "Math.abs(");
     expression = expression.replace(/tan\(/g, "Math.tan(");
     expression = expression.replace(/sin\(/g, "Math.sin(");

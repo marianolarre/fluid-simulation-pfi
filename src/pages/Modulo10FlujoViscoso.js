@@ -15,6 +15,7 @@ import {
   addPoints,
   mulPoint,
   VectorArrow,
+  ColorScaleReference,
 } from "../paperUtility";
 
 const liquidWidth = 1000;
@@ -48,6 +49,7 @@ class Modulo10FlujoViscoso extends Component {
     bottomTensionVector: null,
     showingParticles: false,
     showingTension: false,
+    colorGradientScale: null,
   };
 
   onSpeedChange = (newValue) => {

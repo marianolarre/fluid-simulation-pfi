@@ -3,7 +3,7 @@ import MyToggle from "../components/MyToggle";
 import Canvas from "../components/Canvas";
 import PanelAndCanvas from "../components/PanelAndCanvas";
 
-import { Grid, Button, Tooltip, Box } from "@mui/material";
+import { Grid, Button, Tooltip, Box, Typography } from "@mui/material";
 import { view, Point, Path, Rectangle, Shape, Size, Group } from "paper";
 import SliderWithInput from "../components/SliderWithInput";
 import { addPoints, mulPoint, VectorArrow } from "../paperUtility";
@@ -11,6 +11,7 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import SpeedIcon from "@mui/icons-material/Speed";
+import PanelModule from "../components/PanelModule";
 import { MathComponent } from "mathjax-react";
 import {
   ArrowDownward,
@@ -56,7 +57,8 @@ class Modulo13TiroOblicuo extends Component {
     airDensity: 1,
     timeScale: 1,
     paused: false,
-    dottedLine: [],
+    lines: [],
+    currentLine: null,
   };
 
   togglePause = (event) => {
@@ -113,16 +115,10 @@ class Modulo13TiroOblicuo extends Component {
         bullet.force.y = 0;
         bullet.shape.position = bullet.position;
 
-        // Dotted line
-        if (timeUntilNextDot <= 0) {
-          timeUntilNextDot = 0.1;
-          const dot = new Shape.Circle(bullet.position, 5);
-          dot.fillColor = "grey";
-          dot.sendToBack();
-          this.state.background.shape.sendToBack();
-          this.state.dottedLine.push(dot);
+        // Trayectory
+        if (this.state.currentLine != null) {
+          this.state.currentLine.add(bullet.position);
         }
-        timeUntilNextDot -= delta;
 
         // Arrows
         this.state.velocityArrow.SetPosition(
@@ -155,8 +151,7 @@ class Modulo13TiroOblicuo extends Component {
     const re106 = re / 1000000;
     return (
       24 / re +
-      (2.6 * re) / 5 +
-      (1 + Math.pow(re / 5, 1.52)) +
+      (2.6 * re) / 5 / (1 + Math.pow(re / 5, 1.52)) +
       (0.411 * Math.pow(re263, -7.94)) / (1 + Math.pow(re263, -8)) +
       (0.25 * re106) / (1 + re106)
     );
@@ -167,6 +162,9 @@ class Modulo13TiroOblicuo extends Component {
   }
 
   fire = () => {
+    if (this.state.currentLine != null) {
+      this.state.currentLine.strokeColor = "#cccccc";
+    }
     const bullet = { ...this.state.bullet };
     bullet.active = true;
     bullet.shape.visible = true;
@@ -176,11 +174,19 @@ class Modulo13TiroOblicuo extends Component {
     bullet.position = addPoints(this.state.cannon.pivot, cannonVector);
     bullet.shape.position = bullet.position;
     bullet.velocity = mulPoint(cannonDir, this.state.initialSpeed);
+    const line = new Path();
+    line.strokeWidth = 3;
+    line.strokeColor = "#777777";
+    line.add(bullet.position);
+    this.state.lines.push(line);
+    this.setState({ bullet: bullet, currentLine: line });
+  };
 
-    for (let i = 0; i < this.state.dottedLine.length; i++) {
-      this.state.dottedLine[i].remove();
+  deleteliness = () => {
+    for (let i = 0; i < this.state.lines.length; i++) {
+      this.state.lines[i].remove();
     }
-    this.setState({ bullet: bullet, dottedLine: [] });
+    this.setState({ lines: [] });
   };
 
   getForces(delta) {
@@ -283,13 +289,22 @@ class Modulo13TiroOblicuo extends Component {
         panel={
           <>
             <Grid container spacing="2%" alignItems="stretch">
-              <Grid item xs={12}>
+              <Grid item xs={6}>
                 <Button
                   variant="contained"
                   onClick={this.fire}
                   sx={{ width: "100%" }}
                 >
                   Disparar
+                </Button>
+              </Grid>
+              <Grid item xs={6}>
+                <Button
+                  variant="contained"
+                  onClick={this.deleteliness}
+                  sx={{ width: "100%" }}
+                >
+                  Borrar lineas
                 </Button>
               </Grid>
               <Grid item xs={2}>
@@ -342,12 +357,18 @@ class Modulo13TiroOblicuo extends Component {
               <Grid item xs={12}>
                 <SliderWithInput
                   label="Número de Reynolds"
-                  step={1}
-                  min={0}
-                  max={100}
+                  step={0.05}
+                  min={0.05}
+                  max={10}
                   value={this.state.reynolds}
                   onChange={this.onReynoldsChanged}
                 ></SliderWithInput>
+                <PanelModule>
+                  <Typography>
+                    Coeficiente de drag:{" "}
+                    {Math.round(this.state.dragCoeficient * 100) / 100}
+                  </Typography>
+                </PanelModule>
               </Grid>
               <Grid item xs={12}>
                 <SliderWithInput

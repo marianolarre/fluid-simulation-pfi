@@ -23,7 +23,13 @@ import {
 } from "@mui/material";
 import { view, Point, Size, Path, Shape, Rectangle, Raster } from "paper";
 import SliderWithInput from "../components/SliderWithInput";
-import { addPoints, mulPoint, subPoints, VectorArrow } from "../paperUtility";
+import {
+  addPoints,
+  ColorScaleReference,
+  mulPoint,
+  subPoints,
+  VectorArrow,
+} from "../paperUtility";
 import ExpressionInput from "../components/ExpressionInput";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
@@ -33,21 +39,29 @@ import { SkipPrevious } from "@mui/icons-material";
 const fixedDeltaTime = 0.016;
 const physicsSteps = 20;
 const simulationSpeed = 0.025;
-const xGridPoints = 17;
-const yGridPoints = 9;
+const xGridPoints = 12;
+const yGridPoints = 12;
 const vertexSkip = 1;
 
-const xScale = 2.5;
-const yScale = 1.5;
+const xScale = 2;
+const yScale = 2;
 const xOffset = 0;
-const yOffset = -0.25;
+const yOffset = 0;
 const pixelSize = 20;
 
+let nextFrameMaxPressure = 0;
+let nextFrameMinPressure = 0;
+
 const presets = [
-  { name: "Giratorio", x: "-y", y: "x" },
-  { name: "Ondulado", x: "cos(y*5)", y: "1" },
-  { name: "Remolinos", x: "cos(y*8)", y: "sin(x*8)" },
-  { name: "Marea", x: "cos(y*5 + t)", y: "sin(x*5 + t*0.5) + cos(t)*0.5" },
+  { name: "Flujo uniforme", x: "1", y: "0" },
+  { name: "Solido", x: "-y", y: "x" },
+  { name: "Pared", x: "-x", y: "y" },
+  { name: "Fuente", x: "x/(2*pi*R^2)", y: "y/(2*pi*R^2)" },
+  {
+    name: "Dipolo",
+    x: "R/(2*pi)*((x^2*cos(ang)-y^2*cos(ang)+2*x*y*sin(ang))/R^4)",
+    y: "R/(2*pi)*((y^2*sin(ang)-x^2*sin(ang)+2*x*y*cos(ang))/R^4)",
+  },
 ];
 
 let frame = 0;
@@ -69,17 +83,18 @@ class Modulo9FlujoNoViscoso extends Component {
     ready: false,
     writtenExpression: {
       x: "1",
-      y: "1",
+      y: "0",
     },
     expression: {
       x: "1",
-      y: "1",
+      y: "0",
     },
     time: 0,
     paused: true,
     timeScale: 1,
     particles: [],
     lines: [],
+    density: 1,
     clickPosition: null,
     clickPositionShape: null,
     showingTrayectory: false,
@@ -92,14 +107,13 @@ class Modulo9FlujoNoViscoso extends Component {
     smoke: [],
     expressionDialogOpen: false,
     colorMap: {},
+    zoom: 1,
   };
 
-  updateColorMap(colorMap) {
+  updateColorMap(colorMap, recalculateRange) {
     if (colorMap == null) {
       colorMap = this.state.colorMap;
     }
-    let red = 0.5;
-    let green = 0.5;
     let imageData = colorMap.raster.getImageData();
     var startingX = colorMap.cornerPoint.x;
     var width = xScale * this.state.screen.size;
@@ -107,46 +121,62 @@ class Modulo9FlujoNoViscoso extends Component {
     var y = colorMap.cornerPoint.y;
     var velocity = null;
     const mul = this.state.vectorLengthMultiplier * 6;
+    var minPressure = 0;
+    var maxPressure = 1;
+    var rangeChanged = false;
+    var pressure = [];
     for (var i = 0; i < imageData.data.length; i += 4) {
-      velocity = this.getFieldValue(this.screenToWorld(new Point(x, y)));
-      imageData.data[i] = velocity.x * mul + 127;
-      imageData.data[i + 1] = -velocity.y * mul + 127;
-      imageData.data[i + 2] = 255;
-      imageData.data[i + 3] = 255;
+      const p = this.getPressure(new Point(x, y));
+      pressure[i] = p;
+
+      if (i == 0) {
+        minPressure = p;
+        maxPressure = p;
+      } else {
+        if (p < minPressure) {
+          minPressure = p;
+        }
+        if (p > maxPressure) {
+          maxPressure = p;
+        }
+      }
       x += pixelSize;
       if (x >= startingX + width) {
         x = startingX;
         y += pixelSize;
       }
     }
+    let range = maxPressure - minPressure;
+    if (range == 0) {
+      range = 1;
+      minPressure -= 0.5;
+      maxPressure += 0.5;
+    }
+    this.state.colorGradientScale.setRange(minPressure, maxPressure);
+
+    for (var i = 0; i < imageData.data.length; i += 4) {
+      const p = (pressure[i] - minPressure) / range;
+      imageData.data[i] = p * 512;
+      imageData.data[i + 1] = 512 - p * 512;
+      imageData.data[i + 2] = 0;
+      imageData.data[i + 3] = 255;
+    }
+
     colorMap.raster.setImageData(imageData);
-    /*for (var i = 0; i < colorMap.width; i++) {
-      for (var j = 0; j < colorMap.height; j++) {
-        // ...set a random color.
-        var pixelWorldPos = this.screenToWorld(
-          new Point(
-            colorMap.cornerPoint.x + i * pixelSize,
-            colorMap.cornerPoint.y + j * pixelSize
-          )
-        );
-        var velocity = this.getFieldValue(pixelWorldPos);
-        red = Math.min(
-          1,
-          Math.max(
-            0,
-            0.5 + (velocity.x / 30) * this.state.vectorLengthMultiplier
-          )
-        );
-        green = Math.min(
-          1,
-          Math.max(
-            0,
-            0.5 - (velocity.y / 30) * this.state.vectorLengthMultiplier
-          )
-        );
-        colorMap.raster.setPixel(i, j, new Color(red, green, 0.5));
-      }
-    }*/
+
+    if (rangeChanged && recalculateRange) {
+      this.updateColorMap(colorMap, false);
+    }
+  }
+
+  getPressure(point) {
+    const vel = this.getFieldValue(
+      mulPoint(this.screenToWorld(point), 1 / this.state.zoom)
+    );
+    const basePressure = 1;
+    return (
+      basePressure - (this.state.density * (vel.x * vel.x + vel.y * vel.y)) / 2
+    );
   }
 
   canvasFunction() {
@@ -222,6 +252,15 @@ class Modulo9FlujoNoViscoso extends Component {
 
     const newBackground = { ...this.state.background };
     newBackground.shape = background;
+
+    const colorGradientScale = new ColorScaleReference(
+      addPoints(view.bounds.topRight, new Point(-100, 100)),
+      new Size(50, view.size.height - 200),
+      ["red", "yellow", "lime"],
+      -1,
+      1
+    );
+
     this.setState(
       {
         background: newBackground,
@@ -229,6 +268,7 @@ class Modulo9FlujoNoViscoso extends Component {
         clickPositionShape: clickPositionShape,
         smokeLine: smokeLine,
         colorMap: colorMap,
+        colorGradientScale: colorGradientScale,
       },
       this.updateColorMap
     );
@@ -237,7 +277,7 @@ class Modulo9FlujoNoViscoso extends Component {
       const delta = fixedDeltaTime; // event.delta
 
       if (!this.state.paused) {
-        this.updateSimulation(delta * this.state.timeScale);
+        this.updateSimulation(delta * this.state.timeScale * this.state.zoom);
       }
     };
 
@@ -657,9 +697,12 @@ class Modulo9FlujoNoViscoso extends Component {
     this.setState({ periodicParticles: !this.state.periodicParticles });
   };
 
+  onZoomChange(newValue) {
+    this.setState({ zoom: newValue }, this.updateVectorField);
+  }
+
   onVectorLengthMultiplierChange(newValue) {
-    this.setState({ vectorLengthMultiplier: newValue });
-    this.updateVectorField();
+    this.setState({ vectorLengthMultiplier: newValue }, this.updateVectorField);
   }
 
   onTimeScaleChange(newValue) {
@@ -703,6 +746,9 @@ class Modulo9FlujoNoViscoso extends Component {
     expression = expression.replace(/{/g, "");
     expression = expression.replace(/}/g, "");
     // Expresiones matematicas
+    expression = expression.replace(/cos\(ang\)/g, "cos(Math.atan2(y, x))");
+    expression = expression.replace(/sin\(ang\)/g, "sin(Math.atan2(y, x))");
+    expression = expression.replace(/pi/g, "Math.PI");
     expression = expression.replace(/abs\(/g, "Math.abs(");
     expression = expression.replace(/tan\(/g, "Math.tan(");
     expression = expression.replace(/sin\(/g, "Math.sin(");
@@ -725,6 +771,10 @@ class Modulo9FlujoNoViscoso extends Component {
     expression = expression.replace(/t\^4/g, "t*t*t*t");
     expression = expression.replace(/t\^5/g, "t*t*t*t*t");
     expression = expression.replace(/t\^6/g, "t*t*t*t*t*t");
+    expression = expression.replace(/R\^2/g, "(x*x+y*y)");
+    expression = expression.replace(/R\^3/g, "(x*x+y*y)*Math.sqrt(x*x+y*y)");
+    expression = expression.replace(/R\^4/g, "(x*x+y*y)*(x*x+y*y)");
+    expression = expression.replace(/R/g, "Math.sqrt(x*x+y*y)");
     return expression;
   }
 
@@ -749,8 +799,9 @@ class Modulo9FlujoNoViscoso extends Component {
     if (time == null) {
       time = this.state.time;
     }
-    const x = point.x;
-    const y = -point.y;
+    const _point = mulPoint(point, 1 / this.state.zoom);
+    const x = _point.x;
+    const y = -_point.y;
     const t = time;
     let xresult = 0;
     let yresult = 0;
@@ -808,7 +859,11 @@ class Modulo9FlujoNoViscoso extends Component {
         if (field == null) {
           return;
         }
-        this.state.vectors[x][y].SetPosition(start, addPoints(start, field));
+        if (isNaN(field.x) || isNaN(field.y)) {
+          this.state.vectors[x][y].SetPosition(start, start);
+        } else {
+          this.state.vectors[x][y].SetPosition(start, addPoints(start, field));
+        }
       }
     }
     this.updateColorMap();
@@ -916,6 +971,16 @@ class Modulo9FlujoNoViscoso extends Component {
                   max={100}
                   value={this.state.vectorLengthMultiplier}
                   onChange={(e) => this.onVectorLengthMultiplierChange(e)}
+                ></SliderWithInput>
+              </Grid>
+              <Grid item xs={12}>
+                <SliderWithInput
+                  label="Zoom"
+                  min={0.1}
+                  step={0.1}
+                  max={100}
+                  value={this.state.zoom}
+                  onChange={(e) => this.onZoomChange(e)}
                 ></SliderWithInput>
               </Grid>
               <Grid item xs={4}>

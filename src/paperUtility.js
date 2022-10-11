@@ -1,4 +1,13 @@
-import { Point, Color, Path, Group, Rectangle, Shape, Size } from "paper";
+import {
+  Point,
+  Color,
+  Path,
+  Group,
+  Rectangle,
+  Shape,
+  Size,
+  PointText,
+} from "paper";
 
 export function addPoints(a, b) {
   return new Point(a.x + b.x, a.y + b.y);
@@ -579,5 +588,61 @@ export class VelocityParticle {
 
   remove() {
     this.line.remove();
+  }
+}
+
+export class ColorScaleReference {
+  constructor(position, size, colors, min, max) {
+    this.position = position;
+    this.size = size;
+    this.colors = colors;
+    this.min = min;
+    this.max = max;
+    this.shape = new Shape.Rectangle(position, size);
+    this.shape.style = {
+      fillColor: {
+        gradient: {
+          stops: colors,
+        },
+        origin: position,
+        destination: addPoints(position, new Point(0, size.height)),
+      },
+    };
+    this.markers = [
+      {
+        text: new PointText({
+          point: addPoints(position, new Point(-5, 10)),
+          content: max,
+          fillColor: "black",
+          justification: "right",
+          fontSize: 25,
+        }),
+      },
+      {
+        text: new PointText({
+          point: addPoints(position, new Point(-5, size.height / 2 + 10)),
+          content: min,
+          justification: "right",
+          fillColor: "black",
+          fontSize: 25,
+        }),
+      },
+      {
+        text: new PointText({
+          point: addPoints(position, new Point(-5, size.height + 10)),
+          content: min,
+          justification: "right",
+          fillColor: "black",
+          fontSize: 25,
+        }),
+      },
+    ];
+  }
+
+  setRange(min, max) {
+    console.log(this.markers);
+    this.markers[0].text.content = Math.round(max * 100) / 100;
+    this.markers[1].text.content = Math.round((min + max) * 50) / 100;
+    this.markers[2].text.content = Math.round(min * 100) / 100;
   }
 }
