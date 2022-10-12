@@ -49,8 +49,10 @@ const xOffset = 0;
 const yOffset = 0;
 const pixelSize = 20;
 
-let nextFrameMaxPressure = 0;
-let nextFrameMinPressure = 0;
+let minPressure = 0;
+let maxPressure = 1;
+let range = 1;
+let settingScale = false;
 
 const presets = [
   { name: "Flujo uniforme", x: "1", y: "0" },
@@ -121,38 +123,47 @@ class Modulo9FlujoNoViscoso extends Component {
     var y = colorMap.cornerPoint.y;
     var velocity = null;
     const mul = this.state.vectorLengthMultiplier * 6;
-    var minPressure = 0;
-    var maxPressure = 1;
+    if (settingScale) {
+      minPressure = 0;
+      maxPressure = 1;
+    }
     var rangeChanged = false;
     var pressure = [];
     for (var i = 0; i < imageData.data.length; i += 4) {
       const p = this.getPressure(new Point(x, y));
       pressure[i] = p;
 
-      if (i == 0) {
-        minPressure = p;
-        maxPressure = p;
-      } else {
-        if (p < minPressure) {
+      if (settingScale) {
+        if (i == 0) {
           minPressure = p;
-        }
-        if (p > maxPressure) {
           maxPressure = p;
+        } else {
+          if (p < minPressure) {
+            minPressure = p;
+          }
+          if (p > maxPressure) {
+            maxPressure = p;
+          }
         }
       }
+
       x += pixelSize;
       if (x >= startingX + width) {
         x = startingX;
         y += pixelSize;
       }
     }
-    let range = maxPressure - minPressure;
-    if (range == 0) {
-      range = 1;
-      minPressure -= 0.5;
-      maxPressure += 0.5;
+
+    if (settingScale) {
+      range = maxPressure - minPressure;
+      if (range == 0) {
+        range = 1;
+        minPressure -= 0.5;
+        maxPressure += 0.5;
+      }
+      this.state.colorGradientScale.setRange(minPressure, maxPressure);
+      settingScale = false;
     }
-    this.state.colorGradientScale.setRange(minPressure, maxPressure);
 
     for (var i = 0; i < imageData.data.length; i += 4) {
       const p = (pressure[i] - minPressure) / range;
@@ -164,7 +175,7 @@ class Modulo9FlujoNoViscoso extends Component {
 
     colorMap.raster.setImageData(imageData);
 
-    if (rangeChanged && recalculateRange) {
+    if (recalculateRange) {
       this.updateColorMap(colorMap, false);
     }
   }
@@ -257,8 +268,8 @@ class Modulo9FlujoNoViscoso extends Component {
       addPoints(view.bounds.topRight, new Point(-100, 100)),
       new Size(50, view.size.height - 200),
       ["red", "yellow", "lime"],
-      -1,
-      1
+      minPressure,
+      maxPressure
     );
 
     this.setState(
@@ -371,7 +382,7 @@ class Modulo9FlujoNoViscoso extends Component {
       newLine.add(screenPosition);
       newLine.style = {
         strokeWidth: 2,
-        strokeColor: "red",
+        strokeColor: "black",
       };
       this.state.lines.push({
         shape: newLine,
@@ -783,6 +794,7 @@ class Modulo9FlujoNoViscoso extends Component {
     let expression = { x: "", y: "" };
     expression.x = this.cleanExpression(preset.x);
     expression.y = this.cleanExpression(preset.y);
+    settingScale = true;
     this.setState(
       {
         writtenExpression: writtenExpression,

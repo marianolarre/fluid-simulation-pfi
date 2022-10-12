@@ -1,8 +1,109 @@
 import React, { Component } from "react";
-import { Typography, Button, Stack, AppBar, Box } from "@mui/material";
-import { Link } from "react-router-dom";
-import { Container } from "@mui/system";
-import WavesIcon from "@mui/icons-material/Waves";
+import { AppBar, Box, Grid } from "@mui/material";
+import MenuModule from "../components/MenuModule";
+
+const buttons = [
+  {
+    mod: "mod1",
+    title: "Fuerzas de presión",
+    description:
+      "Observa la presión y las fuerzas que un líquido ejerce sobre las paredes de un contenedor cuadrado o redondo",
+    img: "./img/modules/Modulo1.png",
+  },
+  {
+    mod: "mod2",
+    title: "Estratificación",
+    description:
+      "Observa la presión y las fuerzas ejercidas por una columna de distintos líquidos en las paredes de un contenedor",
+    img: "./img/modules/Modulo2.png",
+  },
+  {
+    mod: "mod3",
+    title: "Manometría",
+    description:
+      "Funcionamiento del instrumento de medición de presión 'Manómetro'",
+    img: "./img/modules/Modulo3.png",
+  },
+  {
+    mod: "mod4",
+    title: "Superficie sumergida",
+    description: "Fuerzas de presión sobre una placa sumergida en un líquido",
+    img: "./img/modules/Modulo4.png",
+  },
+  {
+    mod: "mod5",
+    title: "Dique",
+    description:
+      "Fuerzas que actuan sobre la superficie y los acoples de un dique",
+    img: "./img/modules/Modulo5.png",
+  },
+  {
+    mod: "mod6",
+    title: "Flotación",
+    description:
+      "Fuerzas de presión y empuje que actuan sobre un cuerpo sumergido en un líquido",
+    img: "./img/modules/Modulo6.png",
+  },
+  {
+    mod: "mod7",
+    title: "Cinemática",
+    description:
+      "Observa las líneas de humo, trayectoria y corriente de partículas en un campo de velocidades",
+    img: "./img/modules/Modulo7.png",
+  },
+  {
+    mod: "mod8",
+    title: "Volumen de control",
+    description:
+      "Sumatorias de fuerzas y caudales de entradas y salidas de fluido en un volumen de control",
+    img: "./img/modules/Modulo8.png",
+  },
+  {
+    mod: "mod9",
+    title: "Flujo no viscoso",
+    description:
+      "Presión y velocidad de fluidos no viscosos en distintas situaciónes",
+    img: "./img/modules/Modulo9.png",
+  },
+  {
+    mod: "mod10",
+    title: "Flujo viscoso",
+    description:
+      "Comportamiento de un fluido viscoso atrapado entre una placa fija y una placa en movimiento",
+    img: "./img/modules/Modulo10.png",
+  },
+  {
+    mod: "mod11",
+    title: "Flujo viscoso laminar",
+    disabled: true,
+    description:
+      "Tensión de corte y capa límite de un fluido viscoso viajando sobre una superficie fija",
+    img: "./img/modules/UnderConstruction.png",
+  },
+  {
+    mod: "mod12",
+    title: "Flujo interno en conducto",
+    disabled: true,
+    description:
+      "Observa las energías de un fluido a medida que viaja por una tubería",
+    img: "./img/modules/UnderConstruction.png",
+  },
+  {
+    mod: "mod13",
+    title: "Tiro oblícuo con arrastre",
+    description:
+      "Observa las fuerzas que actuan sobre un proyectil viajando por un fluido",
+    img: "./img/modules/Modulo13.png",
+  },
+  {
+    mod: "mod14",
+    title: "Perfil alar",
+    disabled: true,
+    description:
+      "Visualización de lift, drag y turbulencia de un cuerpo en un tunel de viento",
+    img: "./img/modules/UnderConstruction.png",
+  },
+];
 
 class Menu extends Component {
   state = {};
@@ -38,79 +139,19 @@ class Menu extends Component {
           }}
         >
           <Box>
-            <Stack direction="row">
-              <Container maxWidth="sm">
-                <Stack spacing={1.8}>
-                  <Link to="mod1" style={{ textDecoration: "none" }}>
-                    <Button variant="contained" style={buttonStyle}>
-                      Fuerzas de presión
-                    </Button>
-                  </Link>
-                  <Link to="mod2" style={{ textDecoration: "none" }}>
-                    <Button variant="contained" style={buttonStyle}>
-                      Estratificación
-                    </Button>
-                  </Link>
-                  <Link to="mod3" style={{ textDecoration: "none" }}>
-                    <Button variant="contained" style={buttonStyle}>
-                      Manometría
-                    </Button>
-                  </Link>
-                  <Link to="mod4" style={{ textDecoration: "none" }}>
-                    <Button variant="contained" style={buttonStyle}>
-                      Superficie sumergida
-                    </Button>
-                  </Link>
-                  <Link to="mod5" style={{ textDecoration: "none" }}>
-                    <Button variant="contained" style={buttonStyle}>
-                      Dique
-                    </Button>
-                  </Link>
-                  <Link to="mod6" style={{ textDecoration: "none" }}>
-                    <Button variant="contained" style={buttonStyle}>
-                      Flotación
-                    </Button>
-                  </Link>
-                  <Link to="mod7" style={{ textDecoration: "none" }}>
-                    <Button variant="contained" style={buttonStyle}>
-                      Cinemática
-                    </Button>
-                  </Link>
-                  <Link to="mod8" style={{ textDecoration: "none" }}>
-                    <Button variant="contained" style={buttonStyle}>
-                      Volumen de control
-                    </Button>
-                  </Link>
-                  <Link to="mod9" style={{ textDecoration: "none" }}>
-                    <Button variant="contained" style={buttonStyle}>
-                      Flujo no viscoso
-                    </Button>
-                  </Link>
-                  <Link to="mod10" style={{ textDecoration: "none" }}>
-                    <Button variant="contained" style={buttonStyle}>
-                      Flujo viscoso
-                    </Button>
-                  </Link>
-                  <Button variant="contained" disabled>
-                    Flujo viscoso laminar
-                  </Button>
-                  <Button variant="contained" disabled>
-                    Flujo interno en conducto
-                  </Button>
-                  <Link to="mod13" style={{ textDecoration: "none" }}>
-                    <Button variant="contained" style={buttonStyle}>
-                      Tiro oblicuo con arrastre
-                    </Button>
-                  </Link>
-                  <Button variant="contained" disabled>
-                    Perfil alar
-                  </Button>
-                </Stack>
-              </Container>
-              <Box>
-                {/*TODO: Agregar un panel con información del simulador seleccionado*/}
-              </Box>
-            </Stack>
+            <Grid container>
+              {buttons.map((b, index) => (
+                <Grid item xs={4}>
+                  <MenuModule
+                    title={b.title}
+                    description={b.description}
+                    img={b.img}
+                    to={b.mod}
+                    disabled={b.disabled}
+                  ></MenuModule>
+                </Grid>
+              ))}
+            </Grid>
           </Box>
         </Box>
       </div>

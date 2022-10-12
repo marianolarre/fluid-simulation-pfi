@@ -53,6 +53,9 @@ class Modulo4SuperficieSumergida extends Component {
     equivalentForce: {
       circle: null,
     },
+    center: {
+      circle: null,
+    },
     liquid: {
       density: 10,
     },
@@ -134,7 +137,6 @@ class Modulo4SuperficieSumergida extends Component {
         inverted: true,
         otherEnd: true,
       });
-
       // FuerzaEquivalente
       if (this.state.equivalentForce.arrow != null) {
         const pos = this.getForceScreenPosition();
@@ -156,7 +158,7 @@ class Modulo4SuperficieSumergida extends Component {
 
     // Lio de transformaciones y trigonometria para ubicar las formas del centro de fuerza
     if (this.state.equivalentForce.circle != null) {
-      const pos = this.getForceScreenPosition();
+      const pos = this.getCenterScreenPosition();
       const matrix = new Matrix(
         perspectiveFront,
         0,
@@ -194,6 +196,18 @@ class Modulo4SuperficieSumergida extends Component {
       );
       this.state.equivalentForce.circleDecoration2.bringToFront();
       this.state.equivalentForce.circleDecoration2.matrix = matrix2;
+
+      const centerPos = this.getForceScreenPosition();
+      const centerMatrix = new Matrix(
+        perspectiveFront,
+        0,
+        -Math.sin(angleInRadians) * perspectiveSide,
+        Math.cos(angleInRadians),
+        centerPos.x,
+        centerPos.y
+      );
+      this.state.center.innerShape.matrix = centerMatrix;
+      this.state.center.outerShape.matrix = centerMatrix;
     }
   }
 
@@ -209,7 +223,7 @@ class Modulo4SuperficieSumergida extends Component {
 
   onAngleChanged = (newValue) => {
     var newState = { ...this.state };
-    newState.surface.angle = newValue;
+    newState.surface.angle = 90 - newValue;
     this.setState(newState);
   };
 
@@ -249,6 +263,31 @@ class Modulo4SuperficieSumergida extends Component {
     );
   }
 
+  getCenterScreenPosition() {
+    const surface = this.state.surface;
+    const angleInRadians = (surface.angle / 180) * Math.PI;
+    const sinOfAngle = Math.sin(angleInRadians);
+    const cosOfAngle = Math.cos(angleInRadians);
+    const perspectiveFront = Math.sin(cameraAngle);
+    const perspectiveSide = Math.cos(cameraAngle);
+    const top = new Point(
+      view.center.x +
+        (sinOfAngle * surface.length * perspectiveSide) / 2 +
+        (surface.width * perspectiveFront) / 2,
+      this.getLiquidHeight() + surface.depth
+    );
+
+    const lengthOffset = new Point(
+      -0.5 * sinOfAngle * perspectiveSide * surface.length,
+      0.5 * cosOfAngle * surface.length
+    );
+    const midPoint = addPoints(top, lengthOffset);
+    return new Point(
+      midPoint.x - (this.state.surface.width * perspectiveFront) / 2,
+      midPoint.y
+    );
+  }
+
   getForceScreenPosition() {
     const surface = this.state.surface;
     const angleInRadians = (surface.angle / 180) * Math.PI;
@@ -258,21 +297,30 @@ class Modulo4SuperficieSumergida extends Component {
     const liquidHeight = this.getLiquidHeight();
     const topY = liquidHeight + surface.depth;
     const frontY = topY + surface.length * Math.cos(angleInRadians);
-    let submergePercentage = 0;
+    let submergePercentage = 1;
     if (topY < liquidHeight && frontY > liquidHeight) {
-      submergePercentage = (liquidHeight - topY) / (frontY - topY);
+      submergePercentage = 1 - (liquidHeight - topY) / (frontY - topY);
+    }
+    if (frontY < liquidHeight) {
+      submergePercentage = 0;
     }
 
-    // El circulo que tengo ahora indica en realidad el cg
-    // El cp son dos circulos, uno relleno.
+    // Calculo temporal de L
+    //const L =
+    //  surface.length * lerp(0.5 + cosOfAngle * 0.166, 1, submergePercentage); // el número importante <-----
 
     // Ixx = ancho*largo^3/12
     // hcg = profundidad del centro geométrico
     // A = area sumergida
     // ycp = posición 'y' del centro de presión, desde el centro geométrico (cg)
     // - ycp = Ixx*sin(ang)/(hcg*A)
-    const L =
-      surface.length * lerp(0.5 + cosOfAngle * 0.166, 1, submergePercentage); // el número importante <-----
+
+    let submergedLength = surface.length * submergePercentage;
+    let Ixx = (surface.width * submergedLength ** 3) / 12;
+    let hcg = (Math.max(topY, this.getLiquidHeight()) + frontY) / 2;
+    let A = surface.width * submergedLength;
+    let ycp = (Ixx * cosOfAngle) / (hcg * A);
+    const L = surface.length - 0.5 * submergedLength + ycp;
 
     const perspectiveFront = Math.sin(cameraAngle);
     const perspectiveSide = Math.cos(cameraAngle);
@@ -369,8 +417,8 @@ class Modulo4SuperficieSumergida extends Component {
     const forceVectorArray = new VectorArray();
     surface.forceVectorArray = forceVectorArray;
 
-    const equivalentForceCircleClip = new Shape.Circle(new Point(0, 0), 50);
-    const circleBackground = new Shape.Circle(new Point(0, 0), 50);
+    const equivalentForceCircleClip = new Shape.Circle(new Point(0, 0), 35);
+    const circleBackground = new Shape.Circle(new Point(0, 0), 35);
     circleBackground.fillColor = "white";
     circleBackground.strokeColor = "black";
     circleBackground.strokeWidth = 4;
@@ -397,6 +445,14 @@ class Modulo4SuperficieSumergida extends Component {
     ]);
     circleGroup.clipped = true;
 
+    const centerCircleOuter = new Shape.Circle(new Point(0, 0), 20);
+    centerCircleOuter.fillColor = "white";
+    centerCircleOuter.strokeColor = "black";
+    centerCircleOuter.strokeWidth = 2;
+
+    const centerCircleInner = new Shape.Circle(new Point(0, 0), 10);
+    centerCircleInner.fillColor = "black";
+
     const equivalentForceArrow = new VectorArrow(
       new Point(0, 0),
       new Point(0, 0),
@@ -421,6 +477,8 @@ class Modulo4SuperficieSumergida extends Component {
     newState.equivalentForce.circleBackground = circleBackground;
     newState.equivalentForce.circleDecoration1 = circleDecoration1;
     newState.equivalentForce.circleDecoration2 = circleDecoration2;
+    newState.center.outerShape = centerCircleOuter;
+    newState.center.innerShape = centerCircleInner;
     newState.ready = true;
     this.setState(newState);
 
@@ -462,7 +520,7 @@ class Modulo4SuperficieSumergida extends Component {
                   min={0}
                   max={90}
                   unit="º"
-                  value={this.state.surface.angle}
+                  value={90 - this.state.surface.angle}
                   onChange={this.onAngleChanged}
                 ></SliderWithInput>
               </Grid>

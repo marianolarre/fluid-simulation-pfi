@@ -621,7 +621,7 @@ export class ColorScaleReference {
       {
         text: new PointText({
           point: addPoints(position, new Point(-5, size.height / 2 + 10)),
-          content: min,
+          content: (min + max) / 2,
           justification: "right",
           fillColor: "black",
           fontSize: 25,
