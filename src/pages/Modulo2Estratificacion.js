@@ -222,6 +222,7 @@ class Modulo1FuerzasDePresion extends Component {
   onLiquidRemove = (liquidID) => {
     var newState = { ...this.state };
 
+    newState.liquids[liquidID].pressureText.remove();
     newState.liquids[liquidID].shape.remove();
     newState.liquids[liquidID].topLineShape.remove();
     newState.liquids[liquidID] = null;

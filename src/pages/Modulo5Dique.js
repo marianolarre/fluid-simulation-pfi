@@ -44,6 +44,9 @@ class Modulo5Dique extends Component {
       density: 10,
       shape: null,
     },
+    xArrow: null,
+    yArrow: null,
+    wallArrow: null,
   };
 
   updateSurface(liquidSurface) {
@@ -104,6 +107,18 @@ class Modulo5Dique extends Component {
         otherEnd: true,
       });
 
+      // Concreto
+      const pivotPosition = mulPoint(addPoints(front, bottom), 0.5);
+      if (this.state.pivot != null) {
+        this.state.pivot.position = pivotPosition;
+      }
+      if (this.state.floor != null) {
+        this.state.floor.bounds.topRight = pivotPosition;
+      }
+      if (this.state.wall != null) {
+        this.state.wall.bounds.bottomLeft = addPoints(back, new Point(0, 100));
+      }
+
       // FuerzaEquivalente
       if (this.state.equivalentForce.arrow != null) {
         const pos = this.getForceScreenPosition();
@@ -117,18 +132,27 @@ class Modulo5Dique extends Component {
           pos
         );
         this.state.equivalentForce.arrow.bringToFront();
-      }
 
-      // Concreto
-      const pivotPosition = mulPoint(addPoints(front, bottom), 0.5);
-      if (this.state.pivot != null) {
-        this.state.pivot.position = pivotPosition;
-      }
-      if (this.state.floor != null) {
-        this.state.floor.bounds.topRight = pivotPosition;
-      }
-      if (this.state.wall != null) {
-        this.state.wall.bounds.bottomLeft = addPoints(back, new Point(0, 100));
+        // Fuerzas sobre el pivote
+        if (this.state.yArrow != null) {
+          this.state.yArrow.SetPosition(
+            addPoints(pivotPosition, new Point(0, -force.y)),
+            pivotPosition
+          );
+        }
+        if (this.state.xArrow != null) {
+          this.state.xArrow.SetPosition(
+            addPoints(pivotPosition, new Point(force.x / 2, 0)),
+            pivotPosition
+          );
+        }
+        // Fuerza sobre la pared
+        if (this.state.wallArrow != null) {
+          this.state.wallArrow.SetPosition(
+            addPoints(back, new Point(-force.x, 0)),
+            back
+          );
+        }
       }
 
       if (this.state.liquid.shape != null) {
@@ -166,7 +190,7 @@ class Modulo5Dique extends Component {
 
   onAngleChanged = (newValue) => {
     var newState = { ...this.state };
-    newState.surface.angle = newValue;
+    newState.surface.angle = 90 - newValue;
     this.setState(newState);
   };
 
@@ -313,6 +337,31 @@ class Modulo5Dique extends Component {
       strokeWidth: 2,
     };
 
+    const xArrow = new VectorArrow(
+      new Point(0, 0),
+      new Point(0, 0),
+      "blue",
+      10,
+      20,
+      30
+    );
+    const yArrow = new VectorArrow(
+      new Point(0, 0),
+      new Point(0, 0),
+      "blue",
+      10,
+      20,
+      30
+    );
+    const wallArrow = new VectorArrow(
+      new Point(0, 0),
+      new Point(0, 0),
+      "blue",
+      10,
+      20,
+      30
+    );
+
     let newState = { ...this.state };
     newState.background.shape = background;
     newState.liquid = liquid;
@@ -322,6 +371,9 @@ class Modulo5Dique extends Component {
     newState.floor = floor;
     newState.wall = wall;
     newState.pivot = pivot;
+    newState.xArrow = xArrow;
+    newState.yArrow = yArrow;
+    newState.wallArrow = wallArrow;
     this.setState(newState);
 
     view.onFrame = (event) => {
@@ -354,10 +406,10 @@ class Modulo5Dique extends Component {
                 <SliderWithInput
                   label="Angulo"
                   step={1}
-                  min={0}
-                  max={80}
+                  min={10}
+                  max={90}
                   unit="º"
-                  value={this.state.surface.angle}
+                  value={90 - this.state.surface.angle}
                   onChange={this.onAngleChanged}
                 ></SliderWithInput>
               </Grid>
