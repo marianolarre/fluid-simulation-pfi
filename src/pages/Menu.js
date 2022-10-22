@@ -1,6 +1,8 @@
 import React, { Component } from "react";
-import { AppBar, Box, Grid } from "@mui/material";
+import { AppBar, Box, Grid, Paper, Typography, Button } from "@mui/material";
+import { blue } from "@mui/material/colors";
 import MenuModule from "../components/MenuModule";
+import { FileOpen } from "@mui/icons-material";
 
 const buttons = [
   {
@@ -127,19 +129,53 @@ class Menu extends Component {
             <img
               src="https://i.imgur.com/aGUTiIo.png"
               alt="Fluidemos"
-              style={{ maxHeight: "100px" }}
+              style={{ maxHeight: "7rem" }}
             ></img>
+            <Typography
+              sx={{ paddingTop: "1rem", color: "white", fontSize: "2rem" }}
+            >
+              Simulador didáctico de Mecánica de Fluidos
+            </Typography>
           </Box>
         </AppBar>
         <Box
           sx={{
-            bgcolor: "background.paper",
-            pt: 5,
+            width: "100%",
+          }}
+        >
+          <Paper
+            sx={{
+              padding: "4rem",
+              textAlign: "center",
+              backgroundColor: blue[400],
+            }}
+          >
+            <Button
+              variant="contained"
+              color="secondary"
+              size="large"
+              marginTop="1.5rem"
+            >
+              <FileOpen sx={{ paddingRight: "10px" }}></FileOpen>
+              Cargar simulación
+            </Button>
+            <Typography
+              sx={{ paddingTop: "2rem", color: "white", fontSize: "1.2rem" }}
+            >
+              Seleccione uno de los siguientes módulos para comenzar una
+              simulación
+            </Typography>
+          </Paper>
+        </Box>
+        <Box
+          sx={{
+            bgcolor: blue[100],
+            pt: 3,
             pb: 6,
           }}
         >
           <Box>
-            <Grid container>
+            <Grid container sx={{ width: "90%", marginLeft: "5%" }}>
               {buttons.map((b, index) => (
                 <Grid item xs={4}>
                   <MenuModule

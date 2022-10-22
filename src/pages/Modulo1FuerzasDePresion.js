@@ -149,20 +149,20 @@ class Modulo1FuerzasDePresion extends Component {
   }
 
   onContainerWidthChange(newValue) {
-    var newState = { ...this.state };
+    let newState = { ...this.state };
     newState.container.width = newValue;
     this.setState(newState);
   }
 
   onContainerHeightChange(newValue) {
-    var newState = { ...this.state };
+    let newState = { ...this.state };
     newState.container.height = newValue;
     this.handleOverflow(newState);
     this.setState(newState);
   }
 
   onLiquidHeightChange(newValue, liquidID) {
-    var newState = { ...this.state };
+    let newState = { ...this.state };
     newState.liquid.height = newValue;
 
     this.handleOverflow(newState, liquidID);
@@ -183,26 +183,26 @@ class Modulo1FuerzasDePresion extends Component {
   }
 
   onLiquidDensityChange(newValue) {
-    var newState = { ...this.state };
+    let newState = { ...this.state };
     newState.liquid.density = newValue;
     this.setState(newState);
   }
 
   onBorderRadiusChange(newValue) {
-    var newState = { ...this.state };
+    let newState = { ...this.state };
     newState.container.borderRadius = newValue;
     this.setState(newState);
   }
 
   onPressureTypeChange(event) {
-    var newState = { ...this.state };
+    let newState = { ...this.state };
     newState.absolutePressure = event.target.value == "true";
     this.setState(newState);
   }
 
   toggleShowingPressureChange(event) {
     const showPressure = !this.state.showingPressure;
-    var newState = { ...this.state };
+    let newState = { ...this.state };
     newState.showingPressure = showPressure;
     this.setState(newState);
 
@@ -211,7 +211,7 @@ class Modulo1FuerzasDePresion extends Component {
 
   toggleShowingPressureForcesChange(event) {
     const showingPressureForces = !this.state.showingPressureForces;
-    var newState = { ...this.state };
+    let newState = { ...this.state };
     newState.showingPressureForces = showingPressureForces;
     this.setState(newState);
   }
@@ -538,10 +538,52 @@ class Modulo1FuerzasDePresion extends Component {
     return { top: gradientStart, bottom: gradientEnd };
   }
 
+  getParameterCode() {
+    let module = "A";
+    let codeVersion = "1";
+    return [
+      module,
+      codeVersion,
+      this.state.container.width,
+      this.state.liquid.height,
+      this.state.liquid.density,
+      this.state.container.borderRadius,
+      this.state.showingPressure ? 1 : 0,
+      this.state.showingPressureForces ? 1 : 0,
+      this.state.absolutePressure ? 1 : 0,
+    ].join(";");
+  }
+
+  loadParameterCode(code) {
+    let split = code.split(";");
+    let module = split[0];
+    let codeVersion = parseInt(split[1]);
+    if (codeVersion == 1) {
+      let container = { ...this.state.container };
+      let liquid = { ...this.state.liquid };
+      container.width = parseFloat(split[2]);
+      liquid.height = parseFloat(split[3]);
+      liquid.density = parseFloat(split[4]);
+      container.borderRadius = parseFloat([5]);
+      let showingPressure = split[6] == 1;
+      let showingPressureForces = split[7] == 1;
+      let absolutePressure = split[8] == 1;
+      this.setState({
+        container,
+        liquid,
+        showingPressure,
+        showingPressureForces,
+        absolutePressure,
+      });
+    }
+  }
+
   render() {
     return (
       <PanelAndCanvas
         title="Fuerzas de presión"
+        shareCode={() => this.getParameterCode()}
+        loadCode={(code) => this.loadParameterCode(code)}
         panel={
           <>
             <Grid container spacing="2%" alignItems="stretch">

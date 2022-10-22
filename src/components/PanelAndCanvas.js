@@ -31,7 +31,11 @@ class PanelAndCanvas extends Component {
               backgroundColor: blue[100],
             }}
           >
-            <SimulatorBanner title={this.props.title}></SimulatorBanner>
+            <SimulatorBanner
+              title={this.props.title}
+              shareCode={this.props.shareCode}
+              loadCode={this.props.loadCode}
+            ></SimulatorBanner>
             <Box
               sx={{
                 padding: "20px",

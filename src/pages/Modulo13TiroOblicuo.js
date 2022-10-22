@@ -4,7 +4,16 @@ import Canvas from "../components/Canvas";
 import PanelAndCanvas from "../components/PanelAndCanvas";
 
 import { Grid, Button, Tooltip, Box, Typography } from "@mui/material";
-import { view, Point, Path, Rectangle, Shape, Size, Group } from "paper";
+import {
+  view,
+  Point,
+  Path,
+  Rectangle,
+  Circle,
+  Shape,
+  Size,
+  Group,
+} from "paper";
 import SliderWithInput from "../components/SliderWithInput";
 import { addPoints, mulPoint, VectorArrow } from "../paperUtility";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
@@ -218,7 +227,11 @@ class Modulo13TiroOblicuo extends Component {
     cannonShape.style = {
       fillColor: "black",
     };
-    const cannonGroup = new Group([cannonShape]);
+    const cannonDeco1 = new Shape.Circle(new Circle(new Point(-15, -15), 40));
+    cannonDeco1.style = {
+      fillColor: "black",
+    };
+    const cannonGroup = new Group([cannonShape, cannonDeco1]);
     cannonGroup.pivot = new Point(0, 0);
     cannonGroup.applyMatrix = false;
     cannonGroup.translate(cannonPos);
