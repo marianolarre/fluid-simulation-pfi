@@ -8,12 +8,41 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Alert,
+  Collapse,
+  IconButton,
+  Input,
+  TextField,
+  Box,
 } from "@mui/material";
 import { Link } from "react-router-dom";
-import { ArrowBack, FileOpen, Share } from "@mui/icons-material";
+import {
+  ArrowBack,
+  FileOpen,
+  Share,
+  Close,
+  CopyAll,
+} from "@mui/icons-material";
 
 class SimulatorBanner extends Component {
-  state = { shareModalOpen: false };
+  state = {
+    shareModalOpen: false,
+    loadModalOpen: false,
+    alert: false,
+    alertMessage: "",
+    invalidCode: false,
+    codeError: false,
+    codeErrorMessage: "",
+    code: "",
+  };
+
+  handleCodeChanged(event) {
+    this.setState({
+      code: event.target.value,
+      codeError: false,
+      codeErrorMessage: "",
+    });
+  }
 
   openShareModal() {
     this.setState({ shareModalOpen: true });
@@ -24,14 +53,89 @@ class SimulatorBanner extends Component {
   }
 
   openLoadModal() {
-    this.props.loadCode("A;1;100;150;2;0;1;0;1");
+    this.setState({
+      loadModalOpen: true,
+      codeError: false,
+      codeErrorMessage: "",
+    });
   }
 
-  closeLoadModal() {}
+  closeLoadModal() {
+    this.setState({ loadModalOpen: false });
+  }
+
+  copyCode() {
+    navigator.clipboard.writeText(this.props.shareCode());
+    this.alertOpen("Código copiado al portapapeles");
+    this.closeShareModal();
+    setTimeout(() => this.alertClose(), 4000);
+  }
+
+  loadCode() {
+    try {
+      this.props.loadCode(this.state.code);
+      this.setState({
+        alert: true,
+        alertMessage: "Código cargado",
+        loadModalOpen: false,
+      });
+      setTimeout(() => this.alertClose(), 2000);
+    } catch {
+      this.setState({ codeError: true, codeErrorMessage: "Código inválido" });
+    }
+  }
+
+  alertOpen(message) {
+    this.setState({ alert: true, alertMessage: message });
+  }
+
+  alertClose() {
+    this.setState({ alert: false });
+  }
+
+  closeLoadModal() {
+    this.setState({ loadModalOpen: false });
+  }
 
   render() {
     return (
       <>
+        <Collapse
+          in={this.state.alert}
+          sx={{
+            position: "absolute",
+            top: "20px",
+            width: "100%",
+            zIndex: 1,
+            pointerEvents: "none",
+          }}
+        >
+          <Alert
+            severity="success"
+            variant="filled"
+            sx={{
+              boxShadow: "0 2px 5px #0005",
+              border: "1px solid black",
+              width: "400px",
+              margin: "auto",
+              pointerEvents: "all",
+            }}
+            action={
+              <IconButton
+                aria-label="close"
+                color="inherit"
+                size="small"
+                onClick={() => {
+                  this.alertClose();
+                }}
+              >
+                <Close fontSize="inherit" />
+              </IconButton>
+            }
+          >
+            {this.state.alertMessage}
+          </Alert>
+        </Collapse>
         <AppBar
           color="primary"
           position="relative"
@@ -76,13 +180,79 @@ class SimulatorBanner extends Component {
             </Tooltip>
           </Typography>
         </AppBar>
+        {/* Modal de compartido de códigos */}
         <Dialog
           open={this.state.shareModalOpen}
           onClose={() => this.closeShareModal()}
         >
-          <DialogTitle>Compartir parámetros</DialogTitle>
-          <DialogContent>{this.props.shareCode()}</DialogContent>
-          <DialogActions>a</DialogActions>
+          <DialogTitle>
+            <Typography variant="h2" fontSize={"1.5rem"}>
+              Compartir parámetros
+            </Typography>
+          </DialogTitle>
+          <DialogContent sx={{ textAlign: "center" }}>
+            <br></br>
+            <Typography>
+              Comparte el siguiente código de parámetros con otras personas para
+              que puedan cargar la configuración actual y ver los mismo
+              resultados
+            </Typography>
+            <br></br>
+            <Button onClick={() => this.copyCode()}>
+              Código: {this.props.shareCode()}
+            </Button>
+            <Button
+              startIcon={<CopyAll></CopyAll>}
+              variant="contained"
+              onClick={() => this.copyCode()}
+            >
+              Copiar
+            </Button>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => this.closeShareModal()}>Cancelar</Button>
+          </DialogActions>
+        </Dialog>
+        {/* Modal de cargado de códigos */}
+        <Dialog
+          open={this.state.loadModalOpen}
+          onClose={() => this.closeLoadModal()}
+        >
+          <DialogTitle>
+            <Typography variant="h2" fontSize={"1.5rem"}>
+              Cargar parámetros
+            </Typography>
+          </DialogTitle>
+          <DialogContent sx={{ textAlign: "center" }}>
+            <br></br>
+            <Typography>
+              Ingrese un código de parámetros para cargar su configuración
+            </Typography>
+            <br></br>
+            <Box>
+              <TextField
+                sx={{ marginRight: "20px" }}
+                label="Código"
+                placeholder="X;1;100;200;300"
+                variant="filled"
+                value={this.state.code}
+                onChange={(e) => this.handleCodeChanged(e)}
+                error={this.state.codeError}
+                helperText={this.state.codeErrorMessage}
+              ></TextField>
+              <Button
+                startIcon={<FileOpen />}
+                variant="contained"
+                sx={{ height: "55px" }}
+                onClick={() => this.loadCode()}
+              >
+                Cargar
+              </Button>
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => this.closeShareModal()}>Cancelar</Button>
+          </DialogActions>
         </Dialog>
       </>
     );

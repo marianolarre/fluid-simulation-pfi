@@ -335,10 +335,41 @@ class Modulo3Manometria extends Component {
     return { top: gradientStart, bottom: gradientEnd };
   }
 
+  getParameterCode() {
+    let module = "C";
+    let codeVersion = "1";
+    return [
+      module,
+      codeVersion,
+      this.state.reservoir.pressure,
+      this.state.atmosphericPressure,
+      this.state.liquid.density,
+    ].join(";");
+  }
+
+  loadParameterCode(code) {
+    let split = code.split(";");
+    let module = split[0];
+    let codeVersion = parseInt(split[1]);
+    if (codeVersion == 1) {
+      if (split.length != 5) {
+        throw "Formato inválido";
+      }
+      let reservoir = { ...this.state.reservoir };
+      let liquid = { ...this.state.liquid };
+      reservoir.pressure = parseFloat(split[2]);
+      let atmosphericPressure = parseFloat(split[3]);
+      liquid.density = parseFloat(split[4]);
+      this.setState({ reservoir, atmosphericPressure, liquid });
+    }
+  }
+
   render() {
     return (
       <PanelAndCanvas
         title="Manometría"
+        shareCode={() => this.getParameterCode()}
+        loadCode={(code) => this.loadParameterCode(code)}
         panel={
           <>
             <Grid container spacing={2}>

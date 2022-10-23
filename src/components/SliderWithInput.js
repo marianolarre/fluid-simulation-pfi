@@ -74,7 +74,7 @@ class SliderWithInput extends Component {
               aria-labelledby="input-slider"
             />
           </Grid>
-          <Grid item xs={2}>
+          <Grid item xs={3}>
             <MuiInput
               value={this.state.temporaryValue || this.props.value}
               size="small"
@@ -87,11 +87,9 @@ class SliderWithInput extends Component {
                 type: "number",
                 "aria-labelledby": "input-slider",
               }}
-              sx={{ float: "left" }}
+              sx={{ float: "left", width: "100%" }}
+              endAdornment={this.props.unit}
             />
-          </Grid>
-          <Grid item xs={1}>
-            <Typography>{this.props.unit}</Typography>
           </Grid>
         </Grid>
       </PanelModule>

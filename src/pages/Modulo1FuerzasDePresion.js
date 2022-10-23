@@ -559,12 +559,15 @@ class Modulo1FuerzasDePresion extends Component {
     let module = split[0];
     let codeVersion = parseInt(split[1]);
     if (codeVersion == 1) {
+      if (split.length != 9) {
+        throw "Formato inválido";
+      }
       let container = { ...this.state.container };
       let liquid = { ...this.state.liquid };
       container.width = parseFloat(split[2]);
       liquid.height = parseFloat(split[3]);
       liquid.density = parseFloat(split[4]);
-      container.borderRadius = parseFloat([5]);
+      container.borderRadius = parseFloat(split[5]);
       let showingPressure = split[6] == 1;
       let showingPressureForces = split[7] == 1;
       let absolutePressure = split[8] == 1;
@@ -575,7 +578,9 @@ class Modulo1FuerzasDePresion extends Component {
         showingPressureForces,
         absolutePressure,
       });
+      return true;
     }
+    throw "Formato inválido";
   }
 
   render() {

@@ -219,6 +219,16 @@ class Modulo1FuerzasDePresion extends Component {
     this.setState(newState);
   };
 
+  clearLiquids = () => {
+    for (let i = this.state.liquids.length - 1; i >= 0; i--) {
+      this.state.liquids[i].pressureText.remove();
+      this.state.liquids[i].shape.remove();
+      this.state.liquids[i].topLineShape.remove();
+      this.state.liquids[i] = null;
+      this.state.liquids.splice(i, 1);
+    }
+  };
+
   onLiquidRemove = (liquidID) => {
     var newState = { ...this.state };
 
@@ -604,10 +614,67 @@ class Modulo1FuerzasDePresion extends Component {
     return { top: gradientStart, bottom: gradientEnd };
   }
 
+  getParameterCode() {
+    let module = "B";
+    let codeVersion = "1";
+    let list = [
+      module,
+      codeVersion,
+      this.state.container.width,
+      this.state.container.height,
+      this.state.showingPressure ? 1 : 0,
+      this.state.showingPressureForces ? 1 : 0,
+      this.state.absolutePressure ? 1 : 0,
+    ];
+    for (let i = 0; i < this.state.liquids.length; i++) {
+      list.push(this.state.liquids[i].height);
+      list.push(this.state.liquids[i].density);
+    }
+    return list.join(";");
+  }
+
+  loadParameterCode(code) {
+    incrementingLiquidLookup = 0;
+    this.clearLiquids();
+    let split = code.split(";");
+    let module = split[0];
+    let codeVersion = parseInt(split[1]);
+    if (codeVersion == 1) {
+      if (split.length < 5 || split.length % 2 == 0) {
+        throw "Formato inválido";
+      }
+      let container = { ...this.state.container };
+      let liquids = [];
+      container.width = parseInt(split[2]);
+      container.height = parseInt(split[3]);
+      let showingPressure = split[4] == 1;
+      let showingPressureForces = split[5] == 1;
+      let absolutePressure = split[6] == 1;
+      for (let i = 7; i < split.length; i += 2) {
+        var newLiquid = this.getNewLiquid();
+        newLiquid.height = parseFloat(split[i]);
+        newLiquid.density = parseFloat(split[i + 1]);
+        liquids.push(newLiquid);
+      }
+      this.setState({
+        container,
+        liquids,
+        showingPressure,
+        showingPressureForces,
+        absolutePressure,
+      });
+      this.state.container.shape.bringToFront();
+      return true;
+    }
+    throw "Formato inválido";
+  }
+
   render() {
     return (
       <PanelAndCanvas
         title="Estratificación"
+        shareCode={() => this.getParameterCode()}
+        loadCode={(code) => this.loadParameterCode(code)}
         panel={
           <>
             <Grid container spacing={2}>

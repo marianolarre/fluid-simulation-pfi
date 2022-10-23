@@ -593,10 +593,26 @@ class Modulo6Flotacion extends Component {
     };
   }
 
+  getParameterCode() {
+    let module = "X";
+    let codeVersion = "1";
+    return [module, codeVersion].join(";");
+  }
+
+  loadParameterCode(code) {
+    let split = code.split(";");
+    let module = split[0];
+    let codeVersion = parseInt(split[1]);
+    if (codeVersion == 1) {
+    }
+  }
+
   render() {
     return (
       <PanelAndCanvas
         title="Flotación"
+        shareCode={() => this.getParameterCode()}
+        loadCode={(code) => this.loadParameterCode(code)}
         panel={
           <>
             <Grid container spacing="2%" alignItems="stretch">
