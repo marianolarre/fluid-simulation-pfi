@@ -10,6 +10,7 @@ import {
 import SliderWithInput from "./SliderWithInput";
 import BackspaceIcon from "@mui/icons-material/Backspace";
 import PanelModule from "./PanelModule";
+import { Balance, LockOpen } from "@mui/icons-material";
 
 const angleMarks = [
   {
@@ -99,17 +100,7 @@ class CVPipe extends Component {
         <Grid container>
           {(this.props.pipe.lockedVelocity && (
             <>
-              <Grid item xs={4}>
-                <Button
-                  variant="contained"
-                  onClick={(newValue) =>
-                    this.props.onUnlockedVelocity(newValue, this.props.id)
-                  }
-                >
-                  Hacer velocidad incógnita
-                </Button>
-              </Grid>
-              <Grid item xs={8}>
+              <Grid item xs={12}>
                 <SliderWithInput
                   label="Velocidad"
                   step={0.1}
@@ -122,6 +113,20 @@ class CVPipe extends Component {
                     this.props.onVelocityChange(newValue, this.props.id)
                   }
                 ></SliderWithInput>
+              </Grid>
+              <Grid item xs={12}>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  onClick={(newValue) =>
+                    this.props.onUnlockedVelocity(newValue, this.props.id)
+                  }
+                >
+                  <Typography sx={{ marginRight: "10px" }}>
+                    Hacer velocidad incógnita
+                  </Typography>
+                  <Balance></Balance>
+                </Button>
               </Grid>
             </>
           )) || (

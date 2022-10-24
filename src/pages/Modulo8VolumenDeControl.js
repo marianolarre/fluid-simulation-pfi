@@ -7,13 +7,26 @@ import AddIcon from "@mui/icons-material/Add";
 
 import { Button } from "@mui/material";
 import { Grid } from "@mui/material";
-import { view, Point, Size, Path, Shape, Group, Rectangle } from "paper";
+import {
+  view,
+  Point,
+  Size,
+  Path,
+  Shape,
+  Group,
+  Rectangle,
+  PointText,
+} from "paper";
 import SliderWithInput from "../components/SliderWithInput";
 import { addPoints, ScrollingRectangle, VectorArrow } from "../paperUtility";
 
 const pipeLength = 100;
 const pipeStroke = 4;
 const velocityToPixels = 10;
+
+let totalForceArrow;
+let verticalForceArrow;
+let horizontalForceArrow;
 
 class Modulo8VolumenDeControl extends Component {
   state = {
@@ -26,6 +39,7 @@ class Modulo8VolumenDeControl extends Component {
       outlineShape: null,
       fillShape: null,
     },
+    showingForces: false,
     density: 10,
     pipes: [],
   };
@@ -34,6 +48,14 @@ class Modulo8VolumenDeControl extends Component {
     for (let i = 0; i < this.state.pipes.length; i++) {
       this.state.pipes[i].scrollingRectangle.update(delta);
     }
+  }
+
+  toggleShowingForcesChange(event) {
+    const showingForces = !this.state.showingForces;
+    totalForceArrow.setVisible(showingForces);
+    horizontalForceArrow.setVisible(showingForces);
+    verticalForceArrow.setVisible(showingForces);
+    this.setState({ showingForces: showingForces }, this.updateAllPipes);
   }
 
   handleAddPipe() {
@@ -95,6 +117,11 @@ class Modulo8VolumenDeControl extends Component {
         new Size(pipeLength + radius - pipeStroke * 2 - 2, section)
       )
     );
+    const pipeNumber = new PointText(new Point(0, 0));
+    pipeNumber.style = {
+      fillColor: "black",
+      fontSize: 30,
+    };
     outlineShape.sendToBack();
     outlineShape.style = {
       strokeColor: "black",
@@ -158,6 +185,7 @@ class Modulo8VolumenDeControl extends Component {
 
   updateAllPipes() {
     let incognitas = 0;
+    let momentumChange = new Point(0, 0);
     for (let i = 0; i < this.state.pipes.length; i++) {
       if (!this.state.pipes[i].lockedVelocity) {
         incognitas += 1;
@@ -169,8 +197,29 @@ class Modulo8VolumenDeControl extends Component {
       }
     }
     for (let i = 0; i < this.state.pipes.length; i++) {
-      this.updatePipe(this.state.pipes[i], i);
+      const pipe = this.state.pipes[i];
+      this.updatePipe(pipe, i);
+      let sign = Math.sign(pipe.velocity);
+      const angleInRads = (pipe.angle * Math.PI) / 180;
+      const flow = -(pipe.velocity * pipe.section * sign) / 5;
+      momentumChange.x += Math.cos(angleInRads) * flow;
+      momentumChange.y += Math.sin(angleInRads) * flow;
     }
+    horizontalForceArrow.bringToFront();
+    horizontalForceArrow.SetPosition(
+      view.center,
+      addPoints(view.center, new Point(momentumChange.x, 0))
+    );
+    verticalForceArrow.bringToFront();
+    verticalForceArrow.SetPosition(
+      view.center,
+      addPoints(view.center, new Point(0, momentumChange.y))
+    );
+    totalForceArrow.bringToFront();
+    totalForceArrow.SetPosition(
+      view.center,
+      addPoints(view.center, momentumChange)
+    );
   }
 
   updatePipe(pipe, id) {
@@ -330,6 +379,40 @@ class Modulo8VolumenDeControl extends Component {
     newPipes.push(this.createNewPipe(180, 50, true, -10));
     newPipes.push(this.createNewPipe(0, 25, false));
 
+    totalForceArrow = new VectorArrow(
+      view.center,
+      view.center,
+      "black",
+      10,
+      10,
+      20,
+      false,
+      false
+    );
+    totalForceArrow.setVisible(false);
+    horizontalForceArrow = new VectorArrow(
+      view.center,
+      view.center,
+      "red",
+      10,
+      10,
+      20,
+      false,
+      false
+    );
+    horizontalForceArrow.setVisible(false);
+    verticalForceArrow = new VectorArrow(
+      view.center,
+      view.center,
+      "blue",
+      10,
+      10,
+      20,
+      false,
+      false
+    );
+    verticalForceArrow.setVisible(false);
+
     this.setState(
       { volume: volumeCopy, ready: true, pipes: newPipes },
       this.updateAllPipes
@@ -393,6 +476,13 @@ class Modulo8VolumenDeControl extends Component {
                   ></CVPipe>
                 </Grid>
               ))}
+              <Grid item xs={12} xl={6}>
+                <MyToggle
+                  label="Fuerzas sobre el volumen"
+                  checked={this.state.showingForces}
+                  onChange={(e) => this.toggleShowingForcesChange(e)}
+                />
+              </Grid>
               <Grid item xs={6}>
                 <Button
                   sx={{ width: "100%" }}
