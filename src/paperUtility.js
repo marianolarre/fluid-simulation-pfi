@@ -38,9 +38,12 @@ export function createBoxPath(shape, center, size) {
 
 export function getColorFromGradient(gradient, percentage) {
   var sections = gradient.length - 1;
+  var percentage = Math.max(0, Math.min(1, percentage));
   var index = Math.floor(percentage * sections);
+  index = Math.max(0, Math.min(sections, index));
   var c1 = gradient[index];
-  var c2 = gradient[index + 1];
+  index = Math.max(0, Math.min(sections, index + 1));
+  var c2 = gradient[index];
   var t = (percentage * sections) % 1;
   var lerpedColor = new Color(
     lerp(c1.red, c2.red, t),
@@ -51,14 +54,22 @@ export function getColorFromGradient(gradient, percentage) {
 }
 
 export const pressureGradient = [
-  new Color(0.3, 0.3, 1),
-  new Color(0.3, 0.8, 1),
-  new Color(0.3, 1, 0.3),
-  new Color(1, 0.8, 0.3),
-  new Color(1, 0.3, 0.3),
+  new Color(0.3, 0.3, 0.9),
+  new Color(0.2, 0.6, 0.9),
+  new Color(0.1, 0.8, 0.1),
+  new Color(0.8, 0.7, 0.2),
+  new Color(0.9, 0.3, 0.3),
   new Color(0.5, 0.3, 0.6),
-  new Color(0.3, 0.3, 0.3),
+  new Color(0.2, 0.2, 0.2),
 ];
+
+export function getInvertedPressureGradient() {
+  var list = [];
+  for (let i = pressureGradient.length - 1; i >= 0; i--) {
+    list.push(pressureGradient[i]);
+  }
+  return list;
+}
 
 export class VectorArrow {
   constructor(
@@ -592,12 +603,13 @@ export class VelocityParticle {
 }
 
 export class ColorScaleReference {
-  constructor(position, size, colors, min, max) {
+  constructor(position, size, colors, min, max, secondaryColor, unit) {
     this.position = position;
     this.size = size;
     this.colors = colors;
     this.min = min;
     this.max = max;
+    this.unit = unit;
     this.shape = new Shape.Rectangle(position, size);
     this.shape.style = {
       fillColor: {
@@ -607,13 +619,15 @@ export class ColorScaleReference {
         origin: position,
         destination: addPoints(position, new Point(0, size.height)),
       },
+      strokeColor: secondaryColor || "black",
+      strokeWidth: 2,
     };
     this.markers = [
       {
         text: new PointText({
           point: addPoints(position, new Point(-5, 10)),
-          content: max,
-          fillColor: "black",
+          content: max + (this.unit || ""),
+          fillColor: secondaryColor || "black",
           justification: "right",
           fontSize: 25,
         }),
@@ -621,18 +635,18 @@ export class ColorScaleReference {
       {
         text: new PointText({
           point: addPoints(position, new Point(-5, size.height / 2 + 10)),
-          content: (min + max) / 2,
+          content: (min + max) / 2 + (this.unit || ""),
           justification: "right",
-          fillColor: "black",
+          fillColor: secondaryColor || "black",
           fontSize: 25,
         }),
       },
       {
         text: new PointText({
           point: addPoints(position, new Point(-5, size.height + 10)),
-          content: min,
+          content: min + (this.unit || ""),
           justification: "right",
-          fillColor: "black",
+          fillColor: secondaryColor || "black",
           fontSize: 25,
         }),
       },
@@ -640,9 +654,18 @@ export class ColorScaleReference {
   }
 
   setRange(min, max) {
-    console.log(this.markers);
-    this.markers[0].text.content = Math.round(max * 100) / 100;
-    this.markers[1].text.content = Math.round((min + max) * 50) / 100;
-    this.markers[2].text.content = Math.round(min * 100) / 100;
+    this.markers[0].text.content =
+      Math.round(max * 100) / 100 + (this.unit || "");
+    this.markers[1].text.content =
+      Math.round((min + max) * 50) / 100 + (this.unit || "");
+    this.markers[2].text.content =
+      Math.round(min * 100) / 100 + (this.unit || "");
+  }
+
+  setVisible(visible) {
+    this.shape.visible = visible;
+    this.markers[0].text.visible = visible;
+    this.markers[1].text.visible = visible;
+    this.markers[2].text.visible = visible;
   }
 }

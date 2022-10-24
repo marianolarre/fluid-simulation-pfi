@@ -26,8 +26,8 @@ import SliderWithInput from "../components/SliderWithInput";
 
 let previousSkew = 0;
 let cameraAngle = 0;
-const metersToPixels = 400;
-const atmToPixels = 20;
+const metersToPixels = 100;
+const paToPixels = 200 / 101300;
 const maxPressure = 12;
 
 class Modulo4SuperficieSumergida extends Component {
@@ -38,17 +38,17 @@ class Modulo4SuperficieSumergida extends Component {
     },
     surface: {
       angle: 45,
-      depth: 300,
-      width: 300,
-      length: 300,
-      girth: 20,
+      depth: -0.5,
+      width: 5,
+      length: 5,
+      girth: 0.5,
     },
     line: null,
     ready: false,
     frontView: false,
     forceVectorArray: null,
     gravity: 9.8,
-    atmosphericPressure: 15,
+    atmosphericPressure: 101325,
     absolutePressure: false,
     equivalentForce: {
       circle: null,
@@ -57,34 +57,37 @@ class Modulo4SuperficieSumergida extends Component {
       circle: null,
     },
     liquid: {
-      density: 10,
+      density: 1000,
     },
   };
 
-  updateSurface(liquidSurface) {
-    let surface = liquidSurface;
+  updateSurface(surf) {
+    let surface = surf;
     if (surface == null) {
-      surface = this.state.liquid.surface;
+      surface = this.state.surface;
     }
-
+    var width = surface.width * metersToPixels;
+    var girth = surface.girth * metersToPixels;
+    var length = surface.length * metersToPixels;
+    var depth = surface.depth * metersToPixels;
     const perspectiveFront = Math.sin(cameraAngle);
     const perspectiveSide = Math.cos(cameraAngle);
 
     const liquidHeight = this.getLiquidHeight();
     const angleInRadians = (surface.angle / 180) * Math.PI;
     const girthOffset = new Point(
-      surface.girth * Math.cos(angleInRadians) * perspectiveSide,
-      surface.girth * Math.sin(angleInRadians)
+      girth * Math.cos(angleInRadians) * perspectiveSide,
+      girth * Math.sin(angleInRadians)
     );
     const lengthOffset = new Point(
-      -surface.length * Math.sin(angleInRadians) * perspectiveSide,
-      surface.length * Math.cos(angleInRadians)
+      -length * Math.sin(angleInRadians) * perspectiveSide,
+      length * Math.cos(angleInRadians)
     );
     const top = new Point(
       view.center.x +
-        ((Math.sin(angleInRadians) * surface.length) / 2) * perspectiveSide +
-        (surface.width * perspectiveFront) / 2,
-      liquidHeight + surface.depth
+        ((Math.sin(angleInRadians) * length) / 2) * perspectiveSide +
+        (width * perspectiveFront) / 2,
+      liquidHeight + depth
     );
     const front = addPoints(top, lengthOffset);
     const back = addPoints(top, girthOffset);
@@ -97,7 +100,7 @@ class Modulo4SuperficieSumergida extends Component {
       surface.sideShape.segments[3].point.set(front);
     }
 
-    const widthOffset = new Point(-surface.width * perspectiveFront, 0);
+    const widthOffset = new Point(-width * perspectiveFront, 0);
 
     if (surface.frontShape != null) {
       surface.frontShape.segments[0].point.set(top);
@@ -118,8 +121,8 @@ class Modulo4SuperficieSumergida extends Component {
       let pressureMin = this.getPressureAtPosition(top);
       let points = [addPoints(top, widthOffset), addPoints(front, widthOffset)];
       let magnitudes = [
-        this.getPressureAtPosition(top) * perspectiveSide,
-        this.getPressureAtPosition(front) * perspectiveSide,
+        this.getPressureAtPosition(top) * perspectiveSide * paToPixels,
+        this.getPressureAtPosition(front) * perspectiveSide * paToPixels,
       ];
 
       if (top.y < liquidHeight && front.y > liquidHeight) {
@@ -130,7 +133,11 @@ class Modulo4SuperficieSumergida extends Component {
         );
         pressureMin = this.getPressureAtPosition(midPoint);
         points.splice(1, 0, addPoints(midPoint, widthOffset));
-        magnitudes.splice(1, 0, this.getPressureAtPosition(midPoint));
+        magnitudes.splice(
+          1,
+          0,
+          this.getPressureAtPosition(midPoint) * perspectiveSide * paToPixels
+        );
       }
 
       surface.forceVectorArray.SetValues(points, magnitudes, 20, {
@@ -141,9 +148,8 @@ class Modulo4SuperficieSumergida extends Component {
       if (this.state.equivalentForce.arrow != null) {
         const pos = this.getForceScreenPosition();
         const magnitude =
-          ((pressureMin + (pressureMax - pressureMin) / 2) *
-            this.state.surface.length) /
-          100;
+          (((pressureMin + (pressureMax - pressureMin) / 2) * length) / 200) *
+          paToPixels;
         const force = new Point(
           -Math.cos(angleInRadians) * magnitude * perspectiveSide,
           -Math.sin(angleInRadians) * magnitude
@@ -212,13 +218,11 @@ class Modulo4SuperficieSumergida extends Component {
   }
 
   getLiquidHeight() {
-    return view.size.height * 0.2;
+    return view.size.height * 0.4;
   }
 
   onPressureTypeChange = (event) => {
-    var newState = { ...this.state };
-    newState.absolutePressure = event.target.value == "true";
-    this.setState(newState);
+    this.setState({ absolutePressure: event.target.value == "true" });
   };
 
   onAngleChanged = (newValue) => {
@@ -270,22 +274,22 @@ class Modulo4SuperficieSumergida extends Component {
     const cosOfAngle = Math.cos(angleInRadians);
     const perspectiveFront = Math.sin(cameraAngle);
     const perspectiveSide = Math.cos(cameraAngle);
+    var depth = surface.depth * metersToPixels;
+    var width = surface.width * metersToPixels;
+    var length = surface.length * metersToPixels;
     const top = new Point(
       view.center.x +
-        (sinOfAngle * surface.length * perspectiveSide) / 2 +
-        (surface.width * perspectiveFront) / 2,
-      this.getLiquidHeight() + surface.depth
+        (sinOfAngle * length * perspectiveSide) / 2 +
+        (width * perspectiveFront) / 2,
+      this.getLiquidHeight() + depth
     );
 
     const lengthOffset = new Point(
-      -0.5 * sinOfAngle * perspectiveSide * surface.length,
-      0.5 * cosOfAngle * surface.length
+      -0.5 * sinOfAngle * perspectiveSide * length,
+      0.5 * cosOfAngle * length
     );
     const midPoint = addPoints(top, lengthOffset);
-    return new Point(
-      midPoint.x - (this.state.surface.width * perspectiveFront) / 2,
-      midPoint.y
-    );
+    return new Point(midPoint.x - (width * perspectiveFront) / 2, midPoint.y);
   }
 
   getForceScreenPosition() {
@@ -294,9 +298,13 @@ class Modulo4SuperficieSumergida extends Component {
     const sinOfAngle = Math.sin(angleInRadians);
     const cosOfAngle = Math.cos(angleInRadians);
 
+    var depth = surface.depth * metersToPixels;
+    var length = surface.length * metersToPixels;
+    var width = surface.width * metersToPixels;
+
     const liquidHeight = this.getLiquidHeight();
-    const topY = liquidHeight + surface.depth;
-    const frontY = topY + surface.length * Math.cos(angleInRadians);
+    const topY = liquidHeight + depth;
+    const frontY = topY + length * Math.cos(angleInRadians);
     let submergePercentage = 1;
     if (topY < liquidHeight && frontY > liquidHeight) {
       submergePercentage = 1 - (liquidHeight - topY) / (frontY - topY);
@@ -305,40 +313,38 @@ class Modulo4SuperficieSumergida extends Component {
       submergePercentage = 0;
     }
 
-    // Calculo temporal de L
-    //const L =
-    //  surface.length * lerp(0.5 + cosOfAngle * 0.166, 1, submergePercentage); // el número importante <-----
-
     // Ixx = ancho*largo^3/12
     // hcg = profundidad del centro geométrico
     // A = area sumergida
     // ycp = posición 'y' del centro de presión, desde el centro geométrico (cg)
     // - ycp = Ixx*sin(ang)/(hcg*A)
 
-    let submergedLength = surface.length * submergePercentage;
-    let Ixx = (surface.width * submergedLength ** 3) / 12;
+    let submergedLength = length * submergePercentage;
+    let Ixx = (width * submergedLength ** 3) / 12;
     let hcg = (Math.max(topY, this.getLiquidHeight()) + frontY) / 2;
-    let A = surface.width * submergedLength;
-    let ycp = (Ixx * cosOfAngle) / (hcg * A);
-    const L = surface.length - 0.5 * submergedLength + ycp;
+    let A = width * submergedLength;
+    let pcg = this.getPressureAtPosition(new Point(0, hcg));
+    let ycp =
+      (this.state.liquid.density * this.state.gravity * Ixx * cosOfAngle) /
+      (pcg * A);
+
+    // ycp = ro * g * Ixx * cosAng / (pcg * A)
+    const L = length - submergedLength * 0.5 + ycp / metersToPixels;
 
     const perspectiveFront = Math.sin(cameraAngle);
     const perspectiveSide = Math.cos(cameraAngle);
     const top = new Point(
       view.center.x +
-        (sinOfAngle * surface.length * perspectiveSide) / 2 +
-        (surface.width * perspectiveFront) / 2,
-      this.getLiquidHeight() + surface.depth
+        (sinOfAngle * length * perspectiveSide) / 2 +
+        (width * perspectiveFront) / 2,
+      this.getLiquidHeight() + depth
     );
     const lengthOffset = new Point(
       -L * Math.sin(angleInRadians) * perspectiveSide,
       L * Math.cos(angleInRadians)
     );
     const midPoint = addPoints(top, lengthOffset);
-    return new Point(
-      midPoint.x - (this.state.surface.width * perspectiveFront) / 2,
-      midPoint.y
-    );
+    return new Point(midPoint.x - (width * perspectiveFront) / 2, midPoint.y);
   }
 
   canvasFunction() {
@@ -392,10 +398,10 @@ class Modulo4SuperficieSumergida extends Component {
         closed: true,
         strokeJoin: "round",
       }),
-      length: 400,
-      depth: 300,
-      width: 300,
-      girth: 20,
+      length: 5,
+      depth: -0.5,
+      width: 3,
+      girth: 0.25,
       angle: 45,
     };
     surface.frontShape.add(new Point(0, 0));
@@ -543,10 +549,10 @@ class Modulo4SuperficieSumergida extends Component {
               <Grid item xs={12}>
                 <SliderWithInput
                   label="Profundidad"
-                  step={1}
-                  min={-150}
-                  max={350}
-                  unit="cm"
+                  step={0.1}
+                  min={-5}
+                  max={5}
+                  unit="m"
                   value={this.state.surface.depth}
                   onChange={this.onDepthChanged}
                 ></SliderWithInput>
@@ -554,10 +560,10 @@ class Modulo4SuperficieSumergida extends Component {
               <Grid item xs={12}>
                 <SliderWithInput
                   label="Largo"
-                  step={1}
-                  min={50}
-                  max={400}
-                  unit="cm"
+                  step={0.1}
+                  min={0.5}
+                  max={5}
+                  unit="m"
                   value={this.state.surface.length}
                   onChange={this.onLengthChanged}
                 ></SliderWithInput>
@@ -575,9 +581,9 @@ class Modulo4SuperficieSumergida extends Component {
               <Grid item xs={12}>
                 <SliderWithInput
                   label="Densidad del líquido"
-                  step={0.1}
+                  step={10}
                   min={0}
-                  max={20}
+                  max={2000}
                   unit="kg/m³"
                   value={this.state.liquid.density}
                   onChange={this.onLiquidDensityChange}
