@@ -98,6 +98,14 @@ class Modulo8VolumenDeControl extends Component {
     this.setState(newState, this.updateAllPipes);
   }
 
+  removeAllPipes() {
+    for (let i = 0; i < this.state.pipes.length; i++) {
+      this.state.pipes[i].shapeGroup.remove();
+      this.state.pipes[i].velocityArrow.Remove();
+      this.state.pipes[i].scrollingRectangle.remove();
+    }
+  }
+
   handlePipeRemoved(pipeID) {
     var pipes = [...this.state.pipes];
 
@@ -205,6 +213,7 @@ class Modulo8VolumenDeControl extends Component {
       momentumChange.x += Math.cos(angleInRads) * flow;
       momentumChange.y += Math.sin(angleInRads) * flow;
     }
+    this.state.volume.fillShape.bringToFront();
     horizontalForceArrow.bringToFront();
     horizontalForceArrow.SetPosition(
       view.center,
@@ -433,16 +442,41 @@ class Modulo8VolumenDeControl extends Component {
   }
 
   getParameterCode() {
-    let module = "X";
+    let module = "H";
     let codeVersion = "1";
-    return [module, codeVersion].join(";");
+    let list = [module, codeVersion, this.state.showingForces ? 1 : 0];
+    for (let i = 0; i < this.state.pipes.length; i++) {
+      let pipe = this.state.pipes[i];
+      list.push(pipe.angle);
+      list.push(pipe.section);
+      list.push(pipe.velocity);
+      list.push(pipe.lockedVelocity ? 1 : 0);
+    }
+    return list.join(";");
   }
 
   loadParameterCode(code) {
     let split = code.split(";");
     let module = split[0];
     let codeVersion = parseInt(split[1]);
+    this.removeAllPipes();
     if (codeVersion == 1) {
+      let showingForces = split[2] == 1;
+      let serializedPipes = split.splice(3);
+      let pipes = [];
+      for (let i = 0; i < serializedPipes.length; i += 4) {
+        const angle = parseFloat(serializedPipes[i]);
+        const section = parseFloat(serializedPipes[i + 1]);
+        const velocity = parseFloat(serializedPipes[i + 2]);
+        const locked = serializedPipes[i + 3] == 1;
+        let newPipe = this.createNewPipe(angle, section, locked, velocity);
+        newPipe.velocity = velocity;
+        pipes.push(newPipe);
+      }
+      this.setState({ pipes, showingForces }, this.updateAllPipes);
+      totalForceArrow.setVisible(showingForces);
+      horizontalForceArrow.setVisible(showingForces);
+      verticalForceArrow.setVisible(showingForces);
     }
   }
 
