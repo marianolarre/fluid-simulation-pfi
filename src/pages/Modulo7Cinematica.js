@@ -580,6 +580,18 @@ class Modulo7Cinematica extends Component {
     this.setState({ period: newValue });
   }
 
+  updateEquation() {
+    this.setState(
+      {
+        expression: {
+          x: this.cleanExpression(this.state.writtenExpression.x),
+          y: this.cleanExpression(this.state.writtenExpression.y),
+        },
+      },
+      () => this.updateVectorField()
+    );
+  }
+
   onXEquationChange(newValue) {
     const writtenExpression = { ...this.state.writtenExpression };
     const expression = { ...this.state.expression };
@@ -725,16 +737,80 @@ class Modulo7Cinematica extends Component {
   }
 
   getParameterCode() {
-    let module = "X";
+    let module = "G";
     let codeVersion = "1";
-    return [module, codeVersion].join(";");
+    let clickPositionX = 0;
+    let clickPositionY = 0;
+    let worldClick = new Point(0, 0);
+    if (this.state.clickPosition != null) {
+      worldClick = this.screenToWorld(this.state.clickPosition);
+    }
+    if (this.state.clickPosition != null) {
+      clickPositionX = worldClick.x;
+      clickPositionY = worldClick.y;
+    }
+    let list = [
+      module,
+      codeVersion,
+      this.state.timeScale,
+      this.state.time,
+      this.state.writtenExpression.x,
+      this.state.writtenExpression.y,
+      this.state.vectorLengthMultiplier,
+      this.state.showingCurrent ? 1 : 0,
+      this.state.showingTrayectory ? 1 : 0,
+      this.state.showingSmoke ? 1 : 0,
+      this.state.periodicParticles ? 1 : 0,
+      this.state.period,
+      clickPositionX,
+      clickPositionY,
+    ];
+    for (let i = 0; i < this.state.particles.length; i++) {
+      list.push(Math.round(this.state.particles[i].worldPos.x * 10000) / 10000);
+      list.push(Math.round(this.state.particles[i].worldPos.y * 10000) / 10000);
+    }
+    return list.join(";");
   }
-
   loadParameterCode(code) {
     let split = code.split(";");
     let module = split[0];
     let codeVersion = parseInt(split[1]);
+    let serializedParticles = split.slice(14);
     if (codeVersion == 1) {
+      this.setState(
+        {
+          timeScale: parseFloat(split[2]),
+          time: parseFloat(split[3]),
+          writtenExpression: { x: split[4], y: split[5] },
+          vectorLengthMultiplier: parseFloat(split[6]),
+          showingCurrent: split[7] == 1,
+          showingTrayectory: split[8] == 1,
+          showingSmoke: split[9] == 1,
+          periodicParticles: split[10] == 1,
+          period: parseFloat(split[11]),
+          clickPosition: this.worldToScreen(
+            new Point(parseFloat(split[12]), parseFloat(split[13]))
+          ),
+        },
+        () => {
+          this.updateEquation();
+          this.updateVectorField();
+          this.clearLinesAndParticles();
+          setTimeout(() => {
+            for (let i = 0; i < serializedParticles.length; i += 2) {
+              let screenPos = this.worldToScreen(
+                new Point(
+                  parseFloat(serializedParticles[i]),
+                  parseFloat(serializedParticles[i + 1])
+                )
+              );
+              this.placeParticle(screenPos, split[7] == 1, split[8] == 1);
+            }
+            this.state.clickPositionShape.position = this.state.clickPosition;
+            this.state.clickPosition.visible = true;
+          }, 100);
+        }
+      );
     }
   }
 
