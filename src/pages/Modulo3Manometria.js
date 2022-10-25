@@ -22,8 +22,8 @@ import { Button, Grid } from "@mui/material";
 import Stratum from "../components/Stratum";
 import { HorizontalSplit } from "@mui/icons-material";
 
-const metersToPixels = 400;
-const atmToPixels = 20;
+const metersToPixels = 1000;
+const paToPixels = 20;
 const maxPressure = 16;
 
 const leftColumnXOffset = -100;
@@ -39,7 +39,7 @@ class Modulo3Manometria extends Component {
     reservoir: {
       shape: null,
       radius: 100,
-      pressure: 2,
+      pressure: 101325,
       color: "#FFCCCC",
       pipeShape: null,
       density: 1,
@@ -48,15 +48,15 @@ class Modulo3Manometria extends Component {
       shape: null,
       velocity: 0,
       heightDifference: 0,
-      density: 10,
+      density: 1000,
     },
     columnInfo: null,
     background: {
       shape: null,
     },
     atmPressureText: null,
-    atmosphericPressure: 1,
-    gravity: 1,
+    atmosphericPressure: 101325,
+    gravity: 9.8,
   };
 
   componentDidUpdate() {}
@@ -78,6 +78,7 @@ class Modulo3Manometria extends Component {
   };
 
   updateFluid(delta) {
+    delta = Math.min(0.5, delta);
     const level = 100;
     const frequency = 4;
     const damping = 0.9;
@@ -113,15 +114,17 @@ class Modulo3Manometria extends Component {
       const leftColumnX = center.x + leftColumnXOffset;
       const rightColumnX = center.x + rightColumnXOffset;
       const midColumnX = (leftColumnX + rightColumnX) / 2;
-      const leftHeight = center.y + level + newHeightDifference * atmToPixels;
-      const rightHeight = center.y + level - newHeightDifference * atmToPixels;
+      const leftHeight =
+        center.y + level + newHeightDifference * metersToPixels;
+      const rightHeight =
+        center.y + level - newHeightDifference * metersToPixels;
       this.state.liquid.shape.segments[0].point.y = leftHeight;
       this.state.liquid.shape.segments[3].point.y = rightHeight;
 
       const targetLeftHeight =
-        center.y + level + targetHeightDifference * atmToPixels;
+        center.y + level + targetHeightDifference * metersToPixels;
       const targetRightHeight =
-        center.y + level - targetHeightDifference * atmToPixels;
+        center.y + level - targetHeightDifference * metersToPixels;
       const heightMeasure = this.state.columnInfo.heightMeasure;
 
       const leftLine = heightMeasure.leftLine.segments;
@@ -144,8 +147,8 @@ class Modulo3Manometria extends Component {
       rightLine[1].point.x = rightColumnX - 25;
       rightLine[1].point.y = targetRightHeight;
       heightMeasure.text.content =
-        Math.round(targetHeightDifference * 100) / 100;
-      if (Math.abs(targetHeightDifference) > 1) {
+        Math.round(targetHeightDifference * 10000) / 10000 + " m";
+      if (Math.abs(targetHeightDifference) > 0.02) {
         heightMeasure.text.point.x = midColumnX + 5;
         heightMeasure.text.point.y = center.y + 105;
       } else {
@@ -376,10 +379,10 @@ class Modulo3Manometria extends Component {
               <Grid item xs={12}>
                 <SliderWithInput
                   label="Presión del reservorio"
-                  step={0.1}
-                  min={0}
-                  max={100}
-                  unit="atm"
+                  step={25}
+                  min={101325 - 1000}
+                  max={101325 + 1000}
+                  unit="Pa"
                   value={this.state.reservoir.pressure}
                   onChange={this.onReservoirPressureChanged}
                 ></SliderWithInput>
@@ -387,10 +390,10 @@ class Modulo3Manometria extends Component {
               <Grid item xs={12}>
                 <SliderWithInput
                   label="Presión atmosférica"
-                  step={0.1}
-                  min={0}
-                  max={100}
-                  unit="atm"
+                  step={25}
+                  min={101325 - 1000}
+                  max={101325 + 1000}
+                  unit="Pa"
                   value={this.state.atmosphericPressure}
                   onChange={this.onAtmosphericPressureChanged}
                 ></SliderWithInput>
@@ -398,9 +401,9 @@ class Modulo3Manometria extends Component {
               <Grid item xs={12}>
                 <SliderWithInput
                   label="Densidad del líquido"
-                  step={0.25}
-                  min={5}
-                  max={50}
+                  step={10}
+                  min={500}
+                  max={2000}
                   unit="kg/m³"
                   value={this.state.liquid.density}
                   onChange={this.onLiquidDensityChanged}

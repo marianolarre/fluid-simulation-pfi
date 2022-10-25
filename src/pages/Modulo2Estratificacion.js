@@ -6,7 +6,7 @@ import PanelAndCanvas from "../components/PanelAndCanvas";
 import AddIcon from "@mui/icons-material/Add";
 
 import MyRadio from "../components/MyRadio";
-import { view, Point, Path, PointText, Rectangle } from "paper";
+import { view, Point, Path, PointText, Rectangle, Size } from "paper";
 import SliderWithInput from "../components/SliderWithInput";
 
 import {
@@ -18,14 +18,18 @@ import {
   subPoints,
   lerp,
   LevelSimbol,
+  ColorScaleReference,
+  getInvertedPressureGradient,
 } from "../paperUtility";
-import { Button } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import Stratum from "../components/Stratum";
 import { HorizontalSplit } from "@mui/icons-material";
+import { MathComponent } from "mathjax-react";
+import PanelModule from "../components/PanelModule";
 
-const metersToPixels = 400;
-const atmToPixels = 20;
-const maxPressure = 16;
+const metersToPixels = 50;
+const paToPixels = 100 / 101325;
+const maxPressure = 300000;
 let incrementingLiquidLookup = 0;
 const liquidColors = [
   "#1976D2",
@@ -38,17 +42,14 @@ const liquidColors = [
   "#6DAAF8",
 ];
 
-// TODO:
-// Hacer que el selector entre presion absoluta y manometrica indique ambas opciones
-// Agregar la posibilidad de agregar y quitar liquidos
-// Que con un boton se organicen por densidad
+let colorScaleReference = null;
 
 class Modulo1FuerzasDePresion extends Component {
   state = {
     container: {
       shape: null,
-      width: 300,
-      height: 400,
+      width: 3,
+      height: 4,
     },
     liquids: [],
     background: {
@@ -60,12 +61,12 @@ class Modulo1FuerzasDePresion extends Component {
       bottom: null,
       right: null,
     },
-    atmosphericPressure: 1,
+    atmosphericPressure: 101325,
     showingPressure: false,
     showingPressureForces: false,
     absolutePressure: false,
-    density: 0.5,
-    gravity: 1,
+    density: 1000,
+    gravity: 9.8,
   };
 
   componentDidUpdate() {
@@ -93,16 +94,22 @@ class Modulo1FuerzasDePresion extends Component {
   };
 
   getImportantPoints() {
-    const center = view.center;
-    const halfContainerWidth = this.state.container.width / 2;
-    const halfContainerHeight = this.state.container.height / 2;
+    const center = addPoints(
+      view.center,
+      new Point(0, -view.bounds.height * 0.1)
+    );
+    const halfContainerWidth =
+      (this.state.container.width / 2) * metersToPixels;
+    const halfContainerHeight =
+      (this.state.container.height / 2) * metersToPixels;
     const left = center.x - halfContainerWidth;
     const right = center.x + halfContainerWidth;
 
     let currentHeight = center.y + halfContainerHeight;
     const liquidPoints = [];
     for (let l = this.state.liquids.length - 1; l >= 0; l--) {
-      let newHeight = currentHeight - this.state.liquids[l].height;
+      let newHeight =
+        currentHeight - this.state.liquids[l].height * metersToPixels;
       liquidPoints[l] = {
         topLeft: new Point(left, newHeight),
         topRight: new Point(right, newHeight),
@@ -124,17 +131,17 @@ class Modulo1FuerzasDePresion extends Component {
   }
 
   getNewLiquid() {
-    let newDensity = 1.5;
+    let newDensity = 1000;
     if (this.state.liquids.length > 0) {
       newDensity =
-        this.state.liquids[this.state.liquids.length - 1].density + 0.5;
+        this.state.liquids[this.state.liquids.length - 1].density + 100;
     }
     let liquid = {
       shape: null,
       topLineShape: null,
       pressureText: null,
       levelSimbol: null,
-      height: 50,
+      height: 1,
       density: newDensity,
       color: liquidColors[incrementingLiquidLookup],
     };
@@ -161,7 +168,7 @@ class Modulo1FuerzasDePresion extends Component {
       justification: "left",
       fillColor: "white",
       fontSize: 15,
-      content: "1.5 atm",
+      content: "101325 Pa",
       visible: true,
     });
 
@@ -266,6 +273,7 @@ class Modulo1FuerzasDePresion extends Component {
   toggleShowingPressureChange(event) {
     const showPressure = !this.state.showingPressure;
     var newState = { ...this.state };
+    colorScaleReference.setVisible(showPressure);
     newState.showingPressure = showPressure;
     this.setState(newState);
 
@@ -323,7 +331,7 @@ class Modulo1FuerzasDePresion extends Component {
       if (this.state.liquids[l].height > 0) {
         text.point = addPoints(points.liquids[l].bottomLeft, new Point(15, -6));
         const displayText =
-          Math.round(pressureSteps[l + 1] * 100) / 100 + " atm";
+          Math.round(pressureSteps[l + 1] * 100) / 100 + " Pa";
         text.content = displayText;
         text.visible = true;
       } else {
@@ -401,7 +409,7 @@ class Modulo1FuerzasDePresion extends Component {
       this.state.background.shape.fillColor = "white";
       this.state.atmPressureText.fillColor = "black";
     }
-    this.state.atmPressureText.content = absolutePressure ? "1 atm" : "0 atm";
+    this.state.atmPressureText.content = absolutePressure ? "1 Pa" : "0 Pa";
   }
 
   updatePressureDisplays(
@@ -441,7 +449,7 @@ class Modulo1FuerzasDePresion extends Component {
       // Air
       if (points.liquids.length > 0) {
         if (points.liquids[0].topLeft.y > points.container.topLeft.y) {
-          stepMagnitudes.push(pressureSteps[0] * atmToPixels);
+          stepMagnitudes.push(pressureSteps[0] * paToPixels);
           leftPoints.push(points.container.topLeft);
           rightPoints.push(points.container.topRight);
         }
@@ -449,13 +457,13 @@ class Modulo1FuerzasDePresion extends Component {
         const count = this.state.liquids.length;
         for (let l = 0; l < count; l++) {
           if (points.liquids[l].bottomLeft.y > points.liquids[l].topLeft.y) {
-            stepMagnitudes.push(pressureSteps[l] * atmToPixels);
+            stepMagnitudes.push(pressureSteps[l] * paToPixels);
             leftPoints.push(points.liquids[l].topLeft);
             rightPoints.push(points.liquids[l].topRight);
           }
         }
         // Bottom step
-        stepMagnitudes.push(pressureSteps[count] * atmToPixels);
+        stepMagnitudes.push(pressureSteps[count] * paToPixels);
         leftPoints.push(points.liquids[count - 1].bottomLeft);
         rightPoints.push(points.liquids[count - 1].bottomRight);
 
@@ -465,7 +473,7 @@ class Modulo1FuerzasDePresion extends Component {
         this.state.arrows.right.SetValues(rightPoints, stepMagnitudes, 25);
         this.state.arrows.bottom.SetValues(
           [points.container.bottomRight, points.container.bottomLeft],
-          [bottomPressure * atmToPixels, bottomPressure * atmToPixels],
+          [bottomPressure * paToPixels, bottomPressure * paToPixels],
           25,
           { centered: true }
         );
@@ -474,14 +482,14 @@ class Modulo1FuerzasDePresion extends Component {
         leftPoints.push(points.container.bottomLeft);
         rightPoints.push(points.container.topRight);
         rightPoints.push(points.container.bottomRight);
-        stepMagnitudes.push(pressureSteps[0] * atmToPixels);
-        stepMagnitudes.push(pressureSteps[0] * atmToPixels);
+        stepMagnitudes.push(pressureSteps[0] * paToPixels);
+        stepMagnitudes.push(pressureSteps[0] * paToPixels);
 
         this.state.arrows.left.SetValues(leftPoints, stepMagnitudes, 25, true);
         this.state.arrows.right.SetValues(rightPoints, stepMagnitudes, 25);
         this.state.arrows.bottom.SetValues(
           [points.container.bottomRight, points.container.bottomLeft],
-          [bottomPressure * atmToPixels, bottomPressure * atmToPixels],
+          [bottomPressure * paToPixels, bottomPressure * paToPixels],
           25,
           null,
           true
@@ -512,15 +520,26 @@ class Modulo1FuerzasDePresion extends Component {
       justification: "left",
       fillColor: "black",
       fontSize: 15,
-      content: "0 atm",
+      content: "0 Pa",
       visible: true,
     });
+
+    colorScaleReference = new ColorScaleReference(
+      addPoints(view.bounds.topRight, new Point(-100, 100)),
+      new Size(50, view.size.height - 200),
+      getInvertedPressureGradient(),
+      0,
+      maxPressure,
+      "white",
+      " Pa"
+    );
+    colorScaleReference.setVisible(false);
 
     this.setState({
       container: {
         shape: container,
-        width: 300,
-        height: 400,
+        width: 8,
+        height: 10,
       },
       background: {
         shape: background,
@@ -565,7 +584,7 @@ class Modulo1FuerzasDePresion extends Component {
     steps.push(currentPressure);
     for (let l = 0; l < this.state.liquids.length; l++) {
       const liquid = this.state.liquids[l];
-      currentPressure += (liquid.density * liquid.height) / metersToPixels;
+      currentPressure += liquid.density * liquid.height * this.state.gravity;
       steps.push(currentPressure);
     }
     return steps;
@@ -681,10 +700,10 @@ class Modulo1FuerzasDePresion extends Component {
               <Grid item xs={12}>
                 <SliderWithInput
                   label="Ancho del contenedor"
-                  step={1}
-                  min={100}
-                  max={600}
-                  unit="cm"
+                  step={0.1}
+                  min={2}
+                  max={10}
+                  unit="m"
                   value={this.state.container.width}
                   onChange={(e) => this.onContainerWidthChange(e)}
                 ></SliderWithInput>
@@ -692,10 +711,10 @@ class Modulo1FuerzasDePresion extends Component {
               <Grid item xs={12}>
                 <SliderWithInput
                   label="Altura del contenedor"
-                  step={1}
-                  min={100}
-                  max={600}
-                  unit="cm"
+                  step={0.1}
+                  min={1}
+                  max={10}
+                  unit="m"
                   value={this.state.container.height}
                   onChange={(e) => this.onContainerHeightChange(e)}
                 ></SliderWithInput>
@@ -760,6 +779,12 @@ class Modulo1FuerzasDePresion extends Component {
                   </Button>
                 </Grid>
               )}
+              <Grid item xs={12} sx={{ marginTop: "50px" }}>
+                <PanelModule>
+                  <Typography>Diferencia de presión:</Typography>
+                  <MathComponent tex={String.raw`P =  \rho g  \triangle h`} />
+                </PanelModule>
+              </Grid>
             </Grid>
           </>
         }

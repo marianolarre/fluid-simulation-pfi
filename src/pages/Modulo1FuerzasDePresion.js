@@ -24,7 +24,7 @@ import {
   ColorScaleReference,
   getInvertedPressureGradient,
 } from "../paperUtility";
-import { Button } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import {
   CenterFocusStrong,
   Gradient,
@@ -693,8 +693,16 @@ class Modulo1FuerzasDePresion extends Component {
                   onChange={(e) => this.onPressureTypeChange(e)}
                 ></MyRadio>
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12} sx={{ marginTop: "50px" }}>
                 <PanelModule>
+                  <MathComponent
+                    tex={String.raw`P: \text{diferencia de presion}`}
+                  />
+                  <MathComponent tex={String.raw`\rho: \text{densidad}`} />
+                  <MathComponent tex={String.raw`g: \text{gravedad}`} />
+                  <MathComponent
+                    tex={String.raw`\triangle h: \text{diferencia de altura}`}
+                  />
                   <MathComponent tex={String.raw`P =  \rho g  \triangle h`} />
                 </PanelModule>
               </Grid>

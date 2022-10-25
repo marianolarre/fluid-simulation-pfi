@@ -29,10 +29,10 @@ class Stratum extends Component {
         </Typography>
         <SliderWithInput
           label="Profundidad"
-          step={1}
+          step={0.1}
           min={0}
           max={this.props.max}
-          unit="cm"
+          unit="m"
           value={this.props.liquid.height}
           onChange={(newValue) =>
             this.props.onHeightChange(newValue, this.props.id)
@@ -40,9 +40,9 @@ class Stratum extends Component {
         ></SliderWithInput>
         <SliderWithInput
           label="Densidad"
-          step={0.01}
-          min={0}
-          max={10}
+          step={10}
+          min={10}
+          max={2000}
           unit="kg/m³"
           value={this.props.liquid.density}
           onChange={(newValue) =>
