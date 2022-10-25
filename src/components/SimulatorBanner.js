@@ -80,8 +80,9 @@ class SimulatorBanner extends Component {
         loadModalOpen: false,
       });
       setTimeout(() => this.alertClose(), 2000);
-    } catch {
+    } catch (e) {
       this.setState({ codeError: true, codeErrorMessage: "Código inválido" });
+      console.log(e);
     }
   }
 
@@ -95,6 +96,11 @@ class SimulatorBanner extends Component {
 
   closeLoadModal() {
     this.setState({ loadModalOpen: false });
+  }
+
+  getTrimmedCode() {
+    let string = this.props.shareCode();
+    return string.length > 30 ? string.substring(0, 27) + "..." : string;
   }
 
   render() {
@@ -199,7 +205,7 @@ class SimulatorBanner extends Component {
             </Typography>
             <br></br>
             <Button onClick={() => this.copyCode()}>
-              Código: {this.props.shareCode()}
+              Código: {this.getTrimmedCode()}
             </Button>
             <Button
               startIcon={<CopyAll></CopyAll>}

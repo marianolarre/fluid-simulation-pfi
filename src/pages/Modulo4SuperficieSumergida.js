@@ -513,9 +513,18 @@ class Modulo4SuperficieSumergida extends Component {
   }
 
   getParameterCode() {
-    let module = "X";
+    let module = "D";
     let codeVersion = "1";
-    return [module, codeVersion].join(";");
+    return [
+      module,
+      codeVersion,
+      this.state.surface.angle,
+      this.state.surface.depth,
+      this.state.surface.length,
+      this.state.absolutePressure ? 1 : 0,
+      this.state.liquid.density,
+      this.state.frontView ? 1 : 0,
+    ].join(";");
   }
 
   loadParameterCode(code) {
@@ -523,7 +532,21 @@ class Modulo4SuperficieSumergida extends Component {
     let module = split[0];
     let codeVersion = parseInt(split[1]);
     if (codeVersion == 1) {
+      if (split.length != 8) {
+        throw "Formato inválido";
+      }
+      let surface = { ...this.state.surface };
+      surface.angle = parseFloat(split[2]);
+      surface.depth = parseFloat(split[3]);
+      surface.length = parseFloat(split[4]);
+      let absolutePressure = split[5] == 1;
+      let liquid = { ...this.state.liquid };
+      liquid.density = parseFloat(split[6]);
+      let frontView = split[7] == 1;
+      this.setState({ surface, absolutePressure, liquid, frontView });
+      return true;
     }
+    throw "Formato inválido";
   }
 
   render() {

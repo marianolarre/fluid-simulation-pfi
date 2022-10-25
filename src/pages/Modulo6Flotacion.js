@@ -6,7 +6,7 @@ import PanelAndCanvas from "../components/PanelAndCanvas";
 import MyRadio from "../components/MyRadio";
 import { Grid, Button, Typography, Box } from "@mui/material";
 import { Paper as MUIPaper } from "@mui/material";
-import { view, Point, Size, Path, Shape, Rectangle } from "paper";
+import { view, Point, Size, Path, Shape, Rectangle, Segment } from "paper";
 import SliderWithInput from "../components/SliderWithInput";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
@@ -28,6 +28,8 @@ const shapeStyle = {
   fillColor: "#DB1F48",
   dashArray: null,
 };
+
+let selectedShape = 0;
 
 class Modulo6Flotacion extends Component {
   state = {
@@ -168,6 +170,44 @@ class Modulo6Flotacion extends Component {
     let newState = { ...this.state };
     newState.movingShape = false;
     this.setState(newState);
+  }
+
+  serializeCurve(shape) {
+    let curves = [];
+    for (let i = 0; i < shape.curves.length; i++) {
+      curves.push(Math.round(shape.segments[i].point.x));
+      curves.push(Math.round(shape.segments[i].point.y));
+      curves.push(Math.round(shape.segments[i].handleIn.x));
+      curves.push(Math.round(shape.segments[i].handleIn.y));
+      curves.push(Math.round(shape.segments[i].handleOut.x));
+      curves.push(Math.round(shape.segments[i].handleOut.y));
+    }
+    return curves;
+  }
+
+  deserializeCurve(serialized) {
+    let shape = new Path();
+    console.log(serialized);
+    for (let i = 0; i <= serialized.length; i += 6) {
+      var nextID = (i + 6) % serialized.length;
+      shape.add(
+        new Segment(
+          new Point(
+            parseFloat(serialized[nextID]),
+            parseFloat(serialized[nextID + 1])
+          ),
+          new Point(
+            parseFloat(serialized[nextID + 2]),
+            parseFloat(serialized[nextID + 3])
+          ),
+          new Point(
+            parseFloat(serialized[nextID + 4]),
+            parseFloat(serialized[nextID + 5])
+          )
+        )
+      );
+    }
+    return shape;
   }
 
   onSelectPresetRectangle = (event) => {
@@ -594,9 +634,28 @@ class Modulo6Flotacion extends Component {
   }
 
   getParameterCode() {
-    let module = "X";
+    let module = "F";
     let codeVersion = "1";
-    return [module, codeVersion].join(";");
+    let serializedCurve = null;
+    if (this.state.buoy.shape != null) {
+      serializedCurve = this.serializeCurve(this.state.buoy.shape);
+    }
+    let list = [
+      module,
+      codeVersion,
+      this.state.buoy.density,
+      this.state.liquid.density,
+      this.state.gravity,
+      this.state.showingPressureForces ? 1 : 0,
+      this.state.showEquivalentForcePoints ? 1 : 0,
+      this.state.absolutePressure ? 1 : 0,
+    ];
+    if (serializedCurve != null) {
+      for (let i = 0; i < serializedCurve.length; i++) {
+        list.push(serializedCurve[i]);
+      }
+    }
+    return list.join(";");
   }
 
   loadParameterCode(code) {
@@ -604,6 +663,32 @@ class Modulo6Flotacion extends Component {
     let module = split[0];
     let codeVersion = parseInt(split[1]);
     if (codeVersion == 1) {
+      let buoy = { ...this.state.buoy };
+      buoy.density = parseFloat(split[2]);
+      let liquid = { ...this.state.liquid };
+      liquid.density = parseFloat(split[3]);
+      let gravity = parseFloat(split[4]);
+      let showingPressureForces = split[5] == 1;
+      let showEquivalentForcePoints = split[6] == 1;
+      let absolutePressure = split[7] == 1;
+      let serializedCurve = split.slice(8);
+      console.log(serializedCurve);
+      let curve = this.deserializeCurve(serializedCurve);
+      this.setState(
+        {
+          buoy,
+          liquid,
+          gravity,
+          showingPressureForces,
+          showEquivalentForcePoints,
+          absolutePressure,
+        },
+        () => {
+          this.removeCurrentShape();
+          this.registerShape(curve);
+        }
+      );
+      return true;
     }
   }
 
