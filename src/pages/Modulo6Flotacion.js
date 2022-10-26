@@ -20,7 +20,7 @@ import {
 } from "../paperUtility";
 
 const metersToPixels = 400;
-const atmToPixels = 15;
+const paToPixels = 500 / 101325;
 const maxPressure = 12;
 const shapeStyle = {
   strokeColor: "black",
@@ -39,7 +39,7 @@ class Modulo6Flotacion extends Component {
     liquid: {
       shape: null,
       color: "#1976D2",
-      density: 2,
+      density: 1000,
       levelSimbol: null,
     },
     buoy: {
@@ -47,7 +47,7 @@ class Modulo6Flotacion extends Component {
       area: 0,
       velocity: new Point(0, 0),
       angularVelocity: 0,
-      density: 1.5,
+      density: 700,
       pos: new Point(0, 0),
       angle: 0,
       centerOfMass: new Point(0, 0),
@@ -411,7 +411,7 @@ class Modulo6Flotacion extends Component {
           for (let o = 0; o <= curve.length; o += 3) {
             const point = curve.getLocationAt(o).point;
             points.push(point);
-            magnitudes.push(this.getPressureAtPosition(point) * atmToPixels);
+            magnitudes.push(this.getPressureAtPosition(point) * paToPixels);
           }
         }
 
@@ -715,9 +715,9 @@ class Modulo6Flotacion extends Component {
               <Grid item xs={12}>
                 <SliderWithInput
                   label="Densidad del objeto"
-                  step={0.1}
-                  min={0.1}
-                  max={10}
+                  step={10}
+                  min={10}
+                  max={5000}
                   unit="kg/m³"
                   value={this.state.buoy.density}
                   onChange={this.onObjectDensityChange}
@@ -726,9 +726,9 @@ class Modulo6Flotacion extends Component {
               <Grid item xs={12}>
                 <SliderWithInput
                   label="Densidad del líquido"
-                  step={0.1}
-                  min={0.1}
-                  max={10}
+                  step={10}
+                  min={10}
+                  max={5000}
                   unit="kg/m³"
                   value={this.state.liquid.density}
                   onChange={this.onLiquidDensityChange}

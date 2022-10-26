@@ -364,9 +364,17 @@ class Modulo10FlujoViscoso extends Component {
   }
 
   getParameterCode() {
-    let module = "X";
+    let module = "J";
     let codeVersion = "1";
-    return [module, codeVersion].join(";");
+    return [
+      module,
+      codeVersion,
+      this.state.speed,
+      this.state.dpdx,
+      this.state.viscosity,
+      this.state.showingParticles ? 1 : 0,
+      this.state.showingTension ? 1 : 0,
+    ].join(";");
   }
 
   loadParameterCode(code) {
@@ -374,6 +382,21 @@ class Modulo10FlujoViscoso extends Component {
     let module = split[0];
     let codeVersion = parseInt(split[1]);
     if (codeVersion == 1) {
+      let speed = parseFloat(split[2]);
+      let dpdx = parseFloat(split[3]);
+      let viscosity = parseFloat(split[4]);
+      let showingParticles = split[5] == 1;
+      let showingTension = split[6] == 1;
+      this.setState(
+        {
+          speed,
+          dpdx,
+          viscosity,
+          showingParticles,
+          showingTension,
+        },
+        this.updateLine
+      );
     }
   }
 

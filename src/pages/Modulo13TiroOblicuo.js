@@ -30,7 +30,7 @@ import {
 } from "@mui/icons-material";
 
 let timeUntilNextDot = 0;
-const metersToPixels = 50;
+const metersToPixels = 25;
 
 class Modulo13TiroOblicuo extends Component {
   state = {
@@ -44,10 +44,10 @@ class Modulo13TiroOblicuo extends Component {
       group: null,
       angle: 45,
       pivot: 0,
-      length: 100,
+      length: 75,
     },
     bullet: {
-      density: 10,
+      density: 1000,
       radius: 0.1,
       position: null,
       velocity: null,
@@ -58,12 +58,13 @@ class Modulo13TiroOblicuo extends Component {
     velocityArrow: null,
     horizontalVelocityArrow: null,
     verticalVelocityArrow: null,
-    dragCoeficient: this.getDragCoeficient(1),
+    dragCoeficient: 0,
     reynolds: 1,
     rugosity: 1,
     initialSpeed: 20,
     gravity: 9.8,
-    airDensity: 1,
+    airDensity: 1.29,
+    airViscosity: 17.2,
     timeScale: 1,
     paused: false,
     lines: [],
@@ -76,10 +77,10 @@ class Modulo13TiroOblicuo extends Component {
   onTimeScaleChange(newValue) {
     this.setState({ timeScale: newValue });
   }
-  onReynoldsChanged = (newValue) => {
+  /*onReynoldsChanged = (newValue) => {
     const cd = this.getDragCoeficient(newValue);
     this.setState({ reynolds: newValue, dragCoeficient: cd });
-  };
+  };*/
   onRugosityChanged = (newValue) => {
     this.setState({ rugosity: newValue });
   };
@@ -93,6 +94,9 @@ class Modulo13TiroOblicuo extends Component {
   };
   onGravityChanged = (newValue) => {
     this.setState({ gravity: newValue });
+  };
+  onAirViscosityChanged = (newValue) => {
+    this.setState({ airViscosity: newValue });
   };
   onAirDensityChanged = (newValue) => {
     this.setState({ airDensity: newValue });
@@ -111,17 +115,24 @@ class Modulo13TiroOblicuo extends Component {
       const bullet = { ...this.state.bullet };
       if (bullet.active) {
         // Forces
-        let forcex = 0;
-        let forcey = this.state.gravity * this.getBulletMass();
-        bullet.force = this.getForces(delta);
+        const steps = 10;
+        for (let i = 0; i < steps; i++) {
+          let forcex = 0;
+          let forcey = this.state.gravity * this.getBulletMass();
+          bullet.force = this.getForces(delta / steps);
 
-        // MRUV
-        bullet.velocity.x += (bullet.force.x / this.getBulletMass()) * delta;
-        bullet.velocity.y += (bullet.force.y / this.getBulletMass()) * delta;
-        bullet.position.x += bullet.velocity.x * delta * metersToPixels;
-        bullet.position.y += bullet.velocity.y * delta * metersToPixels;
-        bullet.force.x = 0;
-        bullet.force.y = 0;
+          // MRUV
+          bullet.velocity.x +=
+            ((bullet.force.x / this.getBulletMass()) * delta) / steps;
+          bullet.velocity.y +=
+            ((bullet.force.y / this.getBulletMass()) * delta) / steps;
+          bullet.position.x +=
+            (bullet.velocity.x * delta * metersToPixels) / steps;
+          bullet.position.y +=
+            (bullet.velocity.y * delta * metersToPixels) / steps;
+          bullet.force.x = 0;
+          bullet.force.y = 0;
+        }
         bullet.shape.position = bullet.position;
 
         // Trayectory
@@ -155,7 +166,11 @@ class Modulo13TiroOblicuo extends Component {
     return this.state.bullet.density;
   }
 
-  getDragCoeficient(re) {
+  getDragCoeficient() {
+    let bulletSpeed = Math.max(0.01, this.state.bullet.velocity.length);
+    let re =
+      (bulletSpeed * this.state.bullet.radius * 2 * this.state.airDensity) /
+      this.state.airViscosity; // velocidad * diametro * ro / mu (Pa/s)
     const re263 = re / 263000;
     const re106 = re / 1000000;
     return (
@@ -179,7 +194,7 @@ class Modulo13TiroOblicuo extends Component {
     bullet.shape.visible = true;
     const angleInRads = (this.state.cannon.angle / 180) * Math.PI;
     const cannonDir = new Point(Math.cos(angleInRads), -Math.sin(angleInRads));
-    const cannonVector = mulPoint(cannonDir, this.state.cannon.length - 30);
+    const cannonVector = mulPoint(cannonDir, this.state.cannon.length);
     bullet.position = addPoints(this.state.cannon.pivot, cannonVector);
     bullet.shape.position = bullet.position;
     bullet.velocity = mulPoint(cannonDir, this.state.initialSpeed);
@@ -202,8 +217,9 @@ class Modulo13TiroOblicuo extends Component {
     const velocity = this.state.bullet.velocity;
     const speed = velocity.length;
     const area = this.state.bullet.radius * this.state.bullet.radius * Math.PI;
-    const multiplier =
-      -this.state.dragCoeficient * 0.5 * this.state.airDensity * speed * area; // la velocidad va al cuadrado, pero en vez de normalizar V y multiplicar por |V|^2, simplemente multiplico por |V|
+    const dc = this.getDragCoeficient();
+    console.log(dc);
+    const multiplier = -dc * 0.5 * this.state.airDensity * speed * area; // la velocidad va al cuadrado, pero en vez de normalizar V y multiplicar por |V|^2, simplemente multiplico por |V|
     const airResistance = mulPoint(velocity, multiplier);
     if (airResistance.length > (speed / delta) * this.getBulletMass()) {
       airResistance.length = (speed / delta) * this.getBulletMass();
@@ -222,16 +238,23 @@ class Modulo13TiroOblicuo extends Component {
 
     const cannonPos = addPoints(view.bounds.bottomLeft, new Point(100, -100));
     const cannonShape = new Shape.Rectangle(
-      new Rectangle(new Point(-15, -15), new Size(this.state.cannon.length, 30))
+      new Rectangle(new Point(0, -15), new Size(this.state.cannon.length, 30))
     );
     cannonShape.style = {
       fillColor: "black",
     };
-    const cannonDeco1 = new Shape.Circle(new Circle(new Point(-15, -15), 40));
+    const cannonDeco1 = new Shape.Circle(new Point(0, 0), 25);
     cannonDeco1.style = {
       fillColor: "black",
     };
-    const cannonGroup = new Group([cannonShape, cannonDeco1]);
+    const cannonDeco2 = new Shape.Rectangle(
+      new Point(this.state.cannon.length - 30, -20),
+      new Size(30, 40)
+    );
+    cannonDeco2.style = {
+      fillColor: "black",
+    };
+    const cannonGroup = new Group([cannonShape, cannonDeco1, cannonDeco2]);
     cannonGroup.pivot = new Point(0, 0);
     cannonGroup.applyMatrix = false;
     cannonGroup.translate(cannonPos);
@@ -296,9 +319,19 @@ class Modulo13TiroOblicuo extends Component {
   }
 
   getParameterCode() {
-    let module = "X";
+    let module = "M";
     let codeVersion = "1";
-    return [module, codeVersion].join(";");
+    return [
+      module,
+      codeVersion,
+      this.state.timeScale,
+      this.state.initialSpeed,
+      this.state.cannon.angle,
+      this.state.gravity,
+      this.state.airViscosity,
+      this.state.airDensity,
+      this.state.bullet.density,
+    ].join(";");
   }
 
   loadParameterCode(code) {
@@ -306,6 +339,30 @@ class Modulo13TiroOblicuo extends Component {
     let module = split[0];
     let codeVersion = parseInt(split[1]);
     if (codeVersion == 1) {
+      let timeScale = parseFloat(split[2]);
+      let initialSpeed = parseFloat(split[3]);
+      let cannonAngle = parseFloat(split[4]);
+      let gravity = parseFloat(split[5]);
+      let airViscosity = parseFloat(split[6]);
+      let airDensity = parseFloat(split[7]);
+      let bulletDensity = parseFloat(split[8]);
+      let cannon = { ...this.state.cannon };
+      cannon.angle = cannonAngle;
+      let bullet = { ...this.state.bullet };
+      bullet.density = bulletDensity;
+      this.setState(
+        {
+          timeScale,
+          initialSpeed,
+          cannonAngle,
+          gravity,
+          airViscosity,
+          airDensity,
+          cannon,
+          bullet,
+        },
+        this.updateCannon
+      );
     }
   }
 
@@ -385,22 +442,6 @@ class Modulo13TiroOblicuo extends Component {
               <Box sx={{ margin: "20px" }}></Box>
               <Grid item xs={12}>
                 <SliderWithInput
-                  label="Número de Reynolds"
-                  step={0.05}
-                  min={0.05}
-                  max={10}
-                  value={this.state.reynolds}
-                  onChange={this.onReynoldsChanged}
-                ></SliderWithInput>
-                <PanelModule>
-                  <Typography>
-                    Coeficiente de drag:{" "}
-                    {Math.round(this.state.dragCoeficient * 100) / 100}
-                  </Typography>
-                </PanelModule>
-              </Grid>
-              <Grid item xs={12}>
-                <SliderWithInput
                   label="Gravedad"
                   step={1}
                   min={0}
@@ -412,10 +453,22 @@ class Modulo13TiroOblicuo extends Component {
               </Grid>
               <Grid item xs={12}>
                 <SliderWithInput
+                  label="Viscosidad del fluido"
+                  step={0.01}
+                  min={1}
+                  max={100}
+                  unit="Pa*s"
+                  value={this.state.airViscosity}
+                  onChange={this.onAirViscosityChanged}
+                ></SliderWithInput>
+              </Grid>
+              <Grid item xs={12}>
+                <SliderWithInput
                   label="Densidad del fluido"
                   step={1}
-                  min={0}
-                  max={10}
+                  min={1}
+                  max={100}
+                  unit="kg/m³"
                   value={this.state.airDensity}
                   onChange={this.onAirDensityChanged}
                 ></SliderWithInput>
@@ -423,9 +476,10 @@ class Modulo13TiroOblicuo extends Component {
               <Grid item xs={12}>
                 <SliderWithInput
                   label="Densidad del proyectil"
-                  step={1}
-                  min={0.1}
-                  max={100}
+                  step={10}
+                  min={10}
+                  max={10000}
+                  unit="kg/m³"
                   value={this.state.bullet.density}
                   onChange={this.onBulletDensityChanged}
                 ></SliderWithInput>
