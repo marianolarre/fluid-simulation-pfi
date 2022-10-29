@@ -1,7 +1,8 @@
 import React, { Component } from "react";
-import { Button, IconButton, Paper, Tooltip, Typography } from "@mui/material";
+import { Button, IconButton, Paper, Typography } from "@mui/material";
 import SliderWithInput from "./SliderWithInput";
 import BackspaceIcon from "@mui/icons-material/Backspace";
+import MyTooltip from "./MyTooltip";
 
 class Stratum extends Component {
   state = {};
@@ -15,7 +16,7 @@ class Stratum extends Component {
 
     return (
       <Paper elevation={3} style={style}>
-        <Tooltip title="Eliminar Liquido">
+        <MyTooltip title="Eliminar Liquido">
           <IconButton
             color="error"
             style={closeIconStyle}
@@ -23,7 +24,7 @@ class Stratum extends Component {
           >
             <BackspaceIcon />
           </IconButton>
-        </Tooltip>
+        </MyTooltip>
         <Typography variant="p" component="h2">
           Líquido {this.props.id + 1}
         </Typography>

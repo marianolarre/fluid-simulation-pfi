@@ -18,7 +18,6 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Tooltip,
   Stack,
 } from "@mui/material";
 import { view, Point, Size, Path, Shape, Rectangle } from "paper";
@@ -29,6 +28,7 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
 import PanelModule from "../components/PanelModule";
 import { SkipPrevious } from "@mui/icons-material";
+import MyTooltip from "../components/MyTooltip";
 
 const fixedDeltaTime = 0.016;
 const physicsSteps = 20;
@@ -771,6 +771,7 @@ class Modulo7Cinematica extends Component {
     }
     return list.join(";");
   }
+
   loadParameterCode(code) {
     let split = code.split(";");
     let module = split[0];
@@ -824,7 +825,7 @@ class Modulo7Cinematica extends Component {
           <>
             <Grid container spacing="2%" alignItems="stretch">
               <Grid item xs={2}>
-                <Tooltip title="Resumir / Pausar">
+                <MyTooltip title="Resumir / Pausar">
                   <Button
                     sx={{ width: "100%" }}
                     variant="contained"
@@ -834,7 +835,7 @@ class Modulo7Cinematica extends Component {
                       <PauseIcon></PauseIcon>
                     )}
                   </Button>
-                </Tooltip>
+                </MyTooltip>
               </Grid>
               <Grid item xs={10}>
                 <SliderWithInput
@@ -847,7 +848,7 @@ class Modulo7Cinematica extends Component {
                 ></SliderWithInput>
               </Grid>
               <Grid item xs={2}>
-                <Tooltip title="Reiniciar tiempo">
+                <MyTooltip title="Reiniciar tiempo">
                   <Button
                     sx={{ width: "100%" }}
                     variant="contained"
@@ -855,7 +856,7 @@ class Modulo7Cinematica extends Component {
                   >
                     <SkipPrevious></SkipPrevious>
                   </Button>
-                </Tooltip>
+                </MyTooltip>
               </Grid>
               {(this.state.paused && (
                 <Grid item xs={10}>
@@ -886,7 +887,7 @@ class Modulo7Cinematica extends Component {
               )}
 
               <Grid item xs={2}>
-                <Tooltip title="Campos vectoriales predeterminados">
+                <MyTooltip title="Campos vectoriales predeterminados">
                   <Button
                     sx={{ width: "100%" }}
                     variant="contained"
@@ -894,7 +895,7 @@ class Modulo7Cinematica extends Component {
                   >
                     <MenuIcon></MenuIcon>
                   </Button>
-                </Tooltip>
+                </MyTooltip>
               </Grid>
               <Grid item xs={5}>
                 <ExpressionInput

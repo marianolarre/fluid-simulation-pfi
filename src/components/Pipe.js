@@ -1,16 +1,10 @@
 import React, { Component } from "react";
-import {
-  Button,
-  IconButton,
-  Paper,
-  Tooltip,
-  Typography,
-  Grid,
-} from "@mui/material";
+import { Button, IconButton, Paper, Typography, Grid } from "@mui/material";
 import SliderWithInput from "./SliderWithInput";
 import BackspaceIcon from "@mui/icons-material/Backspace";
 import PanelModule from "./PanelModule";
 import { Balance, LockOpen } from "@mui/icons-material";
+import MyTooltip from "./MyTooltip";
 
 const angleMarks = [
   {
@@ -62,7 +56,7 @@ class CVPipe extends Component {
 
     return (
       <Paper elevation={3} style={style}>
-        <Tooltip title="Eliminar Tubo">
+        <MyTooltip title="Eliminar Tubo">
           <IconButton
             color="error"
             style={closeIconStyle}
@@ -70,7 +64,7 @@ class CVPipe extends Component {
           >
             <BackspaceIcon />
           </IconButton>
-        </Tooltip>
+        </MyTooltip>
         <Typography variant="p" component="h2">
           Tubo {this.props.id + 1}
         </Typography>

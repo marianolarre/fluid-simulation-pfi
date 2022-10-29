@@ -72,6 +72,8 @@ class ModuloPlantilla extends Component {
     return (
       <PanelAndCanvas
         title="Plantilla"
+        shareCode={() => this.getParameterCode()}
+        loadCode={(code) => this.loadParameterCode(code)}
         panel={
           <>
             <Grid container spacing="2%" alignItems="stretch">

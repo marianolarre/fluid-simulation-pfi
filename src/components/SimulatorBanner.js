@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import {
   AppBar,
   Button,
-  Tooltip,
   Typography,
   Dialog,
   DialogTitle,
@@ -23,6 +22,7 @@ import {
   Close,
   CopyAll,
 } from "@mui/icons-material";
+import MyTooltip from "./MyTooltip";
 
 class SimulatorBanner extends Component {
   state = {
@@ -150,15 +150,15 @@ class SimulatorBanner extends Component {
           }}
         >
           <Typography variant="h4" component="h1" fontSize="2rem">
-            <Tooltip title="Volver al menu">
+            <MyTooltip title="Volver al menu">
               <Link to="/" style={{ textDecoration: "none", color: "white" }}>
                 <Button variant="default">
                   <ArrowBack fontSize="large"></ArrowBack>
                 </Button>
               </Link>
-            </Tooltip>
+            </MyTooltip>
             {this.props.title}
-            <Tooltip title="Cargar parámetros">
+            <MyTooltip title="Cargar parámetros">
               <Button
                 style={{
                   display: "block",
@@ -170,8 +170,8 @@ class SimulatorBanner extends Component {
               >
                 <FileOpen></FileOpen>
               </Button>
-            </Tooltip>
-            <Tooltip title="Compartir parámetros">
+            </MyTooltip>
+            <MyTooltip title="Compartir parámetros">
               <Button
                 style={{
                   display: "block",
@@ -183,7 +183,7 @@ class SimulatorBanner extends Component {
               >
                 <Share></Share>
               </Button>
-            </Tooltip>
+            </MyTooltip>
           </Typography>
         </AppBar>
         {/* Modal de compartido de códigos */}

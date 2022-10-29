@@ -13,6 +13,7 @@ import Modulo8VolumenDeControl from "./pages/Modulo8VolumenDeControl";
 import Modulo9FlujoNoViscoso from "./pages/Modulo9FlujoNoViscoso";
 import Modulo10FlujoViscoso from "./pages/Modulo10FlujoViscoso";
 import Modulo13TiroOblicuo from "./pages/Modulo13TiroOblicuo";
+import Modulo12FlujoInternoPorConducto from "./pages/Modulo12FlujoInternoPorConducto";
 
 function App() {
   useEffect(() => {
@@ -61,6 +62,12 @@ function App() {
           element={<Modulo10FlujoViscoso></Modulo10FlujoViscoso>}
         ></Route>
 
+        <Route
+          path="mod12"
+          element={
+            <Modulo12FlujoInternoPorConducto></Modulo12FlujoInternoPorConducto>
+          }
+        ></Route>
         <Route
           path="mod13"
           element={<Modulo13TiroOblicuo></Modulo13TiroOblicuo>}

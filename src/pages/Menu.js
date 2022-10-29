@@ -85,7 +85,6 @@ const buttons = [
   {
     mod: "mod12",
     title: "Flujo interno en conducto",
-    disabled: true,
     description:
       "Observa las energías de un fluido a medida que viaja por una tubería",
     img: "./img/modules/UnderConstruction.png",

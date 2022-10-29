@@ -3,7 +3,7 @@ import MyToggle from "../components/MyToggle";
 import Canvas from "../components/Canvas";
 import PanelAndCanvas from "../components/PanelAndCanvas";
 
-import { Grid, Button, Tooltip, Box, Typography } from "@mui/material";
+import { Grid, Button, Box, Typography } from "@mui/material";
 import {
   view,
   Point,
@@ -28,6 +28,7 @@ import {
   SettingsBackupRestore,
   Water,
 } from "@mui/icons-material";
+import MyTooltip from "../components/MyTooltip";
 
 let timeUntilNextDot = 0;
 const metersToPixels = 25;
@@ -394,7 +395,7 @@ class Modulo13TiroOblicuo extends Component {
                 </Button>
               </Grid>
               <Grid item xs={2}>
-                <Tooltip title="Resumir / Pausar">
+                <MyTooltip title="Resumir / Pausar">
                   <Button
                     sx={{ width: "100%" }}
                     variant="contained"
@@ -404,7 +405,7 @@ class Modulo13TiroOblicuo extends Component {
                       <PauseIcon></PauseIcon>
                     )}
                   </Button>
-                </Tooltip>
+                </MyTooltip>
               </Grid>
               <Grid item xs={10}>
                 <SliderWithInput
