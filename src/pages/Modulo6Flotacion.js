@@ -17,6 +17,7 @@ import {
   mulPoint,
   VectorArray,
   VectorArrow,
+  CoordinateReference,
 } from "../paperUtility";
 
 let loading = false;
@@ -645,6 +646,19 @@ class Modulo6Flotacion extends Component {
     view.onMouseUp = (event) => {
       this.onMouseUp(event);
     };
+
+    new CoordinateReference(
+      addPoints(view.bounds.bottomLeft, new Point(100, -100)),
+      new Point(0, -1),
+      "Z",
+      "black"
+    );
+    new CoordinateReference(
+      addPoints(view.bounds.bottomLeft, new Point(100, -100)),
+      new Point(1, 0),
+      "X",
+      "black"
+    );
   }
 
   getParameterCode() {

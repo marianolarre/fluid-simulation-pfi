@@ -17,6 +17,7 @@ import {
   VectorArrow,
   lerp,
   remap,
+  CoordinateReference,
 } from "../paperUtility";
 import { ThirtyFpsSelect } from "@mui/icons-material";
 import PanelModule from "../components/PanelModule";
@@ -393,6 +394,10 @@ class Modulo11FlujoViscosoLaminar extends Component {
       },
       true
     );
+
+    const zero = this.worldToScreen(new Point(0, 0));
+    new CoordinateReference(zero, new Point(0, -1), "Y", "black");
+    new CoordinateReference(zero, new Point(1, 0), "X", "black");
   }
 
   getParameterCode() {

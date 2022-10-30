@@ -17,6 +17,7 @@ import {
 import MyRadio from "../components/MyRadio";
 import {
   addPoints,
+  CoordinateReference,
   lerp,
   LevelSimbol,
   VectorArray,
@@ -500,6 +501,19 @@ class Modulo4SuperficieSumergida extends Component {
         // Update
       },
       true
+    );
+
+    new CoordinateReference(
+      addPoints(view.bounds.bottomLeft, new Point(100, -100)),
+      new Point(0, -1),
+      "Z",
+      "black"
+    );
+    new CoordinateReference(
+      addPoints(view.bounds.bottomLeft, new Point(100, -100)),
+      new Point(1, 0),
+      "X",
+      "black"
     );
   }
 

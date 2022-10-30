@@ -20,6 +20,7 @@ import {
   LevelSimbol,
   ColorScaleReference,
   getInvertedPressureGradient,
+  CoordinateReference,
 } from "../paperUtility";
 import { Button } from "@mui/material";
 import Stratum from "../components/Stratum";
@@ -583,6 +584,17 @@ class Modulo1FuerzasDePresion extends Component {
         );
       },
       true
+    );
+
+    new CoordinateReference(
+      addPoints(view.bounds.bottomLeft, new Point(100, -100)),
+      new Point(0, -1),
+      "Z"
+    );
+    new CoordinateReference(
+      addPoints(view.bounds.bottomLeft, new Point(100, -100)),
+      new Point(1, 0),
+      "X"
     );
   }
 

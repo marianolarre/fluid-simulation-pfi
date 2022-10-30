@@ -7,6 +7,7 @@ import { view, Point, Path, Shape, Rectangle, project } from "paper";
 import MyRadio from "../components/MyRadio";
 import {
   addPoints,
+  CoordinateReference,
   lerp,
   LevelSimbol,
   mulPoint,
@@ -447,6 +448,19 @@ class Modulo5Dique extends Component {
         // Update
       },
       true
+    );
+
+    new CoordinateReference(
+      addPoints(view.bounds.bottomLeft, new Point(100, -100)),
+      new Point(0, -1),
+      "Z",
+      "black"
+    );
+    new CoordinateReference(
+      addPoints(view.bounds.bottomLeft, new Point(100, -100)),
+      new Point(1, 0),
+      "X",
+      "black"
     );
   }
 

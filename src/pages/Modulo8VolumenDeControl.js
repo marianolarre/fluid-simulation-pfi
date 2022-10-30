@@ -18,7 +18,12 @@ import {
   project,
 } from "paper";
 import SliderWithInput from "../components/SliderWithInput";
-import { addPoints, ScrollingRectangle, VectorArrow } from "../paperUtility";
+import {
+  addPoints,
+  CoordinateReference,
+  ScrollingRectangle,
+  VectorArrow,
+} from "../paperUtility";
 
 let loading = false;
 
@@ -440,6 +445,17 @@ class Modulo8VolumenDeControl extends Component {
         // Update
       },
       true
+    );
+
+    new CoordinateReference(
+      addPoints(view.bounds.bottomLeft, new Point(100, -100)),
+      new Point(0, -1),
+      "Y"
+    );
+    new CoordinateReference(
+      addPoints(view.bounds.bottomLeft, new Point(100, -100)),
+      new Point(1, 0),
+      "X"
     );
   }
 

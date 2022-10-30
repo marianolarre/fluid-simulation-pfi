@@ -5,7 +5,13 @@ import PanelAndCanvas from "../components/PanelAndCanvas";
 import { view, Point, Path, Shape, Rectangle, PointText } from "paper";
 import SliderWithInput from "../components/SliderWithInput";
 
-import { subPoints, lerp, VectorArrow } from "../paperUtility";
+import {
+  subPoints,
+  lerp,
+  VectorArrow,
+  CoordinateReference,
+  addPoints,
+} from "../paperUtility";
 import { Grid } from "@mui/material";
 import { MathComponent } from "mathjax-react";
 import ModuleAccordion from "../components/ModuleAccordion";
@@ -264,6 +270,12 @@ class Modulo3Manometria extends Component {
     view.onFrame = (event) => {
       this.updateFluid(event.delta);
     };
+
+    new CoordinateReference(
+      addPoints(view.bounds.bottomLeft, new Point(100, -100)),
+      new Point(0, -1),
+      "Z"
+    );
   }
 
   getPressureSteps() {
@@ -402,19 +414,19 @@ class Modulo3Manometria extends Component {
               <Grid item xs={12} sx={{ marginTop: "50px" }}>
                 <ModuleAccordion title="Ecuación">
                   <MathComponent
-                    tex={String.raw`\triangle Z : \text{altura de la columna}`}
+                    tex={String.raw`\triangle z : \text{altura de la columna}`}
                   />
                   <MathComponent
-                    tex={String.raw`P_{r}: \text{Presion en el reservorio}`}
+                    tex={String.raw`p_{r}: \text{Presion en el reservorio}`}
                   />
                   <MathComponent
-                    tex={String.raw`P_{a}: \text{Presion atmosferica}`}
+                    tex={String.raw`p_{a}: \text{Presion atmosferica}`}
                   />
                   <MathComponent
                     tex={String.raw`\rho: \text{Densidad del liquido}`}
                   />
                   <MathComponent
-                    tex={String.raw`\triangle Z = \frac{P_{r}-P_{a}}{\rho} `}
+                    tex={String.raw`\triangle z = \frac{p_{r}-p_{a}}{\rho} `}
                   />
                 </ModuleAccordion>
               </Grid>

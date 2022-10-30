@@ -17,7 +17,13 @@ import {
 } from "@mui/material";
 import { view, Point, Path, Shape, Rectangle, project } from "paper";
 import SliderWithInput from "../components/SliderWithInput";
-import { addPoints, mulPoint, subPoints, VectorArrow } from "../paperUtility";
+import {
+  addPoints,
+  CoordinateReference,
+  mulPoint,
+  subPoints,
+  VectorArrow,
+} from "../paperUtility";
 import ExpressionInput from "../components/ExpressionInput";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
@@ -30,7 +36,7 @@ let loading = false;
 const fixedDeltaTime = 0.016;
 const physicsSteps = 20;
 const simulationSpeed = 0.025;
-const gridPoints = 11;
+const gridPoints = 12;
 const vertexSkip = 1;
 
 const presets = [
@@ -176,6 +182,9 @@ class Modulo7Cinematica extends Component {
       },
       true
     );
+
+    new CoordinateReference(view.center, new Point(0, -1), "Y");
+    new CoordinateReference(view.center, new Point(1, 0), "X");
   }
 
   placeParticle(screenPosition, current, trayectory) {

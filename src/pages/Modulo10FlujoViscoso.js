@@ -15,6 +15,7 @@ import {
   addPoints,
   mulPoint,
   VectorArrow,
+  CoordinateReference,
 } from "../paperUtility";
 import PanelModule from "../components/PanelModule";
 
@@ -387,6 +388,10 @@ class Modulo10FlujoViscoso extends Component {
       },
       true
     );
+
+    const zero = new Point(view.center.x - liquidWidth / 2, view.center.y);
+    new CoordinateReference(zero, new Point(0, -1), "Y", "black");
+    new CoordinateReference(zero, new Point(1, 0), "X", "black");
   }
 
   getParameterCode() {

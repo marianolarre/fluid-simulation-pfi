@@ -693,3 +693,26 @@ export class ColorScaleReference {
     this.markers[2].text.visible = visible;
   }
 }
+
+export class CoordinateReference {
+  constructor(position, direction, label, color) {
+    if (color == null) {
+      color = "grey";
+    }
+    const tip = addPoints(position, mulPoint(direction, 75));
+    this.arrow = new VectorArrow(position, tip, color, 3, 6, 10, false, false);
+    const offset = new Point(-10, 20);
+    this.text = new PointText({
+      position: addPoints(tip, offset),
+      content: label,
+      fontSize: 18,
+      fillColor: color,
+      justification: "right",
+    });
+  }
+
+  bringToFront() {
+    this.arrow.bringToFront();
+    this.text.bringToFront();
+  }
+}

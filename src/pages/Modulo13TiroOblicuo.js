@@ -5,7 +5,12 @@ import PanelAndCanvas from "../components/PanelAndCanvas";
 import { Grid, Button, Box, Typography } from "@mui/material";
 import { view, Point, Path, Rectangle, Shape, Size, Group } from "paper";
 import SliderWithInput from "../components/SliderWithInput";
-import { addPoints, mulPoint, VectorArrow } from "../paperUtility";
+import {
+  addPoints,
+  CoordinateReference,
+  mulPoint,
+  VectorArrow,
+} from "../paperUtility";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
 import PanelModule from "../components/PanelModule";
@@ -312,6 +317,9 @@ class Modulo13TiroOblicuo extends Component {
       },
       true
     );
+
+    new CoordinateReference(cannonPos, new Point(0, -1), "Y");
+    new CoordinateReference(cannonPos, new Point(1, 0), "X");
   }
 
   getParameterCode() {

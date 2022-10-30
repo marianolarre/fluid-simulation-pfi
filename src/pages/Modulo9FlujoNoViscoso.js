@@ -29,6 +29,7 @@ import SliderWithInput from "../components/SliderWithInput";
 import {
   addPoints,
   ColorScaleReference,
+  CoordinateReference,
   mulPoint,
   subPoints,
   VectorArrow,
@@ -258,7 +259,7 @@ class Modulo9FlujoNoViscoso extends Component {
         const newVector = new VectorArrow(
           start,
           addPoints(start, result),
-          "black",
+          "#444",
           3,
           5,
           10
@@ -326,6 +327,9 @@ class Modulo9FlujoNoViscoso extends Component {
       },
       true
     );
+
+    new CoordinateReference(view.center, new Point(0, -1), "Y", "black");
+    new CoordinateReference(view.center, new Point(1, 0), "X", "black");
   }
 
   getFieldValue(point, multiplier, time) {

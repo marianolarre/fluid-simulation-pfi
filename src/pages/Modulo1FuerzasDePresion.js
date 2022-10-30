@@ -18,6 +18,7 @@ import {
   LevelSimbol,
   ColorScaleReference,
   getInvertedPressureGradient,
+  CoordinateReference,
 } from "../paperUtility";
 
 import MyRadio from "../components/MyRadio";
@@ -508,6 +509,17 @@ class Modulo1FuerzasDePresion extends Component {
       },
       true
     );
+
+    new CoordinateReference(
+      addPoints(view.bounds.bottomLeft, new Point(100, -100)),
+      new Point(0, -1),
+      "Z"
+    );
+    new CoordinateReference(
+      addPoints(view.bounds.bottomLeft, new Point(100, -100)),
+      new Point(1, 0),
+      "X"
+    );
   }
 
   getPressureSteps() {
@@ -695,9 +707,9 @@ class Modulo1FuerzasDePresion extends Component {
                   />
                   <MathComponent tex={String.raw`g: \text{gravedad [m/s² ]}`} />
                   <MathComponent
-                    tex={String.raw`\triangle h: \text{diferencia de altura [m]}`}
+                    tex={String.raw`\triangle z: \text{diferencia de altura [m]}`}
                   />
-                  <MathComponent tex={String.raw`p =  \rho g  \triangle h`} />
+                  <MathComponent tex={String.raw`p =  \rho g  \triangle z`} />
                 </ModuleAccordion>
               </Grid>
             </Grid>

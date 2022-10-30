@@ -16,6 +16,7 @@ import {
 import SliderWithInput from "../components/SliderWithInput";
 import {
   addPoints,
+  CoordinateReference,
   lerp,
   mulPoint,
   subPoints,
@@ -924,6 +925,14 @@ class Modulo12FlujoInternoPorConducto extends Component {
     this.newNode(12, 2, 3);
     this.newNode(12, 0, 4);
     this.updatePipe();
+
+    const zero = new Point(
+      view.center.x - board.width / 2,
+      view.center.y + board.height / 2 + board.offsety
+    );
+    new CoordinateReference(zero, new Point(0, -1), "Z", "black");
+    new CoordinateReference(zero, new Point(1, 0), "X", "black");
+
     ready = true;
   }
 
