@@ -15,7 +15,7 @@ import {
 import { blue } from "@mui/material/colors";
 import MenuModule from "../components/MenuModule";
 import { FileOpen } from "@mui/icons-material";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const buttons = [
   {
@@ -151,6 +151,8 @@ class Menu extends Component {
     }
   }
 
+  loadCode() {}
+
   handleCodeChanged(event) {
     this.setState({
       code: event.target.value,
@@ -220,7 +222,6 @@ class Menu extends Component {
               configuración previa
             </Typography>
             <br></br>
-
             <Button
               variant="contained"
               color="secondary"
@@ -281,14 +282,16 @@ class Menu extends Component {
                 error={this.state.error}
                 helperText={this.state.errorMessage}
               ></TextField>
-              <Button
-                startIcon={<FileOpen />}
-                variant="contained"
-                sx={{ height: "55px" }}
-                onClick={() => this.loadCode()}
-              >
-                Cargar
-              </Button>
+
+              <Link to={this.getPathFromCode(this.state.code)}>
+                <Button
+                  startIcon={<FileOpen />}
+                  variant="contained"
+                  sx={{ height: "55px" }}
+                >
+                  Cargar
+                </Button>
+              </Link>
             </Box>
           </DialogContent>
           <DialogActions>
