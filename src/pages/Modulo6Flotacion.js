@@ -19,6 +19,8 @@ import {
   VectorArrow,
 } from "../paperUtility";
 
+let loading = false;
+
 const metersToPixels = 400;
 const paToPixels = 500 / 101325;
 const maxPressure = 12;
@@ -659,6 +661,8 @@ class Modulo6Flotacion extends Component {
   }
 
   loadParameterCode(code) {
+    if (loading) return false;
+    loading = true;
     let split = code.split(";");
     let module = split[0];
     let codeVersion = parseInt(split[1]);
@@ -686,6 +690,7 @@ class Modulo6Flotacion extends Component {
         () => {
           this.removeCurrentShape();
           this.registerShape(curve);
+          loading = false;
         }
       );
       return true;

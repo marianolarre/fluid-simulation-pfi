@@ -25,6 +25,8 @@ import PanelModule from "../components/PanelModule";
 import { SkipPrevious } from "@mui/icons-material";
 import MyTooltip from "../components/MyTooltip";
 
+let loading = false;
+
 const fixedDeltaTime = 0.016;
 const physicsSteps = 20;
 const simulationSpeed = 0.025;
@@ -768,6 +770,8 @@ class Modulo7Cinematica extends Component {
   }
 
   loadParameterCode(code) {
+    if (loading) return false;
+    loading = true;
     let split = code.split(";");
     let module = split[0];
     let codeVersion = parseInt(split[1]);
@@ -792,6 +796,7 @@ class Modulo7Cinematica extends Component {
           this.updateEquation();
           this.updateVectorField();
           this.clearLinesAndParticles();
+          loading = false;
           setTimeout(() => {
             for (let i = 0; i < serializedParticles.length; i += 2) {
               let screenPos = this.worldToScreen(

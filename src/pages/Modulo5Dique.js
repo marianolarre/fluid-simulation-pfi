@@ -16,6 +16,8 @@ import {
 } from "../paperUtility";
 import SliderWithInput from "../components/SliderWithInput";
 
+let loading = false;
+
 const metersToPixels = 100;
 const paToPixels = 200 / 101325;
 const maxPressure = 12;
@@ -469,6 +471,8 @@ class Modulo5Dique extends Component {
   }
 
   loadParameterCode(code) {
+    if (loading) return false;
+    loading = true;
     let split = code.split(";");
     let module = split[0];
     let codeVersion = parseInt(split[1]);
@@ -483,7 +487,10 @@ class Modulo5Dique extends Component {
       let absolutePressure = split[5] == 1;
       let liquid = { ...this.state.liquid };
       liquid.density = parseFloat(split[6]);
-      this.setState({ surface, absolutePressure, liquid }, this.updateSurface);
+      this.setState({ surface, absolutePressure, liquid }, () => {
+        loading = false;
+        this.updateSurface();
+      });
       return true;
     }
     throw "Formato inválido";

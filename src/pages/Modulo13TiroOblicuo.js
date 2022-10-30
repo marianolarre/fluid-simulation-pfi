@@ -30,6 +30,8 @@ import {
 } from "@mui/icons-material";
 import MyTooltip from "../components/MyTooltip";
 
+let loading = false;
+
 let timeUntilNextDot = 0;
 const metersToPixels = 25;
 let initialX = 0;
@@ -348,6 +350,8 @@ class Modulo13TiroOblicuo extends Component {
   }
 
   loadParameterCode(code) {
+    if (loading) return false;
+    loading = true;
     let split = code.split(";");
     let module = split[0];
     let codeVersion = parseInt(split[1]);
@@ -374,7 +378,10 @@ class Modulo13TiroOblicuo extends Component {
           cannon,
           bullet,
         },
-        this.updateCannon
+        () => {
+          loading = false;
+          this.updateCannon();
+        }
       );
     }
   }

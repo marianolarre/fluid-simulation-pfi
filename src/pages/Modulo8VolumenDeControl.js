@@ -20,6 +20,8 @@ import {
 import SliderWithInput from "../components/SliderWithInput";
 import { addPoints, ScrollingRectangle, VectorArrow } from "../paperUtility";
 
+let loading = false;
+
 const pipeLength = 100;
 const pipeStroke = 4;
 const velocityToPixels = 10;
@@ -456,6 +458,8 @@ class Modulo8VolumenDeControl extends Component {
   }
 
   loadParameterCode(code) {
+    if (loading) return false;
+    loading = true;
     let split = code.split(";");
     let module = split[0];
     let codeVersion = parseInt(split[1]);
@@ -473,7 +477,10 @@ class Modulo8VolumenDeControl extends Component {
         newPipe.velocity = velocity;
         pipes.push(newPipe);
       }
-      this.setState({ pipes, showingForces }, this.updateAllPipes);
+      this.setState({ pipes, showingForces }, () => {
+        loading = false;
+        this.updateAllPipes();
+      });
       totalForceArrow.setVisible(showingForces);
       horizontalForceArrow.setVisible(showingForces);
       verticalForceArrow.setVisible(showingForces);

@@ -19,6 +19,8 @@ import {
 } from "../paperUtility";
 import PanelModule from "../components/PanelModule";
 
+let loading = false;
+
 const liquidWidth = 1000;
 const liquidHeight = 400;
 const scale = 400;
@@ -384,6 +386,8 @@ class Modulo10FlujoViscoso extends Component {
   }
 
   loadParameterCode(code) {
+    if (loading) return false;
+    loading = true;
     let split = code.split(";");
     let module = split[0];
     let codeVersion = parseInt(split[1]);
@@ -401,7 +405,10 @@ class Modulo10FlujoViscoso extends Component {
           showingParticles,
           showingTension,
         },
-        this.updateLine
+        () => {
+          loading = false;
+          this.updateLine();
+        }
       );
     }
   }

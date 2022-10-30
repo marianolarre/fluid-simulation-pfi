@@ -26,54 +26,51 @@ function App() {
       <Routes>
         <Route path="/" element={<Menu></Menu>}></Route>
         <Route
-          path="mod1"
+          path="A"
           element={<Modulo1FuerzasDePresion></Modulo1FuerzasDePresion>}
         ></Route>
         <Route
-          path="mod2"
+          path="B"
           element={<Modulo2Estratificacion></Modulo2Estratificacion>}
         ></Route>
         <Route
-          path="mod3"
+          path="C"
           element={<Modulo3Manometria></Modulo3Manometria>}
         ></Route>
         <Route
-          path="mod4"
+          path="D"
           element={<Modulo4SuperficieSumergida></Modulo4SuperficieSumergida>}
         ></Route>
-        <Route path="mod5" element={<Modulo5Dique></Modulo5Dique>}></Route>
+        <Route path="E" element={<Modulo5Dique></Modulo5Dique>}></Route>
+        <Route path="F" element={<Modulo6Flotacion></Modulo6Flotacion>}></Route>
         <Route
-          path="mod6"
-          element={<Modulo6Flotacion></Modulo6Flotacion>}
-        ></Route>
-        <Route
-          path="mod7"
+          path="G"
           element={<Modulo7Cinematica></Modulo7Cinematica>}
         ></Route>
         <Route
-          path="mod8"
+          path="H"
           element={<Modulo8VolumenDeControl></Modulo8VolumenDeControl>}
         ></Route>
         <Route
-          path="mod9"
+          path="I"
           element={<Modulo9FlujoNoViscoso></Modulo9FlujoNoViscoso>}
         ></Route>
         <Route
-          path="mod10"
+          path="J"
           element={<Modulo10FlujoViscoso></Modulo10FlujoViscoso>}
         ></Route>
         <Route
-          path="mod11"
+          path="K"
           element={<Modulo11FlujoViscosoLaminar></Modulo11FlujoViscosoLaminar>}
         ></Route>
         <Route
-          path="mod12"
+          path="L"
           element={
             <Modulo12FlujoInternoPorConducto></Modulo12FlujoInternoPorConducto>
           }
         ></Route>
         <Route
-          path="mod13"
+          path="M"
           element={<Modulo13TiroOblicuo></Modulo13TiroOblicuo>}
         ></Route>
       </Routes>

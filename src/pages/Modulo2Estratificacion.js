@@ -23,10 +23,15 @@ import {
 } from "../paperUtility";
 import { Button, Typography } from "@mui/material";
 import Stratum from "../components/Stratum";
-import { HorizontalSplit } from "@mui/icons-material";
+import {
+  ConnectingAirportsOutlined,
+  HorizontalSplit,
+} from "@mui/icons-material";
 import { MathComponent } from "mathjax-react";
 import PanelModule from "../components/PanelModule";
 import ModuleAccordion from "../components/ModuleAccordion";
+
+let loading = false;
 
 const metersToPixels = 50;
 const paToPixels = 100 / 101325;
@@ -77,6 +82,8 @@ class Modulo1FuerzasDePresion extends Component {
       this.state.showingPressure,
       this.state.showingPressureForces
     );
+    this.updateLiquids();
+    colorScaleReference.setVisible(this.state.showingPressure);
   }
 
   orderByDensity = () => {
@@ -173,6 +180,7 @@ class Modulo1FuerzasDePresion extends Component {
       visible: true,
     });
 
+    console.log("Creating level simbol");
     liquid.levelSimbol = new LevelSimbol(new Point(0, 0), "white");
 
     return liquid;
@@ -232,6 +240,8 @@ class Modulo1FuerzasDePresion extends Component {
       this.state.liquids[i].pressureText.remove();
       this.state.liquids[i].shape.remove();
       this.state.liquids[i].topLineShape.remove();
+      console.log("removing level simbol");
+      this.state.liquids[i].levelSimbol.remove();
       this.state.liquids[i] = null;
       this.state.liquids.splice(i, 1);
     }
@@ -243,6 +253,8 @@ class Modulo1FuerzasDePresion extends Component {
     newState.liquids[liquidID].pressureText.remove();
     newState.liquids[liquidID].shape.remove();
     newState.liquids[liquidID].topLineShape.remove();
+    console.log("removing level simbol");
+    newState.liquids[liquidID].levelSimbol.remove();
     newState.liquids[liquidID] = null;
     newState.liquids.splice(liquidID, 1);
 
@@ -654,6 +666,8 @@ class Modulo1FuerzasDePresion extends Component {
   }
 
   loadParameterCode(code) {
+    if (loading) return false;
+    loading = true;
     incrementingLiquidLookup = 0;
     this.clearLiquids();
     let split = code.split(";");
@@ -676,13 +690,16 @@ class Modulo1FuerzasDePresion extends Component {
         newLiquid.density = parseFloat(split[i + 1]);
         liquids.push(newLiquid);
       }
-      this.setState({
-        container,
-        liquids,
-        showingPressure,
-        showingPressureForces,
-        absolutePressure,
-      });
+      this.setState(
+        {
+          container,
+          liquids,
+          showingPressure,
+          showingPressureForces,
+          absolutePressure,
+        },
+        () => (loading = false)
+      );
       this.state.container.shape.bringToFront();
       return true;
     }
@@ -723,14 +740,14 @@ class Modulo1FuerzasDePresion extends Component {
               <Grid item xs={6}>
                 <MyToggle
                   label="Presión"
-                  checked={this.state.showingPressure}
+                  value={this.state.showingPressure}
                   onChange={(e) => this.toggleShowingPressureChange(e)}
                 />
               </Grid>
               <Grid item xs={6}>
                 <MyToggle
                   label="Fuerzas de Presión"
-                  checked={this.state.showingPressureForces}
+                  value={this.state.showingPressureForces}
                   onChange={(e) => this.toggleShowingPressureForcesChange(e)}
                 />
               </Grid>

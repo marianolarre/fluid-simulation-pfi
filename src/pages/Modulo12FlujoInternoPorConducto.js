@@ -37,6 +37,8 @@ import {
 import MyTooltip from "../components/MyTooltip";
 import ModuleAccordion from "../components/ModuleAccordion";
 
+let loading = false;
+
 const pipeWidthMultiplier = 35;
 const metersToPixels = 5;
 let ready = false;
@@ -1022,6 +1024,8 @@ class Modulo12FlujoInternoPorConducto extends Component {
   }
 
   loadParameterCode(code) {
+    if (loading) return false;
+    loading = true;
     let split = code.split(";");
     let module = split[0];
     let codeVersion = parseInt(split[1]);
@@ -1054,7 +1058,10 @@ class Modulo12FlujoInternoPorConducto extends Component {
         createdNode.k = k;
       }
 
-      this.setState({ flow, pressure, viscosity }, () => this.updatePipe());
+      this.setState({ flow, pressure, viscosity }, () => {
+        loading = false;
+        this.updatePipe();
+      });
     }
   }
 

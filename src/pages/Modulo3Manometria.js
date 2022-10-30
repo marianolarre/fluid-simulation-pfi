@@ -34,6 +34,8 @@ import { MathComponent } from "mathjax-react";
 import PanelModule from "../components/PanelModule";
 import ModuleAccordion from "../components/ModuleAccordion";
 
+let loading = false;
+
 const metersToPixels = 1000;
 const paToPixels = 20;
 const maxPressure = 16;
@@ -358,6 +360,8 @@ class Modulo3Manometria extends Component {
   }
 
   loadParameterCode(code) {
+    if (loading) return false;
+    loading = true;
     let split = code.split(";");
     let module = split[0];
     let codeVersion = parseInt(split[1]);
@@ -370,7 +374,10 @@ class Modulo3Manometria extends Component {
       reservoir.pressure = parseFloat(split[2]);
       let atmosphericPressure = parseFloat(split[3]);
       liquid.density = parseFloat(split[4]);
-      this.setState({ reservoir, atmosphericPressure, liquid });
+      this.setState(
+        { reservoir, atmosphericPressure, liquid },
+        () => (loading = false)
+      );
     }
   }
 

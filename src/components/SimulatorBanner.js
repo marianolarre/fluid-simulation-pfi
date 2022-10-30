@@ -14,7 +14,8 @@ import {
   TextField,
   Box,
 } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import LinkIcon from "@mui/icons-material/Link";
 import {
   ArrowBack,
   FileOpen,
@@ -34,7 +35,48 @@ class SimulatorBanner extends Component {
     codeError: false,
     codeErrorMessage: "",
     code: "",
+    alreadyLoaded: false,
   };
+
+  componentDidMount() {
+    setTimeout(() => {
+      const location = window.location;
+      const moduleID = location.pathname.substring(1);
+      const urlParams = new URLSearchParams(location.search);
+      const code = urlParams.get("c");
+      if (code != null) {
+        const codeModuleID = code.substring(0, 2);
+        if (codeModuleID == moduleID + ";") {
+          this.props.loadCode(code);
+          this.setState({
+            alert: true,
+            alertMessage: "Código cargado",
+            loadModalOpen: false,
+          });
+          setTimeout(() => this.alertClose(), 2000);
+        } else {
+          const validModuleCodeStarts = [
+            "A;",
+            "B;",
+            "C;",
+            "D;",
+            "E;",
+            "F;",
+            "G;",
+            "H;",
+            "I;",
+            "J;",
+            "K;",
+            "L;",
+            "M;",
+          ];
+          if (validModuleCodeStarts.includes(codeModuleID)) {
+          } else {
+          }
+        }
+      }
+    }, 10);
+  }
 
   handleCodeChanged(event) {
     this.setState({
@@ -71,6 +113,17 @@ class SimulatorBanner extends Component {
     setTimeout(() => this.alertClose(), 4000);
   }
 
+  copyURL() {
+    const code = this.props.shareCode();
+    const moduleID = code.substring(0, 1);
+    navigator.clipboard.writeText(
+      window.location.origin + "/" + moduleID + "?c=" + code
+    );
+    this.alertOpen("Vínculo copiado al portapapeles");
+    this.closeShareModal();
+    setTimeout(() => this.alertClose(), 4000);
+  }
+
   loadCode() {
     try {
       this.props.loadCode(this.state.code);
@@ -100,6 +153,13 @@ class SimulatorBanner extends Component {
 
   getTrimmedCode() {
     let string = this.props.shareCode();
+    return string.length > 30 ? string.substring(0, 27) + "..." : string;
+  }
+
+  getTrimmedURL() {
+    const code = this.props.shareCode();
+    const moduleID = code.substring(0, 1);
+    let string = window.location.origin + "/" + moduleID + "?c=" + code;
     return string.length > 30 ? string.substring(0, 27) + "..." : string;
   }
 
@@ -204,7 +264,10 @@ class SimulatorBanner extends Component {
               resultados
             </Typography>
             <br></br>
-            <Button onClick={() => this.copyCode()}>
+            <Button
+              onClick={() => this.copyCode()}
+              sx={{ textTransform: "none", width: "300px" }}
+            >
               Código: {this.getTrimmedCode()}
             </Button>
             <Button
@@ -212,7 +275,21 @@ class SimulatorBanner extends Component {
               variant="contained"
               onClick={() => this.copyCode()}
             >
-              Copiar
+              Copiar código
+            </Button>
+            <Box sx={{ margin: "10px" }}></Box>
+            <Button
+              onClick={() => this.copyURL()}
+              sx={{ textTransform: "none", width: "300px" }}
+            >
+              Vínculo: {this.getTrimmedURL()}
+            </Button>
+            <Button
+              startIcon={<LinkIcon></LinkIcon>}
+              variant="contained"
+              onClick={() => this.copyURL()}
+            >
+              Copiar vínculo
             </Button>
           </DialogContent>
           <DialogActions>

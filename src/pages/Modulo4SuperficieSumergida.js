@@ -25,6 +25,8 @@ import {
 } from "../paperUtility";
 import SliderWithInput from "../components/SliderWithInput";
 
+let loading = false;
+
 let previousSkew = 0;
 let cameraAngle = 0;
 const metersToPixels = 100;
@@ -529,6 +531,8 @@ class Modulo4SuperficieSumergida extends Component {
   }
 
   loadParameterCode(code) {
+    if (loading) return false;
+    loading = true;
     let split = code.split(";");
     let module = split[0];
     let codeVersion = parseInt(split[1]);
@@ -544,7 +548,10 @@ class Modulo4SuperficieSumergida extends Component {
       let liquid = { ...this.state.liquid };
       liquid.density = parseFloat(split[6]);
       let frontView = split[7] == 1;
-      this.setState({ surface, absolutePressure, liquid, frontView });
+      this.setState(
+        { surface, absolutePressure, liquid, frontView },
+        () => (loading = false)
+      );
       return true;
     }
     throw "Formato inválido";

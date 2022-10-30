@@ -39,6 +39,9 @@ import {
 import MyRadio from "../components/MyRadio";
 import PanelModule from "../components/PanelModule";
 import ModuleAccordion from "../components/ModuleAccordion";
+import { useSearchParams } from "react-router-dom";
+
+let loading = false;
 
 const metersToPixels = 50;
 const paToPixels = 100 / 101325;
@@ -80,6 +83,8 @@ class Modulo1FuerzasDePresion extends Component {
       this.state.showingPressure,
       this.state.showingPressureForces
     );
+    this.state.liquid.topLineShape.visible = this.state.showingPressure;
+    colorScaleReference.setVisible(this.state.showingPressure);
   }
 
   getImportantPoints() {
@@ -149,7 +154,7 @@ class Modulo1FuerzasDePresion extends Component {
     liquid.topLineShape.visible = false;
     liquid.topLineShape.add(new Point(0, 0));
     liquid.topLineShape.add(new Point(0, 0));
-
+    /*
     liquid.pressureText = new PointText({
       justification: "left",
       fillColor: "white",
@@ -158,7 +163,7 @@ class Modulo1FuerzasDePresion extends Component {
       fontSize: 15,
       content: "1.5 Pa",
       visible: true,
-    });
+    });*/
 
     liquid.levelSimbol = new LevelSimbol(new Point(0, 0), "white");
 
@@ -223,9 +228,7 @@ class Modulo1FuerzasDePresion extends Component {
 
   toggleShowingPressureChange(event) {
     const showPressure = !this.state.showingPressure;
-    colorScaleReference.setVisible(showPressure);
     this.setState({ showingPressure: showPressure });
-    this.state.liquid.topLineShape.visible = showPressure;
   }
 
   toggleShowingPressureForcesChange(event) {
@@ -590,6 +593,8 @@ class Modulo1FuerzasDePresion extends Component {
   }
 
   loadParameterCode(code) {
+    if (loading) return false;
+    loading = true;
     let split = code.split(";");
     let module = split[0];
     let codeVersion = parseInt(split[1]);
@@ -606,13 +611,16 @@ class Modulo1FuerzasDePresion extends Component {
       let showingPressure = split[6] == 1;
       let showingPressureForces = split[7] == 1;
       let absolutePressure = split[8] == 1;
-      this.setState({
-        container,
-        liquid,
-        showingPressure,
-        showingPressureForces,
-        absolutePressure,
-      });
+      this.setState(
+        {
+          container,
+          liquid,
+          showingPressure,
+          showingPressureForces,
+          absolutePressure,
+        },
+        () => (loading = false)
+      );
       return true;
     }
     throw "Formato inválido";
@@ -674,14 +682,14 @@ class Modulo1FuerzasDePresion extends Component {
               <Grid item xs={12} xl={6}>
                 <MyToggle
                   label="Presión"
-                  checked={this.state.showingPressure}
+                  value={this.state.showingPressure}
                   onChange={(e) => this.toggleShowingPressureChange(e)}
                 />
               </Grid>
               <Grid item xs={12} xl={6}>
                 <MyToggle
                   label="Fuerzas de presión"
-                  checked={this.state.showingPressureForces}
+                  value={this.state.showingPressureForces}
                   onChange={(e) => this.toggleShowingPressureForcesChange(e)}
                 />
               </Grid>

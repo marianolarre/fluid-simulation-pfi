@@ -269,6 +269,12 @@ export class LevelSimbol {
       this.lines[i].strokeColor = color;
     }
   }
+
+  remove() {
+    for (let i = 0; i < this.lines.length; i++) {
+      this.lines[i].remove();
+    }
+  }
 }
 
 export class VectorArray {
