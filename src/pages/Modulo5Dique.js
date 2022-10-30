@@ -11,6 +11,7 @@ import {
   lerp,
   LevelSimbol,
   mulPoint,
+  remap,
   subPoints,
   VectorArray,
   VectorArrow,
@@ -44,6 +45,7 @@ class Modulo5Dique extends Component {
     atmosphericPressure: 101325,
     absolutePressure: false,
     equivalentForce: {},
+    backEquivalentForce: {},
     liquid: {
       density: 1000,
       shape: null,
@@ -147,8 +149,12 @@ class Modulo5Dique extends Component {
       }
 
       // FuerzaEquivalente
+      const eqForceScale = 0.5;
       const pos = this.getForceScreenPosition();
-      const magnitude = ((pressureMin + pressureMax) / 2) * 2;
+      const magnitude =
+        ((pressureMin + pressureMax) / 2) *
+        this.state.surface.length *
+        eqForceScale;
       const force = new Point(
         -Math.cos(angleInRadians) * magnitude,
         -Math.sin(angleInRadians) * magnitude
@@ -156,9 +162,31 @@ class Modulo5Dique extends Component {
       this.state.equivalentForce.arrow.SetPosition(addPoints(force, pos), pos);
       this.state.equivalentForce.arrow.bringToFront();
 
+      const backPos = this.getBackForceScreenPosition();
+      let backMagnitude = 0;
+      if (this.state.absolutePressure) {
+        backMagnitude =
+          this.state.atmosphericPressure *
+          this.state.surface.length *
+          paToPixels *
+          eqForceScale;
+      }
+
+      const backForce = new Point(
+        Math.cos(angleInRadians) * backMagnitude,
+        Math.sin(angleInRadians) * backMagnitude
+      );
+      this.state.backEquivalentForce.arrow.SetPosition(
+        addPoints(backForce, backPos),
+        backPos
+      );
+      this.state.backEquivalentForce.arrow.bringToFront();
+
       // Fuerza sobre la pared
       var distanceToPivot = subPoints(pos, front).length;
-      var equivalentForceTorque = magnitude * distanceToPivot;
+      var backDistanceToPivot = subPoints(backPos, bottom).length;
+      var equivalentForceTorque =
+        magnitude * distanceToPivot - backMagnitude * backDistanceToPivot;
       var verticalDistanceToWall = front.y - back.y;
       var requiredWallForce = equivalentForceTorque / verticalDistanceToWall;
       this.state.wallArrow.SetPosition(
@@ -168,13 +196,16 @@ class Modulo5Dique extends Component {
 
       // Fuerzas sobre el pivote
       this.state.yArrow.SetPosition(
-        addPoints(pivotPosition, new Point(0, -force.y)),
+        addPoints(pivotPosition, new Point(0, -force.y - backForce.y)),
         pivotPosition
       );
       this.state.yArrow.bringToFront();
 
       this.state.xArrow.SetPosition(
-        addPoints(pivotPosition, new Point(-force.x - requiredWallForce, 0)),
+        addPoints(
+          pivotPosition,
+          new Point(-force.x - backForce.x - requiredWallForce, 0)
+        ),
         pivotPosition
       );
       this.state.xArrow.bringToFront();
@@ -258,6 +289,29 @@ class Modulo5Dique extends Component {
     );
   }
 
+  getBackForceScreenPosition() {
+    const surface = this.state.surface;
+    const angleInRadians = (surface.angle / 180) * Math.PI;
+    const sinOfAngle = Math.sin(angleInRadians);
+    const cosOfAngle = Math.cos(angleInRadians);
+    var depth = surface.depth * metersToPixels;
+    var length = surface.length * metersToPixels;
+    var width = surface.width * metersToPixels;
+    var girth = surface.girth * metersToPixels;
+    const top = new Point(
+      view.center.x + (sinOfAngle * length) / 2,
+      this.getLiquidHeight() + depth
+    );
+    const girthOffset = new Point(cosOfAngle * girth, sinOfAngle * girth);
+    const back = addPoints(top, girthOffset);
+    const lengthOffset = new Point(
+      (-sinOfAngle * length) / 2,
+      (cosOfAngle * length) / 2
+    );
+    const pos = addPoints(back, lengthOffset);
+    return pos;
+  }
+
   getForceScreenPosition() {
     const surface = this.state.surface;
     const angleInRadians = (surface.angle / 180) * Math.PI;
@@ -295,7 +349,29 @@ class Modulo5Dique extends Component {
       (pcg * A);
 
     // ycp = ro * g * Ixx * cosAng / (pcg * A)
-    const L = length - submergedLength * 0.5 + ycp / metersToPixels;
+    let L = length - submergedLength * 0.5 + ycp / metersToPixels;
+    if (this.state.absolutePressure) {
+      if (submergedLength == 0) {
+        L = length / 2;
+      } else {
+        let outsidePressure =
+          ((this.state.atmosphericPressure *
+            ((length - submergedLength) * width)) /
+            (metersToPixels * metersToPixels)) *
+          paToPixels;
+
+        let pressureMax = this.getPressureAtPosition(new Point(0, frontY));
+        let pressureMin = this.getPressureAtPosition(new Point(0, topY));
+        let insidePressure =
+          ((submergedLength * width * this.state.atmosphericPressure) /
+            (metersToPixels * metersToPixels) +
+            (pressureMax + pressureMin) / 2) *
+          paToPixels;
+        let normalizedPressureT =
+          outsidePressure / (insidePressure + outsidePressure); // 0 when all pressure is submerged, 1 when all pressure is outside
+        L = lerp(L, length / 2, normalizedPressureT);
+      }
+    }
 
     const top = new Point(
       view.center.x + (sinOfAngle * length) / 2,
@@ -368,6 +444,17 @@ class Modulo5Dique extends Component {
       false
     );
 
+    const backEquivalentForceArrow = new VectorArrow(
+      new Point(0, 0),
+      new Point(0, 0),
+      "#ff8040",
+      8,
+      20,
+      40,
+      false,
+      false
+    );
+
     const levelSimbol = new LevelSimbol(
       new Point(view.bounds.left + 100, this.getLiquidHeight()),
       "white"
@@ -428,6 +515,7 @@ class Modulo5Dique extends Component {
     newState.liquid = liquid;
     newState.surface = surface;
     newState.equivalentForce.arrow = equivalentForceArrow;
+    newState.backEquivalentForce.arrow = backEquivalentForceArrow;
     newState.ready = true;
     newState.floor = floor;
     newState.wall = wall;
@@ -566,8 +654,8 @@ class Modulo5Dique extends Component {
                 <SliderWithInput
                   label="Densidad del líquido"
                   step={10}
-                  min={0}
-                  max={2000}
+                  min={10}
+                  max={3000}
                   unit="kg/m³"
                   value={this.state.liquid.density}
                   onChange={this.onLiquidDensityChange}
