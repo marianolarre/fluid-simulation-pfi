@@ -73,6 +73,10 @@ class Modulo3Manometria extends Component {
     this.setState({ liquid: liquidCopy });
   };
 
+  onGravityChanged = (newValue) => {
+    this.setState({ gravity: newValue });
+  };
+
   updateFluid(delta) {
     delta = Math.min(0.5, delta);
     const level = 100;
@@ -405,11 +409,22 @@ class Modulo3Manometria extends Component {
                 <SliderWithInput
                   label="Densidad del líquido"
                   step={10}
-                  min={500}
+                  min={600}
                   max={2000}
                   unit="kg/m³"
                   value={this.state.liquid.density}
                   onChange={this.onLiquidDensityChanged}
+                ></SliderWithInput>
+              </Grid>
+              <Grid item xs={12}>
+                <SliderWithInput
+                  label="Gravedad"
+                  step={0.1}
+                  min={8}
+                  max={20}
+                  unit="m/s²"
+                  value={this.state.gravity}
+                  onChange={this.onGravityChanged}
                 ></SliderWithInput>
               </Grid>
               <Grid item xs={12} sx={{ marginTop: "50px" }}>
@@ -417,7 +432,7 @@ class Modulo3Manometria extends Component {
                   <ModuleAccordion
                     title={
                       <MathComponent
-                        tex={String.raw`\triangle z = \frac{p_{r}-p_{a}}{\rho} `}
+                        tex={String.raw`\triangle z = \frac{p_{r}-p_{a}}{\rho g} `}
                       />
                     }
                     fontSize={20}
@@ -441,6 +456,10 @@ class Modulo3Manometria extends Component {
                         {
                           letter: String.raw`\rho :`,
                           description: "densidad del líquido [kg/m³]",
+                        },
+                        {
+                          letter: "g :",
+                          description: "gravedad [m/s²]",
                         },
                       ]}
                     ></EquationReferences>

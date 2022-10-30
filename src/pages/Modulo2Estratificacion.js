@@ -812,7 +812,7 @@ class Modulo1FuerzasDePresion extends Component {
                   <ModuleAccordion
                     title={
                       <MathComponent
-                        tex={String.raw`p =  \rho g (z_{s}-z_{i})`}
+                        tex={String.raw`\triangle p =  \rho g (z_{s}-z_{i})`}
                       />
                     }
                     fontSize={20}
@@ -822,7 +822,7 @@ class Modulo1FuerzasDePresion extends Component {
                     <EquationReferences
                       parameters={[
                         {
-                          letter: "p:",
+                          letter: String.raw`\triangle p:`,
                           description: "diferencia de presion del estrato [Pa]",
                         },
                         {
