@@ -290,8 +290,11 @@ class Menu extends Component {
               ></TextField>
 
               <Link
-                to={this.getPathFromCode(this.state.code)}
-                disabled={!this.isCodeValid(this.state.code)}
+                to={
+                  this.isCodeValid(this.state.code)
+                    ? this.getPathFromCode(this.state.code)
+                    : "#"
+                }
                 style={{ textDecoration: "none" }}
               >
                 <Button
