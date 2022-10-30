@@ -79,14 +79,14 @@ const buttons = [
     title: "Flujo viscoso laminar",
     description:
       "Tensión de corte y capa límite de un fluido viscoso viajando sobre una superficie fija",
-    img: "./img/modules/UnderConstruction.png",
+    img: "./img/modules/Modulo11.png",
   },
   {
     mod: "mod12",
     title: "Flujo interno en conducto",
     description:
       "Observa las energías de un fluido a medida que viaja por una tubería",
-    img: "./img/modules/UnderConstruction.png",
+    img: "./img/modules/Modulo12.png",
   },
   {
     mod: "mod13",

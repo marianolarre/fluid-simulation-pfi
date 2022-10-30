@@ -25,6 +25,10 @@ export function lerp(a, b, t) {
   return a * (1 - t) + b * t;
 }
 
+export function remap(t, l1, h1, l2, h2) {
+  return l2 + ((h2 - l2) * (t - l1)) / (h1 - l1);
+}
+
 export function randomRange(a, b) {
   return lerp(a, b, Math.random());
 }
@@ -583,13 +587,27 @@ export class VelocityParticle {
     this.line.visible = true;
   }
 
+  setVelocity(newVelocity) {
+    this.velocity = newVelocity;
+    this.line.segments[0].point = subPoints(
+      this.position,
+      mulPoint(newVelocity, this.lengthScale)
+    );
+    this.line.segments[1].point = addPoints(
+      this.position,
+      mulPoint(newVelocity, this.lengthScale)
+    );
+  }
+
   update(delta) {
     if (!this.active) return;
 
     var n = this.currentLife / this.lifeTime;
     var size = (-(n * n) + n) * 4 * this.widthScale;
     this.line.strokeWidth = size;
-    this.line.translate(mulPoint(this.velocity, delta));
+    const movement = mulPoint(this.velocity, delta);
+    this.position = addPoints(this.position, movement);
+    this.line.translate(movement);
     this.currentLife -= delta;
     if (this.currentLife <= 0) {
       this.active = false;

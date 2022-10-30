@@ -4,8 +4,8 @@ import Canvas from "../components/Canvas";
 import PanelAndCanvas from "../components/PanelAndCanvas";
 import { MathComponent } from "mathjax-react";
 
-import { Grid } from "@mui/material";
-import { Path, view, Point, Size, Rectangle, Shape, project } from "paper";
+import { Box, Grid, Typography } from "@mui/material";
+import { Path, view, Point, Size, Rectangle, Shape } from "paper";
 import SliderWithInput from "../components/SliderWithInput";
 import {
   randomRange,
@@ -15,7 +15,9 @@ import {
   addPoints,
   mulPoint,
   VectorArrow,
+  ColorScaleReference,
 } from "../paperUtility";
+import PanelModule from "../components/PanelModule";
 
 const liquidWidth = 1000;
 const liquidHeight = 400;
@@ -46,7 +48,7 @@ class Modulo10FlujoViscoso extends Component {
     topTensionVector: null,
     bottomTangent: null,
     bottomTensionVector: null,
-    showingParticles: false,
+    showingParticles: true,
     showingTension: false,
     colorGradientScale: null,
   };
@@ -126,6 +128,12 @@ class Modulo10FlujoViscoso extends Component {
 
       for (let i = 0; i < this.state.particles.length; i++) {
         if (this.state.particles[i].active) {
+          this.state.particles[i].setVelocity(
+            new Point(
+              this.getSpeedAtPoint(this.state.particles[i].position, 0),
+              0
+            )
+          );
           this.state.particles[i].update(delta);
         }
       }
@@ -190,7 +198,6 @@ class Modulo10FlujoViscoso extends Component {
         new Point(0, view.center.y + liquidHeight / 2),
         1
       );
-      console.log(bottomTension);
       var bottomSlope = -bottomTension / this.state.viscosity;
       var zeroBottom = new Point(linex, view.center.y + liquidHeight / 2);
       let lineBottom = addPoints(
@@ -453,6 +460,30 @@ class Modulo10FlujoViscoso extends Component {
                   onChange={this.onShowingTensionToggle}
                 ></MyToggle>
               </Grid>
+              <Box sx={{ margin: "20px" }}></Box>
+              <PanelModule>
+                <Grid item xs={12}>
+                  <Typography>
+                    Tensión de corte con la placa superior:{" "}
+                    {Math.round(
+                      -this.getTensionAtPoint(
+                        new Point(0, view.center.y - liquidHeight / 2),
+                        1
+                      ) * 1000
+                    ) / 1000}
+                  </Typography>
+                  <Typography>
+                    Tensión de corte con la placa inferior:{" "}
+                    {Math.round(
+                      this.getTensionAtPoint(
+                        new Point(0, view.center.y + liquidHeight / 2),
+                        1
+                      ) * 1000
+                    ) / 1000}
+                    {/*TODO: agregar la unidad de la tension de corte*/}
+                  </Typography>
+                </Grid>
+              </PanelModule>
             </Grid>
           </>
         }

@@ -4,7 +4,7 @@ import Canvas from "../components/Canvas";
 import PanelAndCanvas from "../components/PanelAndCanvas";
 import { MathComponent } from "mathjax-react";
 
-import { Grid } from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 import { Path, view, Point, Size, Rectangle, Shape, project } from "paper";
 import SliderWithInput from "../components/SliderWithInput";
 import {
@@ -15,12 +15,17 @@ import {
   addPoints,
   mulPoint,
   VectorArrow,
-  ColorScaleReference,
+  lerp,
+  remap,
 } from "../paperUtility";
+import { ThirtyFpsSelect } from "@mui/icons-material";
+import PanelModule from "../components/PanelModule";
 
-const liquidWidth = 1000;
-const liquidHeight = 400;
+const screenLiquidWidth = 1000;
+const screenLiquidHeight = 600;
 const scale = 400;
+const liquidWidth = screenLiquidWidth / scale;
+const liquidHeight = screenLiquidHeight / scale;
 const particleColor = "white";
 const particleWidthScale = 5;
 const particleLengthScale = 0.02;
@@ -28,7 +33,9 @@ const particleLifetime = 2;
 
 let timeToNextParticle = 0.1;
 const particleEmissionRate = 0.05;
-const particleBurst = 1;
+const particleBurst = 2;
+let limitLayerPath = null;
+const limitLayerPoints = 100;
 
 class Modulo11FlujoViscosoLaminar extends Component {
   state = {
@@ -38,27 +45,28 @@ class Modulo11FlujoViscosoLaminar extends Component {
     },
     line: null,
     ready: false,
-    speed: 0.5,
-    dpdx: 0,
-    density: 1,
+    speed: 0.25,
+    density: 1000,
     viscosity: 1,
+    testx: 0.5,
     particles: [],
-    topTangent: null,
-    topTensionVector: null,
     bottomTangent: null,
     bottomTensionVector: null,
-    showingParticles: false,
+    showingParticles: true,
     showingTension: false,
     colorGradientScale: null,
   };
 
   onSpeedChange = (newValue) => {
-    this.state.scrollingRectangle.setSpeed(newValue * scale);
     this.setState({ speed: newValue }, this.updateLine);
   };
 
-  onDpDxChange = (newValue) => {
-    this.setState({ dpdx: newValue }, this.updateLine);
+  onTestXChange = (newValue) => {
+    this.setState({ testx: newValue }, this.updateLine);
+  };
+
+  onDensityChange = (newValue) => {
+    this.setState({ density: newValue }, this.updateLine);
   };
 
   onViscosityChange = (newValue) => {
@@ -80,6 +88,7 @@ class Modulo11FlujoViscosoLaminar extends Component {
       if (!this.state.particles[i].active) {
         var p = this.state.particles[i];
         p.initialize(position, velocity);
+        p.active = true;
         return p;
       }
     }
@@ -101,25 +110,28 @@ class Modulo11FlujoViscosoLaminar extends Component {
 
   update(delta) {
     if (this.state.ready) {
-      this.state.scrollingRectangle.update(delta);
       if (timeToNextParticle > 0) {
         if (this.state.showingParticles) {
           timeToNextParticle -= delta;
           if (timeToNextParticle <= 0) {
             for (let i = 0; i < particleBurst; i++) {
               timeToNextParticle = particleEmissionRate;
-              const randomPos = new Point(
+              const randomScreenPos = new Point(
                 randomRange(
-                  view.center.x - liquidWidth / 2,
-                  view.center.x + liquidWidth / 2
+                  view.center.x - screenLiquidWidth / 2 - 200,
+                  view.center.x + screenLiquidWidth / 2
                 ),
                 randomRange(
-                  view.center.y - liquidHeight / 2,
-                  view.center.y + liquidHeight / 2
+                  view.center.y - screenLiquidHeight / 2,
+                  view.center.y + screenLiquidHeight / 2
                 )
               );
-              const velocity = new Point(this.getSpeedAtPoint(randomPos), 0);
-              this.createParticle(randomPos, velocity);
+              const velocity = new Point(
+                this.getSpeedAtWorldPoint(this.screenToWorld(randomScreenPos)) *
+                  scale,
+                0
+              );
+              this.createParticle(randomScreenPos, velocity);
             }
           }
         }
@@ -127,7 +139,12 @@ class Modulo11FlujoViscosoLaminar extends Component {
 
       for (let i = 0; i < this.state.particles.length; i++) {
         if (this.state.particles[i].active) {
-          this.state.particles[i].update(delta);
+          const particle = this.state.particles[i];
+          const worldPos = this.screenToWorld(particle.position);
+          particle.setVelocity(
+            new Point(this.getSpeedAtWorldPoint(worldPos) * scale, 0)
+          );
+          particle.update(delta);
         }
       }
     }
@@ -136,117 +153,122 @@ class Modulo11FlujoViscosoLaminar extends Component {
   updateLine() {
     var points = [];
     var magnitudes = [];
-    const linex = view.center.x - liquidWidth / 4;
-    for (let i = 0; i <= 25; i++) {
+    const lineStart = new Point(this.state.testx, 0);
+    for (let i = 0; i <= 200; i++) {
       var point = new Point(
-        linex,
-        view.center.y - liquidHeight / 2 + (i / 25) * liquidHeight
+        lineStart.x,
+        lineStart.y + (i / 200) * liquidHeight
       );
-      points.push(point);
-      magnitudes.push(this.getSpeedAtPoint(point));
+      points.push(this.worldToScreen(point));
+      magnitudes.push(-this.getSpeedAtWorldPoint(point) * scale);
     }
     this.state.vectorArray.SetValues(points, magnitudes);
 
-    this.state.topTangent.visible = this.state.showingTension;
+    const step = liquidWidth / limitLayerPoints;
+    for (let i = 0; i <= limitLayerPoints; i++) {
+      const s = this.getLayerHeight(i * step);
+      limitLayerPath.segments[i].point = this.worldToScreen(
+        new Point(i * step, s)
+      );
+    }
+    limitLayerPath.bringToFront();
+
     this.state.bottomTangent.visible = this.state.showingTension;
-    this.state.topTensionVector.setVisible(this.state.showingTension);
     this.state.bottomTensionVector.setVisible(this.state.showingTension);
     if (this.state.showingTension) {
-      let topTension = -this.getTensionAtPoint(
-        new Point(0, view.center.y - liquidHeight / 2),
-        1
-      );
-      var topSlope = topTension / this.state.viscosity;
-      var zeroTop = new Point(linex, view.center.y - liquidHeight / 2);
-      let lineTop = addPoints(
-        zeroTop,
-        new Point(this.getSpeedAtPoint(zeroTop), 0)
-      );
-      var topTensionSlopeDirection = new Point(0, 100);
-      if (topTension != 0) {
-        topTensionSlopeDirection = new Point(1, 1 / topSlope);
-        topTensionSlopeDirection.length = 100;
-      }
-      this.state.topTangent.segments[0].point = addPoints(
-        lineTop,
-        topTensionSlopeDirection
-      );
-      this.state.topTangent.segments[1].point = addPoints(
-        lineTop,
-        mulPoint(topTensionSlopeDirection, -1)
+      let bottomTension = this.getTensionAtX(this.state.testx);
+      const bottomPos = this.worldToScreen(new Point(this.state.testx, 0));
+      this.state.bottomTensionVector.SetPosition(
+        bottomPos,
+        new Point(bottomPos.x + bottomTension * 5, bottomPos.y)
       );
 
-      this.state.topTensionVector.SetPosition(
-        new Point(
-          view.center.x + liquidWidth * 0.2 - topTension * 25,
-          lineTop.y
-        ),
-        new Point(
-          view.center.x + liquidWidth * 0.2 + topTension * 25,
-          lineTop.y
-        )
-      );
-
-      let bottomTension = this.getTensionAtPoint(
-        new Point(0, view.center.y + liquidHeight / 2),
-        1
-      );
-      console.log(bottomTension);
-      var bottomSlope = -bottomTension / this.state.viscosity;
-      var zeroBottom = new Point(linex, view.center.y + liquidHeight / 2);
-      let lineBottom = addPoints(
-        zeroBottom,
-        new Point(this.getSpeedAtPoint(zeroBottom), 0)
-      );
-      var bottomTensionSlopeDirection = new Point(0, 100);
+      var slope = bottomTension / this.state.viscosity;
+      var tensionSlopeDirection = new Point(0, 100);
       if (bottomTension != 0) {
-        bottomTensionSlopeDirection = new Point(1, 1 / bottomSlope);
-        bottomTensionSlopeDirection.length = 100;
+        tensionSlopeDirection = new Point(1, -1 / slope);
+        tensionSlopeDirection.length = 100;
       }
       this.state.bottomTangent.segments[0].point = addPoints(
-        lineBottom,
-        bottomTensionSlopeDirection
+        bottomPos,
+        tensionSlopeDirection
       );
       this.state.bottomTangent.segments[1].point = addPoints(
-        lineBottom,
-        mulPoint(bottomTensionSlopeDirection, -1)
-      );
-
-      this.state.bottomTensionVector.SetPosition(
-        new Point(
-          view.center.x + liquidWidth * 0.2 - bottomTension * 25,
-          lineBottom.y
-        ),
-        new Point(
-          view.center.x + liquidWidth * 0.2 + bottomTension * 25,
-          lineBottom.y
-        )
+        bottomPos,
+        mulPoint(tensionSlopeDirection, -1)
       );
     }
   }
 
-  getSpeedAtPoint(point) {
-    let zcenter = view.center.y;
-    let h = liquidHeight / 2;
-    var y = zcenter - point.y;
-    var dpdx = this.state.dpdx / scale;
-    var mu = this.state.viscosity;
-    var U = this.state.speed * scale;
-    return (
-      ((-dpdx * h * h) / (2 * mu)) * (1 - (y * y) / (h * h)) +
-      (U / 2) * (1 + y / h)
+  screenToWorld(point) {
+    return new Point(
+      remap(
+        point.x,
+        view.center.x - screenLiquidWidth / 2,
+        view.center.x + screenLiquidWidth / 2,
+        0,
+        liquidWidth
+      ),
+      remap(
+        point.y,
+        view.center.y + screenLiquidHeight / 2,
+        view.center.y - screenLiquidHeight / 2,
+        0,
+        liquidHeight
+      )
     );
   }
 
-  getTensionAtPoint(point, multiplier) {
-    let zcenter = view.center.y;
-    let h = liquidHeight / 2;
-    var y = zcenter - point.y;
-    var dpdx = this.state.dpdx / scale;
-    var mu = this.state.viscosity;
-    var U = this.state.speed * scale;
+  worldToScreen(point) {
+    return new Point(
+      remap(
+        point.x,
+        0,
+        screenLiquidWidth / scale,
+        view.center.x - screenLiquidWidth / 2,
+        view.center.x + screenLiquidWidth / 2
+      ),
+      remap(
+        point.y,
+        0,
+        screenLiquidHeight / scale,
+        view.center.y + screenLiquidHeight / 2,
+        view.center.y - screenLiquidHeight / 2
+      )
+    );
+  }
 
-    return multiplier * dpdx * y + (mu * U) / (2 * h);
+  getBottomY() {
+    return view.center.y + screenLiquidHeight / 2;
+  }
+
+  getLayerHeight(x) {
+    return Math.sqrt(
+      (30 * this.state.viscosity * x) / (this.state.speed * this.state.density)
+    );
+  }
+
+  getSpeedAtWorldPoint(point) {
+    var y = point.y;
+    var U = this.state.speed;
+    var s = this.getLayerHeight(point.x);
+    if (s < y) {
+      s = y;
+    }
+    var result = U * ((2 * y) / s - (y * y) / (s * s));
+    return result;
+  }
+
+  getReynoldsNumber(x) {
+    return (this.state.density * this.state.speed * x) / this.state.viscosity;
+  }
+
+  getTensionAtX(x) {
+    var U = this.state.speed;
+    var p = this.state.density;
+    var rex = this.getReynoldsNumber(x);
+
+    return (0.5 * p * U * U * 0.733) / Math.sqrt(rex);
   }
 
   canvasFunction() {
@@ -257,18 +279,23 @@ class Modulo11FlujoViscosoLaminar extends Component {
     );
     background.fillColor = "white";
 
-    const scrollingRectangle = new ScrollingRectangle(
-      new Point(center.x - liquidWidth / 2, center.y - liquidHeight / 2 - 30),
-      new Size(liquidWidth, 30),
-      0,
-      this.state.speed * scale,
-      5,
-      "#448844",
-      "#66dd66"
-    );
-    const floorRectangle = new ScrollingRectangle(
-      new Point(center.x - liquidWidth / 2, center.y + liquidHeight / 2),
-      new Size(liquidWidth, 30),
+    limitLayerPath = new Path({
+      strokeColor: "#826",
+      dashArray: [10, 12],
+      fillColor: "#8264",
+    });
+    const step = liquidWidth / limitLayerPoints;
+    for (let i = 0; i <= limitLayerPoints; i++) {
+      limitLayerPath.add(this.worldToScreen(new Point(i * step, 0)));
+    }
+    limitLayerPath.add(this.worldToScreen(new Point(liquidWidth, 0)));
+
+    new ScrollingRectangle(
+      new Point(
+        center.x - screenLiquidWidth / 2,
+        center.y + screenLiquidHeight / 2
+      ),
+      new Size(screenLiquidWidth, 30),
       0,
       0,
       5,
@@ -295,21 +322,25 @@ class Modulo11FlujoViscosoLaminar extends Component {
 
     const liquidRectangle = new Shape.Rectangle(
       new Rectangle(
-        new Point(center.x - liquidWidth / 2, center.y - liquidHeight / 2),
-        new Size(liquidWidth, liquidHeight)
+        new Point(
+          center.x - screenLiquidWidth / 2,
+          center.y - screenLiquidHeight / 2
+        ),
+        new Size(screenLiquidWidth, screenLiquidHeight)
       )
     );
     liquidRectangle.style.fillColor = "#88aaff";
 
     var points = [];
     var magnitudes = [];
-    for (let i = 0; i <= 25; i++) {
+    const lineStart = new Point(this.state.testx, 0);
+    for (let i = 0; i <= 200; i++) {
       var point = new Point(
-        center.x - liquidWidth / 4,
-        center.y - liquidHeight / 2 + (i / 25) * liquidHeight
+        lineStart.x,
+        lineStart.y + (i / 200) * liquidHeight
       );
-      points.push(point);
-      magnitudes.push(this.getSpeedAtPoint(point));
+      points.push(this.worldToScreen(point));
+      magnitudes.push(0);
     }
     const vectorArray = new VectorArray(
       points,
@@ -342,13 +373,12 @@ class Modulo11FlujoViscosoLaminar extends Component {
     let newState = { ...this.state };
     newState.background.shape = background;
     newState.ready = true;
-    newState.scrollingRectangle = scrollingRectangle;
     newState.vectorArray = vectorArray;
     newState.topTangent = topTangent;
     newState.topTensionVector = topTensionVector;
     newState.bottomTangent = bottomTangent;
     newState.bottomTensionVector = bottomTensionVector;
-    this.setState(newState);
+    this.setState(newState, this.updateLine);
 
     view.onFrame = (event) => {
       this.update(event.delta);
@@ -411,9 +441,20 @@ class Modulo11FlujoViscosoLaminar extends Component {
             <Grid container spacing="2%" alignItems="stretch">
               <Grid item xs={12}>
                 <SliderWithInput
-                  label="Velocidad de la placa"
+                  label="Posición X de prueba"
+                  min={0.01}
+                  step={0.01}
+                  max={liquidWidth}
+                  unit="m"
+                  value={this.state.testx}
+                  onChange={(e) => this.onTestXChange(e)}
+                ></SliderWithInput>
+              </Grid>
+              <Grid item xs={12}>
+                <SliderWithInput
+                  label="Velocidad del fluido libre"
                   unit="m/s"
-                  min={0}
+                  min={0.01}
                   step={0.01}
                   max={1}
                   value={this.state.speed}
@@ -422,12 +463,13 @@ class Modulo11FlujoViscosoLaminar extends Component {
               </Grid>
               <Grid item xs={12}>
                 <SliderWithInput
-                  label={<MathComponent tex={String.raw`\frac{dp}{dx}`} />}
-                  min={-3}
-                  step={0.02}
-                  max={3}
-                  value={this.state.dpdx}
-                  onChange={(e) => this.onDpDxChange(e)}
+                  label="Densidad"
+                  min={500}
+                  step={10}
+                  max={10000}
+                  unit={"kg/m³"}
+                  value={this.state.density}
+                  onChange={(e) => this.onDensityChange(e)}
                 ></SliderWithInput>
               </Grid>
               <Grid item xs={12}>
@@ -437,7 +479,7 @@ class Modulo11FlujoViscosoLaminar extends Component {
                   step={0.02}
                   max={10}
                   value={this.state.viscosity}
-                  onChange={this.onViscosityChange}
+                  onChange={(e) => this.onViscosityChange(e)}
                 ></SliderWithInput>
               </Grid>
               <Grid item xs={6}>
@@ -454,6 +496,23 @@ class Modulo11FlujoViscosoLaminar extends Component {
                   onChange={this.onShowingTensionToggle}
                 ></MyToggle>
               </Grid>
+              <Box sx={{ margin: "20px" }}></Box>
+              <PanelModule>
+                <Grid item xs={12}>
+                  <Typography>
+                    Espesor de la capa límite:{" "}
+                    {Math.round(this.getLayerHeight(this.state.testx) * 1000) /
+                      1000}{" "}
+                    m
+                  </Typography>
+                  <Typography>
+                    Tensión de corte con la placa:{" "}
+                    {Math.round(this.getTensionAtX(this.state.testx) * 1000) /
+                      1000}{" "}
+                    {/*TODO: agregar la unidad de la tension de corte*/}
+                  </Typography>
+                </Grid>
+              </PanelModule>
             </Grid>
           </>
         }
