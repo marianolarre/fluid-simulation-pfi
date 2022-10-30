@@ -4,7 +4,16 @@ import Canvas from "../components/Canvas";
 import PanelAndCanvas from "../components/PanelAndCanvas";
 import AddIcon from "@mui/icons-material/Add";
 
-import { view, Point, Size, Path, Shape, Rectangle, PointText } from "paper";
+import {
+  view,
+  Point,
+  Size,
+  Path,
+  Shape,
+  Rectangle,
+  PointText,
+  project,
+} from "paper";
 import SliderWithInput from "../components/SliderWithInput";
 
 import {

@@ -6,7 +6,7 @@ import PanelAndCanvas from "../components/PanelAndCanvas";
 import AddIcon from "@mui/icons-material/Add";
 
 import MyRadio from "../components/MyRadio";
-import { view, Point, Path, PointText, Rectangle, Size } from "paper";
+import { view, Point, Path, PointText, Rectangle, Size, project } from "paper";
 import SliderWithInput from "../components/SliderWithInput";
 
 import {

@@ -1,10 +1,9 @@
 import React, { Component } from "react";
-import MyToggle from "../components/MyToggle";
 import Canvas from "../components/Canvas";
 import PanelAndCanvas from "../components/PanelAndCanvas";
 
 import { Grid } from "@mui/material";
-import { view, Point, Size, Path, Shape, Rectangle } from "paper";
+import { view, Point, Path, Shape, Rectangle, project } from "paper";
 import MyRadio from "../components/MyRadio";
 import {
   addPoints,

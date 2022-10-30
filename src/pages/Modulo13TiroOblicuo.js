@@ -3,16 +3,16 @@ import MyToggle from "../components/MyToggle";
 import Canvas from "../components/Canvas";
 import PanelAndCanvas from "../components/PanelAndCanvas";
 
-import { Grid, Button, Box, Typography } from "@mui/material";
+import { Grid, Button, Box } from "@mui/material";
 import {
   view,
   Point,
   Path,
   Rectangle,
-  Circle,
   Shape,
   Size,
   Group,
+  project,
 } from "paper";
 import SliderWithInput from "../components/SliderWithInput";
 import { addPoints, mulPoint, VectorArrow } from "../paperUtility";

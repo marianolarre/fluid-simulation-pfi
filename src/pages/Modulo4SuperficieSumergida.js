@@ -13,6 +13,7 @@ import {
   Matrix,
   Rectangle,
   Group,
+  project,
 } from "paper";
 import MyRadio from "../components/MyRadio";
 import {

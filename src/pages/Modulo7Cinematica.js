@@ -7,20 +7,15 @@ import MenuIcon from "@mui/icons-material/Menu";
 import {
   Button,
   Grid,
-  TextField,
   LinearProgress,
   Typography,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControl,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   Stack,
 } from "@mui/material";
-import { view, Point, Size, Path, Shape, Rectangle } from "paper";
+import { view, Point, Path, Shape, Rectangle, project } from "paper";
 import SliderWithInput from "../components/SliderWithInput";
 import { addPoints, mulPoint, subPoints, VectorArrow } from "../paperUtility";
 import ExpressionInput from "../components/ExpressionInput";

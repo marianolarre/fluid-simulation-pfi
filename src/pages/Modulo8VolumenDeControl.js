@@ -11,11 +11,11 @@ import {
   view,
   Point,
   Size,
-  Path,
   Shape,
   Group,
   Rectangle,
   PointText,
+  project,
 } from "paper";
 import SliderWithInput from "../components/SliderWithInput";
 import { addPoints, ScrollingRectangle, VectorArrow } from "../paperUtility";

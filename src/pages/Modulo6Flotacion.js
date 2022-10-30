@@ -6,7 +6,7 @@ import PanelAndCanvas from "../components/PanelAndCanvas";
 import MyRadio from "../components/MyRadio";
 import { Grid, Button, Typography, Box } from "@mui/material";
 import { Paper as MUIPaper } from "@mui/material";
-import { view, Point, Size, Path, Shape, Rectangle, Segment } from "paper";
+import { view, Point, Size, Path, Rectangle, Segment, project } from "paper";
 import SliderWithInput from "../components/SliderWithInput";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";

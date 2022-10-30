@@ -6,7 +6,7 @@ import PanelAndCanvas from "../components/PanelAndCanvas";
 import AddIcon from "@mui/icons-material/Add";
 import { MathComponent } from "mathjax-react";
 
-import { view, Point, Size, Path, PointText, Rectangle } from "paper";
+import { view, Point, Size, Path, PointText, Rectangle, project } from "paper";
 import SliderWithInput from "../components/SliderWithInput";
 
 // p de presion va en minuscula

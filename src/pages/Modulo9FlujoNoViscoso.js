@@ -7,20 +7,24 @@ import MenuIcon from "@mui/icons-material/Menu";
 import {
   Button,
   Grid,
-  TextField,
   LinearProgress,
   Typography,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControl,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   Stack,
 } from "@mui/material";
-import { view, Point, Size, Path, Shape, Rectangle, Raster } from "paper";
+import {
+  view,
+  Point,
+  Size,
+  Path,
+  Shape,
+  Rectangle,
+  Raster,
+  project,
+} from "paper";
 import SliderWithInput from "../components/SliderWithInput";
 import {
   addPoints,

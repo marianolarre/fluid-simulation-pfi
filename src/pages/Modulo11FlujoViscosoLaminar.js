@@ -5,7 +5,7 @@ import PanelAndCanvas from "../components/PanelAndCanvas";
 import { MathComponent } from "mathjax-react";
 
 import { Grid } from "@mui/material";
-import { Path, view, Point, Size, Rectangle, Shape } from "paper";
+import { Path, view, Point, Size, Rectangle, Shape, project } from "paper";
 import SliderWithInput from "../components/SliderWithInput";
 import {
   randomRange,

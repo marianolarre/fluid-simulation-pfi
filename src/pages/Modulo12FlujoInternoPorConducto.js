@@ -894,11 +894,6 @@ class Modulo12FlujoInternoPorConducto extends Component {
       this.update(event.delta);
     };*/
 
-    view.onResize = (event) => {
-      project.clear();
-      this.canvasFunction();
-    };
-
     view.onMouseDrag = (event) => {
       this.onMouseDrag(event);
     };
