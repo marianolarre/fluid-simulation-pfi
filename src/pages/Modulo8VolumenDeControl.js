@@ -4,6 +4,8 @@ import Canvas from "../components/Canvas";
 import PanelAndCanvas from "../components/PanelAndCanvas";
 import CVPipe from "../components/Pipe";
 import AddIcon from "@mui/icons-material/Add";
+import { MathComponent } from "mathjax-react";
+import EquationReferences from "../components/EquationReferences";
 
 import { Button } from "@mui/material";
 import { Grid } from "@mui/material";
@@ -24,6 +26,7 @@ import {
   ScrollingRectangle,
   VectorArrow,
 } from "../paperUtility";
+import ModuleAccordion from "../components/ModuleAccordion";
 
 let loading = false;
 
@@ -549,6 +552,46 @@ class Modulo8VolumenDeControl extends Component {
                 >
                   Añadir Tubo
                 </Button>
+              </Grid>
+              <Grid item xs={12} sx={{ marginTop: "50px" }}>
+                <ModuleAccordion title="Ecuación">
+                  <ModuleAccordion
+                    title={
+                      <MathComponent
+                        tex={String.raw`\sum\overrightarrow{F}=(\rho VA\overrightarrow{V})out-(\rho VA\overrightarrow{V})in`}
+                      />
+                    }
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: String.raw`\sum\overrightarrow{F} :`,
+                          description:
+                            "sumatoria vectorial de las fuerzas causadas por el cambio de momento [kgf]",
+                        },
+                        {
+                          letter: String.raw`\rho :`,
+                          description: "densidad del fluido [kg/m³]",
+                        },
+                        {
+                          letter: "V :",
+                          description: "rapidez del fluido [m/s]",
+                        },
+                        {
+                          letter: "A :",
+                          description: "sección de la entrada / salida [m²]",
+                        },
+                        {
+                          letter: String.raw`\overrightarrow{V} :`,
+                          description: "dirección vectorial del fluido",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+                </ModuleAccordion>
               </Grid>
             </Grid>
           </>

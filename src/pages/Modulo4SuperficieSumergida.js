@@ -24,6 +24,9 @@ import {
   VectorArrow,
 } from "../paperUtility";
 import SliderWithInput from "../components/SliderWithInput";
+import ModuleAccordion from "../components/ModuleAccordion";
+import { MathComponent } from "mathjax-react";
+import EquationReferences from "../components/EquationReferences";
 
 let loading = false;
 
@@ -332,7 +335,29 @@ class Modulo4SuperficieSumergida extends Component {
       (pcg * A);
 
     // ycp = ro * g * Ixx * cosAng / (pcg * A)
-    const L = length - submergedLength * 0.5 + ycp / metersToPixels;
+    let L = length - submergedLength * 0.5 + ycp / metersToPixels;
+    if (this.state.absolutePressure) {
+      if (submergedLength == 0) {
+        L = length / 2;
+      } else {
+        let outsidePressure =
+          ((this.state.atmosphericPressure *
+            ((length - submergedLength) * width)) /
+            (metersToPixels * metersToPixels)) *
+          paToPixels;
+
+        let pressureMax = this.getPressureAtPosition(new Point(0, frontY));
+        let pressureMin = this.getPressureAtPosition(new Point(0, topY));
+        let insidePressure =
+          ((submergedLength * width * this.state.atmosphericPressure) /
+            (metersToPixels * metersToPixels) +
+            (pressureMax + pressureMin) / 2) *
+          paToPixels;
+        let normalizedPressureT =
+          outsidePressure / (insidePressure + outsidePressure); // 0 when all pressure is submerged, 1 when all pressure is outside
+        L = lerp(L, length / 2, normalizedPressureT);
+      }
+    }
 
     const perspectiveFront = Math.sin(cameraAngle);
     const perspectiveSide = Math.cos(cameraAngle);
@@ -642,6 +667,127 @@ class Modulo4SuperficieSumergida extends Component {
                   value={this.state.frontView}
                   onChange={this.onFrontViewChange}
                 ></MyRadio>
+              </Grid>
+              <Grid item xs={12} sx={{ marginTop: "50px" }}>
+                <ModuleAccordion title="Ecuaciones">
+                  <ModuleAccordion
+                    title={
+                      <MathComponent tex={String.raw`p=\rho g \triangle h`} />
+                    }
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: "p :",
+                          description: "presión [Pa]",
+                        },
+                        {
+                          letter: String.raw`\rho :`,
+                          description: "densidad del líquido [kg/m³]",
+                        },
+                        {
+                          letter: "g :",
+                          description: "gravedad [m/s²]",
+                        },
+                        {
+                          letter: String.raw`\triangle h :`,
+                          description: "profundidad [m]",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+                  <ModuleAccordion
+                    title={<MathComponent tex={String.raw`F=p_{CG} A`} />}
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: "F :",
+                          description:
+                            "fuerza equivalente ejercida por la presión del líquido [kgf]",
+                        },
+                        {
+                          letter: "p_{CG} :",
+                          description:
+                            "presión en el centro geométrico [kg/m²]",
+                        },
+                        {
+                          letter: "A :",
+                          description: "área de la placa [m²]",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+                  <ModuleAccordion
+                    title={
+                      <MathComponent
+                        tex={String.raw`Y_{CP}=\frac{I_{XX}sin(\theta )}{h_{CG}A}`}
+                      />
+                    }
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: String.raw`Y_{CP} :`,
+                          description:
+                            "desplazamiento del centro de presión desde el centro geométrico [m]",
+                        },
+                        {
+                          letter: "I_{XX} :",
+                          description: "momento de inercia del rectángulo [m⁴]",
+                        },
+                        {
+                          letter: String.raw`\theta :`,
+                          description: "ángulo de la placa",
+                        },
+                        {
+                          letter: String.raw`h_{CG} :`,
+                          description:
+                            "profundidad del centro geométrico del área sumergida [m]",
+                        },
+                        {
+                          letter: String.raw`A :`,
+                          description: "área sumergida de la placa [m²]",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+
+                  <ModuleAccordion
+                    title={
+                      <MathComponent tex={String.raw`I_{XX}=\frac{bL^3}{12}`} />
+                    }
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: "I_{XX} :",
+                          description: "momento de inercia de la placa [m⁴]",
+                        },
+                        {
+                          letter: "b :",
+                          description: "ancho de la placa [m]",
+                        },
+                        {
+                          letter: "L :",
+                          description: "longitud de la placa [m]",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+                </ModuleAccordion>
               </Grid>
             </Grid>
           </>

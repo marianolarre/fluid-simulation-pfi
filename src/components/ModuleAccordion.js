@@ -20,12 +20,26 @@ class ModuleAccordion extends Component {
             background: blue[50],
             boxShadow: "none",
             borderRadius: "4px",
+            paddingLeft: "10px",
+            border: this.props.hasBorder ? "solid 1px #0005" : "none",
           }}
+          disableGutters
         >
-          <AccordionSummary expandIcon={<ExpandMore></ExpandMore>}>
-            <Typography fontSize={18}>{this.props.title}</Typography>
+          <AccordionSummary
+            expandIcon={<ExpandMore></ExpandMore>}
+            style={{ padding: "0", margin: "0" }}
+          >
+            <Typography
+              style={{ width: "100%" }}
+              fontSize={this.props.fontSize || 18}
+              align={this.props.center ? "center" : "left"}
+            >
+              {this.props.title}
+            </Typography>
           </AccordionSummary>
-          <AccordionDetails>{this.props.children}</AccordionDetails>
+          <AccordionDetails style={{ padding: "0", margin: "0" }}>
+            {this.props.children}
+          </AccordionDetails>
         </Accordion>
       </PanelModule>
     );

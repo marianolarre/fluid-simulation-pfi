@@ -17,6 +17,9 @@ import {
   VectorArrow,
 } from "../paperUtility";
 import SliderWithInput from "../components/SliderWithInput";
+import ModuleAccordion from "../components/ModuleAccordion";
+import EquationReferences from "../components/EquationReferences";
+import { MathComponent } from "mathjax-react";
 
 let loading = false;
 
@@ -660,6 +663,195 @@ class Modulo5Dique extends Component {
                   value={this.state.liquid.density}
                   onChange={this.onLiquidDensityChange}
                 ></SliderWithInput>
+              </Grid>
+              <Grid item xs={12} sx={{ marginTop: "50px" }}>
+                <ModuleAccordion title="Ecuaciones">
+                  <ModuleAccordion
+                    title={
+                      <MathComponent tex={String.raw`p=\rho g \triangle h`} />
+                    }
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: "p :",
+                          description: "presión [Pa]",
+                        },
+                        {
+                          letter: String.raw`\rho :`,
+                          description: "densidad del líquido [kg/m³]",
+                        },
+                        {
+                          letter: "g :",
+                          description: "gravedad [m/s²]",
+                        },
+                        {
+                          letter: String.raw`\triangle h :`,
+                          description: "profundidad [m]",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+                  <ModuleAccordion
+                    title={<MathComponent tex={String.raw`F=p_{CG} A`} />}
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: "F :",
+                          description:
+                            "fuerza equivalente ejercida por la presión del líquido [kgf]",
+                        },
+                        {
+                          letter: "p_{CG} :",
+                          description:
+                            "presión en el centro geométrico [kg/m²]",
+                        },
+                        {
+                          letter: "A :",
+                          description: "área de la placa [m²]",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+                  <ModuleAccordion
+                    title={
+                      <MathComponent
+                        tex={String.raw`Y_{CP}=\frac{I_{XX}sin(\theta )}{h_{CG}A}`}
+                      />
+                    }
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: String.raw`Y_{CP} :`,
+                          description:
+                            "desplazamiento del centro de presión desde el centro geométrico [m]",
+                        },
+                        {
+                          letter: "I_{XX} :",
+                          description: "momento de inercia del rectángulo [m⁴]",
+                        },
+                        {
+                          letter: String.raw`\theta :`,
+                          description: "ángulo de la placa",
+                        },
+                        {
+                          letter: String.raw`h_{CG} :`,
+                          description:
+                            "profundidad del centro geométrico del área sumergida [m]",
+                        },
+                        {
+                          letter: String.raw`A :`,
+                          description: "área sumergida de la placa [m²]",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+
+                  <ModuleAccordion
+                    title={
+                      <MathComponent tex={String.raw`I_{XX}=\frac{bL^3}{12}`} />
+                    }
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: "I_{XX} :",
+                          description: "momento de inercia de la placa [m⁴]",
+                        },
+                        {
+                          letter: "b :",
+                          description: "ancho de la placa [m]",
+                        },
+                        {
+                          letter: "L :",
+                          description: "longitud de la placa [m]",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+                  <ModuleAccordion
+                    title={
+                      <MathComponent
+                        tex={String.raw`F_{p}=\frac{F(L/2-Y_{CP})}{Lsin(\theta)}`}
+                      />
+                    }
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: "F_{p} :",
+                          description: "fuerza de reacción de la pared [kgf]",
+                        },
+                        {
+                          letter: "L :",
+                          description: "longitud de la placa [m]",
+                        },
+                        {
+                          letter: String.raw`Y_{CP} :`,
+                          description:
+                            "desplazamiento del centro de presión desde el centro geométrico [m]",
+                        },
+                        {
+                          letter: String.raw`\theta :`,
+                          description: "ángulo de la placa",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+
+                  <ModuleAccordion
+                    title={
+                      <>
+                        <MathComponent
+                          tex={String.raw`B_{x}=F_{P}-Fsin(\theta)`}
+                        />
+                        <MathComponent tex={String.raw`B_{y}=F-Fsin(\theta)`} />
+                      </>
+                    }
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: "B :",
+                          description: "fuerza de reacción del anclaje [kgf]",
+                        },
+                        {
+                          letter: "F_{p} :",
+                          description: "fuerza de reacción de la pared [kgf]",
+                        },
+                        {
+                          letter: "F :",
+                          description:
+                            "fuerza equivalente ejercida por la presión del líquido [kgf]",
+                        },
+                        {
+                          letter: String.raw`\theta :`,
+                          description: "ángulo de la placa",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+                </ModuleAccordion>
               </Grid>
             </Grid>
           </>

@@ -12,9 +12,10 @@ import {
   CoordinateReference,
   addPoints,
 } from "../paperUtility";
-import { Grid } from "@mui/material";
+import { Grid, Typography } from "@mui/material";
 import { MathComponent } from "mathjax-react";
 import ModuleAccordion from "../components/ModuleAccordion";
+import EquationReferences from "../components/EquationReferences";
 
 let loading = false;
 
@@ -413,21 +414,37 @@ class Modulo3Manometria extends Component {
               </Grid>
               <Grid item xs={12} sx={{ marginTop: "50px" }}>
                 <ModuleAccordion title="Ecuación">
-                  <MathComponent
-                    tex={String.raw`\triangle z : \text{altura de la columna}`}
-                  />
-                  <MathComponent
-                    tex={String.raw`p_{r}: \text{Presion en el reservorio}`}
-                  />
-                  <MathComponent
-                    tex={String.raw`p_{a}: \text{Presion atmosferica}`}
-                  />
-                  <MathComponent
-                    tex={String.raw`\rho: \text{Densidad del liquido}`}
-                  />
-                  <MathComponent
-                    tex={String.raw`\triangle z = \frac{p_{r}-p_{a}}{\rho} `}
-                  />
+                  <ModuleAccordion
+                    title={
+                      <MathComponent
+                        tex={String.raw`\triangle z = \frac{p_{r}-p_{a}}{\rho} `}
+                      />
+                    }
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: String.raw`\triangle z :`,
+                          description: "diferencia de altura de la columna [m]",
+                        },
+                        {
+                          letter: "p_{r} :",
+                          description: "presión en el reservorio [Pa]",
+                        },
+                        {
+                          letter: "p_{a} :",
+                          description: "presión atmosférica [Pa]",
+                        },
+                        {
+                          letter: String.raw`\rho :`,
+                          description: "densidad del líquido [kg/m³]",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
                 </ModuleAccordion>
               </Grid>
             </Grid>

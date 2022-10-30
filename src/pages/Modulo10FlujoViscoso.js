@@ -3,6 +3,7 @@ import MyToggle from "../components/MyToggle";
 import Canvas from "../components/Canvas";
 import PanelAndCanvas from "../components/PanelAndCanvas";
 import { MathComponent } from "mathjax-react";
+import EquationReferences from "../components/EquationReferences";
 
 import { Box, Grid, Typography } from "@mui/material";
 import { Path, view, Point, Size, Rectangle, Shape } from "paper";
@@ -18,6 +19,7 @@ import {
   CoordinateReference,
 } from "../paperUtility";
 import PanelModule from "../components/PanelModule";
+import ModuleAccordion from "../components/ModuleAccordion";
 
 let loading = false;
 
@@ -472,6 +474,7 @@ class Modulo10FlujoViscoso extends Component {
                   min={0.5}
                   step={0.02}
                   max={10}
+                  unit="Pa∙s"
                   value={this.state.viscosity}
                   onChange={this.onViscosityChange}
                 ></SliderWithInput>
@@ -507,6 +510,90 @@ class Modulo10FlujoViscoso extends Component {
                   </PanelModule>
                 </>
               )}
+              <Grid item xs={12} sx={{ marginTop: "50px" }}>
+                <ModuleAccordion title="Ecuación">
+                  <ModuleAccordion
+                    title={
+                      <MathComponent
+                        tex={String.raw`u(y)=-\frac{dp}{dx}\frac{h^2}{2\mu}(1-\frac{y^2}{h^2})+\frac{U}{2}(1+\frac{y}{h})`}
+                      />
+                    }
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: "u(y) :",
+                          description:
+                            "velocidad del fluido en función de su altura [m/s]",
+                        },
+                        {
+                          letter: String.raw`\frac{dp}{dx} :`,
+                          description: "diferencial de presión [Pa/m]",
+                          high: true,
+                        },
+                        {
+                          letter: "h :",
+                          description: "distancia entre las placas [m]",
+                        },
+                        {
+                          letter: "y :",
+                          description:
+                            "desplazamiento vertical a partir del centro [m]",
+                        },
+                        {
+                          letter: "U :",
+                          description: "velocidad de la placa superior [m/s]",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+                  <ModuleAccordion
+                    title={
+                      <MathComponent
+                        tex={String.raw`T=\frac{dp}{dx}y+\frac{\mu U}{2h}`}
+                      />
+                    }
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: "T(y) :",
+                          description:
+                            "tensión de corte en función de la altura [Pa/m]",
+                        },
+                        {
+                          letter: String.raw`\frac{dp}{dx} :`,
+                          description: "diferencial de presión [Pa/m]",
+                          high: true,
+                        },
+                        {
+                          letter: "y :",
+                          description:
+                            "desplazamiento vertical a partir del centro [m]",
+                        },
+                        {
+                          letter: String.raw`\mu :`,
+                          description: "viscosidad del fluido [Pa∙s]",
+                        },
+                        {
+                          letter: "U :",
+                          description: "velocidad de la placa superior [m/s]",
+                        },
+                        {
+                          letter: "h :",
+                          description: "distancia entre las placas [m]",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+                </ModuleAccordion>
+              </Grid>
             </Grid>
           </>
         }

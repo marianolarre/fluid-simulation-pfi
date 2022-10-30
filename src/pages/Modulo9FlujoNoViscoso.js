@@ -3,6 +3,8 @@ import MyToggle from "../components/MyToggle";
 import Canvas from "../components/Canvas";
 import PanelAndCanvas from "../components/PanelAndCanvas";
 import MenuIcon from "@mui/icons-material/Menu";
+import { MathComponent } from "mathjax-react";
+import EquationReferences from "../components/EquationReferences";
 
 import {
   Button,
@@ -40,6 +42,7 @@ import PauseIcon from "@mui/icons-material/Pause";
 import PanelModule from "../components/PanelModule";
 import { SkipPrevious } from "@mui/icons-material";
 import MyTooltip from "../components/MyTooltip";
+import ModuleAccordion from "../components/ModuleAccordion";
 
 let loading = false;
 
@@ -1138,6 +1141,73 @@ class Modulo9FlujoNoViscoso extends Component {
                 >
                   Borrar lineas y partículas
                 </Button>
+              </Grid>
+              <Grid item xs={12} sx={{ marginTop: "50px" }}>
+                <ModuleAccordion title="Ecuación">
+                  <ModuleAccordion
+                    title={
+                      <MathComponent
+                        tex={String.raw`P_{1}=P_{0}+V_{0} \triangle t`}
+                      />
+                    }
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: "P_{1} :",
+                          description:
+                            "posición de la partícula en el siguiente paso temporal",
+                        },
+                        {
+                          letter: "P_{0} :",
+                          description: "posición actual de la partícula",
+                        },
+                        {
+                          letter: "V_{0} :",
+                          description: "velocidad actual de la partícula",
+                        },
+                        {
+                          letter: String.raw`\triangle t :`,
+                          description: "paso temporal",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+                  <ModuleAccordion
+                    title={
+                      <MathComponent
+                        tex={String.raw`p=p_{b}-\frac{1}{2}\rho |V|^2`}
+                      />
+                    }
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: "p :",
+                          description: "presión [Pa]",
+                        },
+                        {
+                          letter: "p_{b}",
+                          description: "presión base [Pa]",
+                        },
+                        {
+                          letter: String.raw`\rho :`,
+                          description: "densidad del fluido [kg/m³]",
+                        },
+                        {
+                          letter: "|V| :",
+                          description: "rapidez del fluido [m/s]",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+                </ModuleAccordion>
               </Grid>
             </Grid>
             <Dialog

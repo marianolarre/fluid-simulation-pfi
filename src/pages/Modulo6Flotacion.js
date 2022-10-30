@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import MyToggle from "../components/MyToggle";
 import Canvas from "../components/Canvas";
 import PanelAndCanvas from "../components/PanelAndCanvas";
+import { MathComponent } from "mathjax-react";
+import EquationReferences from "../components/EquationReferences";
 
 import MyRadio from "../components/MyRadio";
 import { Grid, Button, Typography, Box } from "@mui/material";
@@ -19,6 +21,7 @@ import {
   VectorArrow,
   CoordinateReference,
 } from "../paperUtility";
+import ModuleAccordion from "../components/ModuleAccordion";
 
 let loading = false;
 let createdPath = null;
@@ -850,6 +853,62 @@ class Modulo6Flotacion extends Component {
                   </MUIPaper>
                 </Grid>
               )}
+              <Grid item xs={12} sx={{ marginTop: "50px" }}>
+                <ModuleAccordion title="Ecuaciones">
+                  <ModuleAccordion
+                    title={
+                      <MathComponent tex={String.raw`p=\rho g \triangle h`} />
+                    }
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: "p :",
+                          description: "presión [Pa]",
+                        },
+                        {
+                          letter: String.raw`\rho :`,
+                          description: "densidad del líquido [kg/m³]",
+                        },
+                        {
+                          letter: "g :",
+                          description: "gravedad [m/s²]",
+                        },
+                        {
+                          letter: String.raw`\triangle h :`,
+                          description: "profundidad [m]",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+                  <ModuleAccordion
+                    title={<MathComponent tex={String.raw`B=V\rho`} />}
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: "B :",
+                          description: "fuerza de flotación [kgf]",
+                        },
+                        {
+                          letter: "V :",
+                          description: "volumen de líquido desplazado [m³]",
+                        },
+                        {
+                          letter: String.raw`\rho :`,
+                          description: "densidad del líquido [kg/m³]",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+                </ModuleAccordion>
+              </Grid>
             </Grid>
           </>
         }

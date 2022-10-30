@@ -8,10 +8,12 @@ class PanelModule extends Component {
     return (
       <Paper
         sx={{
-          width: "92%",
+          width: "94%",
           background: blue[50],
-          padding: "1.5%",
-          paddingLeft: "6%",
+          paddingTop: "1%",
+          paddingBottom: "1%",
+          paddingLeft: "3%",
+          paddingRight: "3%",
         }}
         elevation={0}
       >

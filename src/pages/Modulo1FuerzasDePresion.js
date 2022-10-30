@@ -23,6 +23,9 @@ import {
 
 import MyRadio from "../components/MyRadio";
 import ModuleAccordion from "../components/ModuleAccordion";
+import PanelModule from "../components/PanelModule";
+import { Typography } from "@mui/material";
+import EquationReferences from "../components/EquationReferences";
 
 let loading = false;
 
@@ -699,17 +702,39 @@ class Modulo1FuerzasDePresion extends Component {
               </Grid>
               <Grid item xs={12} sx={{ marginTop: "50px" }}>
                 <ModuleAccordion title="Ecuación">
-                  <MathComponent
-                    tex={String.raw`p: \text{diferencia de presion [Pa]}`}
-                  />
-                  <MathComponent
-                    tex={String.raw`\rho: \text{densidad [kg/m³ ]}`}
-                  />
-                  <MathComponent tex={String.raw`g: \text{gravedad [m/s² ]}`} />
-                  <MathComponent
-                    tex={String.raw`\triangle z: \text{diferencia de altura [m]}`}
-                  />
-                  <MathComponent tex={String.raw`p =  \rho g  \triangle z`} />
+                  <PanelModule>
+                    <ModuleAccordion
+                      title={
+                        <MathComponent
+                          tex={String.raw`p =  \rho g  \triangle z`}
+                        />
+                      }
+                      fontSize={20}
+                      center
+                      hasBorder
+                    >
+                      <EquationReferences
+                        parameters={[
+                          {
+                            letter: "p:",
+                            description: "diferencia de presion [Pa]",
+                          },
+                          {
+                            letter: String.raw`\rho :`,
+                            description: "densidad [kg/m³]",
+                          },
+                          {
+                            letter: "g:",
+                            description: "gravedad [m/s²]",
+                          },
+                          {
+                            letter: String.raw`\triangle z :`,
+                            description: "diferencia de altura [m]",
+                          },
+                        ]}
+                      ></EquationReferences>
+                    </ModuleAccordion>
+                  </PanelModule>
                 </ModuleAccordion>
               </Grid>
             </Grid>

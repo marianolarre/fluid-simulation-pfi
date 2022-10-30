@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import Canvas from "../components/Canvas";
 import PanelAndCanvas from "../components/PanelAndCanvas";
+import { MathComponent } from "mathjax-react";
+import EquationReferences from "../components/EquationReferences";
 
 import { Box, Button, Collapse, Grid, Typography } from "@mui/material";
 import {
@@ -1367,6 +1369,250 @@ class Modulo12FlujoInternoPorConducto extends Component {
                     </Collapse>
                   </PanelModule>
                 )}
+              </Grid>
+              <Grid item xs={12} sx={{ marginTop: "50px" }}>
+                <ModuleAccordion title="Ecuaciones">
+                  <ModuleAccordion
+                    title={
+                      <MathComponent
+                        tex={String.raw`E_{K}=\frac{1}{2}\frac{V^2}{g}`}
+                      />
+                    }
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: "E_{K} :",
+                          description: "energía cinética en metros [m]",
+                        },
+                        {
+                          letter: "V :",
+                          description: "velocidad del fluido [m/s]",
+                        },
+                        {
+                          letter: "g :",
+                          description: "gravedad [m/s²]",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+                  <ModuleAccordion
+                    title={<MathComponent tex={String.raw`E_{G}=h`} />}
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: "E_{K} :",
+                          description:
+                            "energía potencial gravitatoria en metros [m]",
+                        },
+                        {
+                          letter: "h :",
+                          description: "altura [m]",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+                  <ModuleAccordion
+                    title={
+                      <MathComponent
+                        tex={String.raw`\triangle p_{t}={t}^{}\frac{f_{t}L_{t}}{D_{t}}\frac{1}{2}\rho V_{t}^2`}
+                      />
+                    }
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: String.raw`\triangle p_{f} :`,
+                          description:
+                            "cada de presión en un tramo de tubería [m]",
+                        },
+                        {
+                          letter: "f_{t} :",
+                          description: "factor de pérdida del tramo",
+                        },
+                        {
+                          letter: "L_{t} :",
+                          description: "longitud del tramo [m]",
+                        },
+                        {
+                          letter: "D_{t} :",
+                          description: "diámetro del tramo [m]",
+                        },
+                        {
+                          letter: String.raw`\rho :`,
+                          description: "densidad del fluido [kg/m³]",
+                        },
+                        {
+                          letter: "V_{t} :",
+                          description:
+                            "velocidad del fluido por el tramo [m/s]",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+                  <ModuleAccordion
+                    title={
+                      <MathComponent
+                        tex={String.raw`\triangle p_{n}=k_{n}\frac{1}{2}\rho V_{+}^2`}
+                      />
+                    }
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: String.raw`\triangle p_{n} :`,
+                          description: "cada de presión en un nodo [m]",
+                        },
+                        {
+                          letter: "k_{n} :",
+                          description: "factor de pérdida del nodo",
+                        },
+                        {
+                          letter: String.raw`\rho :`,
+                          description: "densidad del fluido [kg/m³]",
+                        },
+                        {
+                          letter: "V_{+} :",
+                          description:
+                            "velocidad mayor entre entrada y salida del nodo [m/s]",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+                  <ModuleAccordion
+                    title={
+                      <MathComponent
+                        tex={String.raw`\frac{1}{f_{t}^\frac{1}{2}}=-1.8 log((\frac{\varepsilon /D_{t}}{3.7})^{1.11}+\frac{6.9}{Re_{t}})`}
+                      />
+                    }
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: "f_{t} :",
+                          description: "factor de pérdida del tramo",
+                        },
+                        {
+                          letter: String.raw`\epsilon :`,
+                          description: "rugosidad del tramo [m]",
+                        },
+                        {
+                          letter: "D_{t} :",
+                          description: "diámetro del tramo [m]",
+                        },
+                        {
+                          letter: "Re_{t} :",
+                          description: "número de Reynolds del tramo",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+                  <ModuleAccordion
+                    title={
+                      <MathComponent
+                        tex={String.raw`Re_{t}=\frac{V_{t}D_{t}\rho}{\mu}`}
+                      />
+                    }
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: "Re_{t} :",
+                          description: "número de Reynolds del tramo",
+                        },
+                        {
+                          letter: "V_{t} :",
+                          description:
+                            "velocidad del fluido por el tramo [m/s]",
+                        },
+                        {
+                          letter: "D_{t} :",
+                          description: "diámetro del tramo [m]",
+                        },
+                        {
+                          letter: String.raw`\rho :`,
+                          description: "densidad del fluido [kg/m³]",
+                        },
+                        {
+                          letter: String.raw`\mu :`,
+                          description: "viscosidad del fluido [Pa∙s]",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+                  <ModuleAccordion
+                    title={
+                      <MathComponent tex={String.raw`E_{T}=E_{K}+E_{G}+p`} />
+                    }
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: "E_{t} :",
+                          description: "energía total [m]",
+                        },
+
+                        {
+                          letter: "E_{K} :",
+                          description: "energía cinética [m]",
+                        },
+                        {
+                          letter: "E_{G} :",
+                          description: "energía potencial gravitatoria [m]",
+                        },
+                        {
+                          letter: "p :",
+                          description: "presión del fluido [m]",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+                  <ModuleAccordion
+                    title={<MathComponent tex={String.raw`E_{P}=E_{G}+p`} />}
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: "E_{P} :",
+                          description: "energía piezométrica [m]",
+                        },
+                        {
+                          letter: "E_{G} :",
+                          description: "energía potencial gravitatoria [m]",
+                        },
+                        {
+                          letter: "p :",
+                          description: "presión del fluido [m]",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+                </ModuleAccordion>
               </Grid>
             </Grid>
           </>

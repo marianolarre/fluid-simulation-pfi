@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import Canvas from "../components/Canvas";
 import PanelAndCanvas from "../components/PanelAndCanvas";
+import EquationReferences from "../components/EquationReferences";
 
 import { Grid, Button, Box, Typography } from "@mui/material";
 import { view, Point, Path, Rectangle, Shape, Size, Group } from "paper";
@@ -16,6 +17,7 @@ import PauseIcon from "@mui/icons-material/Pause";
 import PanelModule from "../components/PanelModule";
 import { MathComponent } from "mathjax-react";
 import MyTooltip from "../components/MyTooltip";
+import ModuleAccordion from "../components/ModuleAccordion";
 
 let loading = false;
 
@@ -520,6 +522,103 @@ class Modulo13TiroOblicuo extends Component {
                   </Typography>
                 </PanelModule>
               )}
+              <Grid item xs={12} sx={{ marginTop: "50px" }}>
+                <ModuleAccordion title="Ecuaciones">
+                  <ModuleAccordion
+                    title={
+                      <MathComponent
+                        tex={String.raw`F=C_{D}\frac{1}{2}\rho |V|A`}
+                      />
+                    }
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: String.raw`F :`,
+                          description: "fricción con el aire [kg/s]",
+                        },
+                        {
+                          letter: "C_{D} :",
+                          description: "coeficiente de drag",
+                        },
+                        {
+                          letter: String.raw`\rho :`,
+                          description: "densidad del fluido [kg/m³]",
+                        },
+                        {
+                          letter: String.raw`|V| :`,
+                          description: "rapidez del proyectil [m/s]",
+                        },
+                        {
+                          letter: String.raw`A :`,
+                          description: "área trasversal del proyectil [m²]",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+                  <ModuleAccordion
+                    title={
+                      <MathComponent
+                        tex={String.raw`C_{D}=\frac{24}{Re}+\frac{0.411(\frac{Re}{2.63\times 10^5})}{1+(\frac{Re}{2.63\times 10^5})}+\frac{0.25(\frac{Re}{10^6})}{1+(\frac{Re}{10^6})}`}
+                      />
+                    }
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: String.raw`C_{D} :`,
+                          description: "coeficiente de drag",
+                        },
+                        {
+                          letter: String.raw`Re :`,
+                          description: "número de Reynolds",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+                  <ModuleAccordion
+                    title={
+                      <MathComponent
+                        tex={String.raw`Re=\frac{2r|V|\rho}{\mu}`}
+                      />
+                    }
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: "Re_{t} :",
+                          description: "número de Reynolds del tramo",
+                        },
+                        {
+                          letter: String.raw`r :`,
+                          description: "radio del proyectil [m]",
+                        },
+                        {
+                          letter: String.raw`|V| :`,
+                          description: "rapidez del proyectil [m/s]",
+                        },
+                        {
+                          letter: String.raw`\rho :`,
+                          description: "densidad del fluido [kg/m³]",
+                        },
+                        {
+                          letter: String.raw`\mu :`,
+                          description: "viscosidad del fluido [Pa∙s]",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+                </ModuleAccordion>
+              </Grid>
             </Grid>
           </>
         }

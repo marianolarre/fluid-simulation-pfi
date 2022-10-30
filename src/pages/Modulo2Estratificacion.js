@@ -22,12 +22,13 @@ import {
   getInvertedPressureGradient,
   CoordinateReference,
 } from "../paperUtility";
-import { Button } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import Stratum from "../components/Stratum";
 import { HorizontalSplit } from "@mui/icons-material";
 import { MathComponent } from "mathjax-react";
 import PanelModule from "../components/PanelModule";
 import ModuleAccordion from "../components/ModuleAccordion";
+import EquationReferences from "../components/EquationReferences";
 
 let loading = false;
 
@@ -808,26 +809,41 @@ class Modulo1FuerzasDePresion extends Component {
               )}
               <Grid item xs={12} sx={{ marginTop: "50px" }}>
                 <ModuleAccordion title="Ecuación">
-                  <PanelModule>
-                    <MathComponent
-                      tex={String.raw`P: \text{diferencia de presion de un estrato [Pa]}`}
-                    />
-                    <MathComponent
-                      tex={String.raw`\rho: \text{densidad del estrato [kg/m³ ]}`}
-                    />
-                    <MathComponent
-                      tex={String.raw`g: \text{gravedad [m/s² ]}`}
-                    />
-                    <MathComponent
-                      tex={String.raw`z_{i}: \text{altura inferior del estrato [m]}`}
-                    />
-                    <MathComponent
-                      tex={String.raw`z_{s}: \text{altura superior del estrato [m]}`}
-                    />
-                    <MathComponent
-                      tex={String.raw`P =  \rho g (z_{s}-z_{i})`}
-                    />
-                  </PanelModule>
+                  <ModuleAccordion
+                    title={
+                      <MathComponent
+                        tex={String.raw`p =  \rho g (z_{s}-z_{i})`}
+                      />
+                    }
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: "p:",
+                          description: "diferencia de presion del estrato [Pa]",
+                        },
+                        {
+                          letter: String.raw`\rho :`,
+                          description: "densidad del estrato [kg/m³]",
+                        },
+                        {
+                          letter: "g:",
+                          description: "gravedad [m/s²]",
+                        },
+                        {
+                          letter: String.raw`z_{s} :`,
+                          description: "altura superior del estrato [m]",
+                        },
+                        {
+                          letter: String.raw`z_{i} :`,
+                          description: "altura inferior del estrato [m]",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
                 </ModuleAccordion>
               </Grid>
             </Grid>

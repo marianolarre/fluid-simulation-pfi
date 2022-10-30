@@ -3,6 +3,7 @@ import MyToggle from "../components/MyToggle";
 import Canvas from "../components/Canvas";
 import PanelAndCanvas from "../components/PanelAndCanvas";
 import { MathComponent } from "mathjax-react";
+import EquationReferences from "../components/EquationReferences";
 
 import { Box, Grid, Typography } from "@mui/material";
 import { Path, view, Point, Size, Rectangle, Shape, project } from "paper";
@@ -21,6 +22,7 @@ import {
 } from "../paperUtility";
 import { ThirtyFpsSelect } from "@mui/icons-material";
 import PanelModule from "../components/PanelModule";
+import ModuleAccordion from "../components/ModuleAccordion";
 
 let loading = false;
 
@@ -530,6 +532,144 @@ class Modulo11FlujoViscosoLaminar extends Component {
                   )}
                 </Grid>
               </PanelModule>
+              <Grid item xs={12} sx={{ marginTop: "50px" }}>
+                <ModuleAccordion title="Ecuación">
+                  <ModuleAccordion
+                    title={
+                      <MathComponent
+                        tex={String.raw`Re_{x}=\frac{\rho Ux}{\mu}`}
+                      />
+                    }
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: "Re_{x} :",
+                          description:
+                            "número de Reynolds en función de la distancia al borde de ataque",
+                        },
+                        {
+                          letter: String.raw`\rho :`,
+                          description: "densidad del fluido [kg/m³]",
+                        },
+                        {
+                          letter: "U :",
+                          description: "velocidad de la placa superior [m/s]",
+                        },
+                        {
+                          letter: "x :",
+                          description: "distancia al borde de ataque [m]",
+                        },
+                        {
+                          letter: String.raw`\mu :`,
+                          description: "viscosidad del fluido [Pa∙s]",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+                  <ModuleAccordion
+                    title={
+                      <MathComponent
+                        tex={String.raw`\delta (x)\simeq \sqrt{30\frac{\mu}{\rho U}x}`}
+                      />
+                    }
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: String.raw`\delta (x) :`,
+                          description: "espesor local de la capa límite [m]",
+                        },
+                        {
+                          letter: String.raw`\mu :`,
+                          description: "viscosidad del fluido [Pa∙s]",
+                        },
+                        {
+                          letter: String.raw`\rho :`,
+                          description: "densidad del fluido [kg/m³]",
+                        },
+                        {
+                          letter: "U :",
+                          description: "velocidad de la placa superior [m/s]",
+                        },
+                        {
+                          letter: "x :",
+                          description: "distancia al borde de ataque [m]",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+                  <ModuleAccordion
+                    title={
+                      <MathComponent
+                        tex={String.raw`\tau _{w}(x)=\frac{1}{2}\rho U^20,733\frac{1}{Re_{x}^\frac{1}{2}}`}
+                      />
+                    }
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: String.raw`\tau _{w}(x)`,
+                          description:
+                            "tensión de corte local en la placa [Pa/m]",
+                        },
+                        {
+                          letter: String.raw`\rho :`,
+                          description: "densidad del fluido [kg/m³]",
+                        },
+                        {
+                          letter: "U :",
+                          description: "velocidad de la placa superior [m/s]",
+                        },
+                        {
+                          letter: "Re_{x} :",
+                          description: "número de Reynolds",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+                  <ModuleAccordion
+                    title={
+                      <MathComponent
+                        tex={String.raw`u(x,y)\simeq U(\frac{2y}{\delta (x)}-\frac{y^2}{\delta (x)^2})`}
+                      />
+                    }
+                    fontSize={20}
+                    center
+                    hasBorder
+                  >
+                    <EquationReferences
+                      parameters={[
+                        {
+                          letter: String.raw`u(x,y)`,
+                          description: "velocidad del fluido [m/s]",
+                        },
+                        {
+                          letter: "U :",
+                          description: "velocidad de la placa superior [m/s]",
+                        },
+                        {
+                          letter: "y :",
+                          description: "distancia vertical desde la placa [m]",
+                        },
+                        {
+                          letter: String.raw`\delta (x) :`,
+                          description: "espesor local de la capa límite [m]",
+                        },
+                      ]}
+                    ></EquationReferences>
+                  </ModuleAccordion>
+                </ModuleAccordion>
+              </Grid>
             </Grid>
           </>
         }
