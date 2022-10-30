@@ -1,8 +1,21 @@
 import React, { Component } from "react";
-import { AppBar, Box, Grid, Paper, Typography, Button } from "@mui/material";
+import {
+  AppBar,
+  Box,
+  Grid,
+  Paper,
+  Typography,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogActions,
+  DialogContent,
+  TextField,
+} from "@mui/material";
 import { blue } from "@mui/material/colors";
 import MenuModule from "../components/MenuModule";
 import { FileOpen } from "@mui/icons-material";
+import { Link } from "react-router-dom";
 
 const buttons = [
   {
@@ -98,11 +111,70 @@ const buttons = [
 ];
 
 class Menu extends Component {
-  state = {};
+  state = {
+    loadModalOpen: false,
+    code: "",
+    valid: false,
+    error: false,
+    errorMessage: "",
+  };
+
+  validateCode(code) {
+    if (code != null) {
+      const codeModuleID = code.substring(0, 2);
+      const validModuleCodeStarts = [
+        "A;",
+        "B;",
+        "C;",
+        "D;",
+        "E;",
+        "F;",
+        "G;",
+        "H;",
+        "I;",
+        "J;",
+        "K;",
+        "L;",
+        "M;",
+      ];
+      if (validModuleCodeStarts.includes(codeModuleID)) {
+        this.setState({ error: false, errorMessage: "", valid: true });
+        return true;
+      } else {
+        this.setState({
+          error: true,
+          errorMessage: "Código inválido",
+          valid: false,
+        });
+        return false;
+      }
+    }
+  }
+
+  handleCodeChanged(event) {
+    this.setState({
+      code: event.target.value,
+      valid: this.validateCode(event.target.value),
+    });
+  }
+
+  openLoadModal() {
+    this.setState({ loadModalOpen: true });
+  }
+
+  closeLoadModal() {
+    this.setState({ loadModalOpen: false });
+  }
+
+  getPathFromCode(code) {
+    const moduleID = code.substring(0, 1);
+    return moduleID + "?c=" + code;
+  }
+
   render() {
     const buttonStyle = { width: "100%" };
     return (
-      <div>
+      <>
         <AppBar
           position="relative"
           sx={{
@@ -148,11 +220,12 @@ class Menu extends Component {
               configuración previa
             </Typography>
             <br></br>
+
             <Button
               variant="contained"
               color="secondary"
               size="large"
-              marginTop="2rem"
+              onClick={() => this.openLoadModal()}
             >
               <FileOpen sx={{ paddingRight: "10px" }}></FileOpen>
               Cargar código
@@ -169,7 +242,7 @@ class Menu extends Component {
           <Box>
             <Grid container sx={{ width: "90%", marginLeft: "5%" }}>
               {buttons.map((b, index) => (
-                <Grid item xs={4}>
+                <Grid item xs={6} xl={4} key={index}>
                   <MenuModule
                     title={b.title}
                     description={b.description}
@@ -182,7 +255,47 @@ class Menu extends Component {
             </Grid>
           </Box>
         </Box>
-      </div>
+        <Dialog
+          open={this.state.loadModalOpen}
+          onClose={() => this.closeLoadModal()}
+        >
+          <DialogTitle>
+            <Typography variant="h2" fontSize={"1.5rem"}>
+              Cargar parámetros
+            </Typography>
+          </DialogTitle>
+          <DialogContent sx={{ textAlign: "center" }}>
+            <br></br>
+            <Typography>
+              Ingrese un código de parámetros para cargar su configuración
+            </Typography>
+            <br></br>
+            <Box>
+              <TextField
+                sx={{ marginRight: "20px" }}
+                label="Código"
+                placeholder="X;1;100;200;300"
+                variant="filled"
+                value={this.state.code}
+                onChange={(e) => this.handleCodeChanged(e)}
+                error={this.state.error}
+                helperText={this.state.errorMessage}
+              ></TextField>
+              <Button
+                startIcon={<FileOpen />}
+                variant="contained"
+                sx={{ height: "55px" }}
+                onClick={() => this.loadCode()}
+              >
+                Cargar
+              </Button>
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => this.closeLoadModal()}>Cancelar</Button>
+          </DialogActions>
+        </Dialog>
+      </>
     );
   }
 }

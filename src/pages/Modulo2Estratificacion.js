@@ -21,12 +21,9 @@ import {
   ColorScaleReference,
   getInvertedPressureGradient,
 } from "../paperUtility";
-import { Button, Typography } from "@mui/material";
+import { Button } from "@mui/material";
 import Stratum from "../components/Stratum";
-import {
-  ConnectingAirportsOutlined,
-  HorizontalSplit,
-} from "@mui/icons-material";
+import { HorizontalSplit } from "@mui/icons-material";
 import { MathComponent } from "mathjax-react";
 import PanelModule from "../components/PanelModule";
 import ModuleAccordion from "../components/ModuleAccordion";
@@ -740,14 +737,14 @@ class Modulo1FuerzasDePresion extends Component {
               <Grid item xs={6}>
                 <MyToggle
                   label="Presión"
-                  value={this.state.showingPressure}
+                  checked={this.state.showingPressure}
                   onChange={(e) => this.toggleShowingPressureChange(e)}
                 />
               </Grid>
               <Grid item xs={6}>
                 <MyToggle
                   label="Fuerzas de Presión"
-                  value={this.state.showingPressureForces}
+                  checked={this.state.showingPressureForces}
                   onChange={(e) => this.toggleShowingPressureForcesChange(e)}
                 />
               </Grid>

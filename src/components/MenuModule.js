@@ -25,7 +25,7 @@ class MenuModule extends Component {
             style={{ width: "100%", padding: "25px", textTransform: "none" }}
           >
             <Stack direction="column">
-              <Typography variant="h2" fontSize={40} marginBottom={3}>
+              <Typography variant="h2" fontSize={30} marginBottom={3}>
                 {this.props.title}
               </Typography>
               <Stack direction="row" alignItems="center" spacing={2}>

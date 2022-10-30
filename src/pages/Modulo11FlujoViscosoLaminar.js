@@ -495,14 +495,14 @@ class Modulo11FlujoViscosoLaminar extends Component {
               <Grid item xs={6}>
                 <MyToggle
                   label="Partículas"
-                  value={this.state.showingParticles}
+                  checked={this.state.showingParticles}
                   onChange={this.onShowingParticlesToggle}
                 ></MyToggle>
               </Grid>
               <Grid item xs={6}>
                 <MyToggle
                   label="Tensión"
-                  value={this.state.showingTension}
+                  checked={this.state.showingTension}
                   onChange={this.onShowingTensionToggle}
                 ></MyToggle>
               </Grid>
@@ -515,12 +515,14 @@ class Modulo11FlujoViscosoLaminar extends Component {
                       1000}{" "}
                     m
                   </Typography>
-                  <Typography>
-                    Tensión de corte con la placa:{" "}
-                    {Math.round(this.getTensionAtX(this.state.testx) * 1000) /
-                      1000}{" "}
-                    {/*TODO: agregar la unidad de la tension de corte*/}
-                  </Typography>
+                  {this.state.showingTension && (
+                    <Typography>
+                      Tensión de corte con la placa:{" "}
+                      {Math.round(this.getTensionAtX(this.state.testx) * 1000) /
+                        1000}{" "}
+                      {/*TODO: agregar la unidad de la tension de corte*/}
+                    </Typography>
+                  )}
                 </Grid>
               </PanelModule>
             </Grid>

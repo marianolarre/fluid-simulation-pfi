@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import MyToggle from "../components/MyToggle";
 import Canvas from "../components/Canvas";
 import PanelAndCanvas from "../components/PanelAndCanvas";
 

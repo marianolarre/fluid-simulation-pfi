@@ -21,7 +21,7 @@ class MyToggle extends Component {
             <>
               <Switch
                 size="large"
-                checked={this.props.value}
+                checked={this.props.checked}
                 onChange={this.props.onChange}
               />
               {this.props.icon != null && (

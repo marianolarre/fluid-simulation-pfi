@@ -29,6 +29,7 @@ class SimulatorBanner extends Component {
   state = {
     shareModalOpen: false,
     loadModalOpen: false,
+    changeModuleModalOpen: false,
     alert: false,
     alertMessage: "",
     invalidCode: false,
@@ -41,41 +42,54 @@ class SimulatorBanner extends Component {
   componentDidMount() {
     setTimeout(() => {
       const location = window.location;
-      const moduleID = location.pathname.substring(1);
       const urlParams = new URLSearchParams(location.search);
       const code = urlParams.get("c");
-      if (code != null) {
-        const codeModuleID = code.substring(0, 2);
-        if (codeModuleID == moduleID + ";") {
-          this.props.loadCode(code);
-          this.setState({
-            alert: true,
-            alertMessage: "Código cargado",
-            loadModalOpen: false,
-          });
-          setTimeout(() => this.alertClose(), 2000);
+      this.validateCode(code);
+    }, 10);
+  }
+
+  validateCode(code) {
+    const location = window.location;
+    const moduleID = location.pathname.substring(1);
+    if (code != null) {
+      const codeModuleID = code.substring(0, 2);
+      if (codeModuleID == moduleID + ";") {
+        this.props.loadCode(code);
+        this.setState({
+          alert: true,
+          alertMessage: "Código cargado",
+          loadModalOpen: false,
+        });
+        setTimeout(() => this.alertClose(), 2000);
+        return true;
+      } else {
+        const validModuleCodeStarts = [
+          "A;",
+          "B;",
+          "C;",
+          "D;",
+          "E;",
+          "F;",
+          "G;",
+          "H;",
+          "I;",
+          "J;",
+          "K;",
+          "L;",
+          "M;",
+        ];
+        if (validModuleCodeStarts.includes(codeModuleID)) {
+          this.openChangeModuleModal();
+          return false;
         } else {
-          const validModuleCodeStarts = [
-            "A;",
-            "B;",
-            "C;",
-            "D;",
-            "E;",
-            "F;",
-            "G;",
-            "H;",
-            "I;",
-            "J;",
-            "K;",
-            "L;",
-            "M;",
-          ];
-          if (validModuleCodeStarts.includes(codeModuleID)) {
-          } else {
-          }
+          this.setState({
+            codeError: true,
+            codeErrorMessage: "El código cargado es inválido",
+          });
+          return false;
         }
       }
-    }, 10);
+    }
   }
 
   handleCodeChanged(event) {
@@ -92,6 +106,14 @@ class SimulatorBanner extends Component {
 
   closeShareModal() {
     this.setState({ shareModalOpen: false });
+  }
+
+  closeChangeModuleModal() {
+    this.setState({ changeModuleModalOpen: false });
+  }
+
+  openChangeModuleModal() {
+    this.setState({ loadModalOpen: false, changeModuleModalOpen: true });
   }
 
   openLoadModal() {
@@ -114,18 +136,25 @@ class SimulatorBanner extends Component {
   }
 
   copyURL() {
-    const code = this.props.shareCode();
-    const moduleID = code.substring(0, 1);
     navigator.clipboard.writeText(
-      window.location.origin + "/" + moduleID + "?c=" + code
+      window.location.origin +
+        "/" +
+        this.getPathFromCode(this.props.shareCode())
     );
     this.alertOpen("Vínculo copiado al portapapeles");
     this.closeShareModal();
     setTimeout(() => this.alertClose(), 4000);
   }
 
+  getPathFromCode(code) {
+    const moduleID = code.substring(0, 1);
+    return moduleID + "?c=" + code;
+  }
+
   loadCode() {
     try {
+      const validCode = this.validateCode(this.state.code);
+      if (!validCode) return;
       this.props.loadCode(this.state.code);
       this.setState({
         alert: true,
@@ -135,7 +164,6 @@ class SimulatorBanner extends Component {
       setTimeout(() => this.alertClose(), 2000);
     } catch (e) {
       this.setState({ codeError: true, codeErrorMessage: "Código inválido" });
-      console.log(e);
     }
   }
 
@@ -335,6 +363,37 @@ class SimulatorBanner extends Component {
           </DialogContent>
           <DialogActions>
             <Button onClick={() => this.closeShareModal()}>Cancelar</Button>
+          </DialogActions>
+        </Dialog>
+        {/* Modal de cambio de modulo */}
+        <Dialog
+          open={this.state.changeModuleModalOpen}
+          onClose={() => this.closeChangeModuleModal()}
+        >
+          <DialogTitle>
+            <Typography variant="h2" fontSize={"1.5rem"}>
+              Cambiar de simulador
+            </Typography>
+          </DialogTitle>
+          <DialogContent sx={{ textAlign: "center" }}>
+            <br></br>
+            <Typography>
+              El código ingresado corresponde a otro simulador.
+            </Typography>
+            <Typography>¿Desea cambiar?</Typography>
+            <br></br>
+          </DialogContent>
+          <DialogActions>
+            <Link
+              to={"/" + this.getPathFromCode(this.state.code)}
+              style={{ textDecoration: "none" }}
+              disabled={this.props.disabled}
+            >
+              <Button>Cambiar</Button>
+            </Link>
+            <Button onClick={() => this.closeChangeModuleModal()}>
+              Cancelar
+            </Button>
           </DialogActions>
         </Dialog>
       </>

@@ -20,6 +20,11 @@ import {
 } from "../paperUtility";
 
 let loading = false;
+let createdPath = null;
+
+let buoyAngularVelocity = 0;
+let buoyVelocity = new Point(0, 0);
+let buoySubmergedShape = null;
 
 const metersToPixels = 400;
 const paToPixels = 500 / 101325;
@@ -188,8 +193,11 @@ class Modulo6Flotacion extends Component {
   }
 
   deserializeCurve(serialized) {
+    if (createdPath != null) {
+      createdPath.remove();
+    }
     let shape = new Path();
-    console.log(serialized);
+    createdPath = shape;
     for (let i = 0; i <= serialized.length; i += 6) {
       var nextID = (i + 6) % serialized.length;
       shape.add(
@@ -303,8 +311,8 @@ class Modulo6Flotacion extends Component {
       this.state.buoy.massCenterShape.visible = false;
       this.state.buoy.buoyancyCenterShape.visible = false;
     }
-    if (this.state.buoy.submergedShape != null) {
-      this.state.buoy.submergedShape.remove();
+    if (buoySubmergedShape != null) {
+      buoySubmergedShape.remove();
     }
   }
 
@@ -360,7 +368,7 @@ class Modulo6Flotacion extends Component {
       let newState = { ...this.state };
       newState.buoy.shape = shape;
       newState.buoy.area = Math.abs(shape.area);
-      newState.buoy.velocity = new Point(0, 0);
+      buoyVelocity = new Point(0, 0);
       newState.buoy.pos = shape.bounds.center;
       newState.buoy.centerOfMassOffset = centerOfMassOffset;
       newState.buoy.angle = 0;
@@ -374,7 +382,7 @@ class Modulo6Flotacion extends Component {
     if (buoy.shape) {
       if (!this.state.paused && !this.state.drawingShape) {
         // Physics
-        let translation = mulPoint(buoy.velocity, delta);
+        let translation = mulPoint(buoyVelocity, delta);
         let bottomBumpPosition = null;
         if (buoy.shape.bounds.leftCenter.x < 0) {
           translation.x -= buoy.shape.bounds.leftCenter.x;
@@ -420,8 +428,8 @@ class Modulo6Flotacion extends Component {
         const mass = buoy.area * buoy.density;
         const gravitationalForce = this.state.gravity * mass;
 
-        if (buoy.submergedShape) {
-          buoy.submergedShape.remove();
+        if (buoySubmergedShape) {
+          buoySubmergedShape.remove();
         }
         const submergedShape = buoy.shape.intersect(this.state.liquid.shape);
         const submergedArea = Math.abs(submergedShape.area);
@@ -433,18 +441,18 @@ class Modulo6Flotacion extends Component {
         const drag =
           -0.01 *
           this.state.liquid.density *
-          buoy.velocity.y *
+          buoyVelocity.y *
           submergedShape.area;
 
         const newVelocity = addPoints(
-          buoy.velocity,
+          buoyVelocity,
           new Point(0, (gravitationalForce + buoyancyForce + drag) / mass)
         );
 
         const showingEqForces = this.state.showEquivalentForcePoints;
 
         // Torque
-        let newAngularVelocity = buoy.angularVelocity;
+        let newAngularVelocity = buoyAngularVelocity;
         const centerOfMass = addPoints(buoy.pos, buoy.centerOfMassOffset);
         buoy.massCenterShape.bringToFront();
         buoy.massCenterShape.position = centerOfMass;
@@ -452,7 +460,7 @@ class Modulo6Flotacion extends Component {
         buoy.weightArrow.bringToFront();
         buoy.weightArrow.SetPosition(
           centerOfMass,
-          addPoints(centerOfMass, new Point(0, gravitationalForce / 8000))
+          addPoints(centerOfMass, new Point(0, gravitationalForce / 8000000))
         );
         buoy.weightArrow.setVisible(showingEqForces);
 
@@ -460,7 +468,7 @@ class Modulo6Flotacion extends Component {
           const submergedCenter = this.aproximateCenterOfMass(submergedShape);
 
           const xdistance = submergedCenter.x - centerOfMass.x;
-          const drag = -buoy.angularVelocity * submergedArea * 20;
+          const drag = -buoyAngularVelocity * submergedArea * 20000;
           const torque = (drag + buoyancyForce * xdistance) / 400;
 
           buoy.massCenterShape.bringToFront();
@@ -474,7 +482,7 @@ class Modulo6Flotacion extends Component {
           buoy.buoyancyArrow.setVisible(showingEqForces);
           buoy.buoyancyArrow.SetPosition(
             submergedCenter,
-            addPoints(submergedCenter, new Point(0, buoyancyForce / 8000))
+            addPoints(submergedCenter, new Point(0, buoyancyForce / 8000000))
           );
 
           newAngularVelocity += torque / mass;
@@ -507,11 +515,15 @@ class Modulo6Flotacion extends Component {
           this.state.arrows.Reset();
         }
 
-        let newState = { ...this.state };
+        /*let newState = { ...this.state };
         newState.buoy.angularVelocity = newAngularVelocity;
         newState.buoy.velocity = newVelocity;
         newState.buoy.submergedShape = submergedShape;
-        this.setState(newState);
+        this.setState(newState);*/
+
+        buoyAngularVelocity = newAngularVelocity;
+        buoyVelocity = newVelocity;
+        buoySubmergedShape = submergedShape;
       }
     }
   }
@@ -676,7 +688,6 @@ class Modulo6Flotacion extends Component {
       let showEquivalentForcePoints = split[6] == 1;
       let absolutePressure = split[7] == 1;
       let serializedCurve = split.slice(8);
-      console.log(serializedCurve);
       let curve = this.deserializeCurve(serializedCurve);
       this.setState(
         {

@@ -3,14 +3,10 @@ import React, { Component } from "react";
 import Grid from "@mui/material/Grid";
 import Canvas from "../components/Canvas";
 import PanelAndCanvas from "../components/PanelAndCanvas";
-import AddIcon from "@mui/icons-material/Add";
 import { MathComponent } from "mathjax-react";
 
-import { view, Point, Size, Path, PointText, Rectangle, project } from "paper";
+import { view, Point, Size, Path, PointText, Rectangle } from "paper";
 import SliderWithInput from "../components/SliderWithInput";
-
-// p de presion va en minuscula
-// indicar que es h en el gráfico
 
 import {
   createBoxPath,
@@ -19,27 +15,13 @@ import {
   VectorArray,
   addPoints,
   subPoints,
-  lerp,
   LevelSimbol,
   ColorScaleReference,
   getInvertedPressureGradient,
 } from "../paperUtility";
-import { Accordion, AccordionSummary, Button, Typography } from "@mui/material";
-import {
-  CenterFocusStrong,
-  ExpandMore,
-  Gradient,
-  Height,
-  HorizontalSplit,
-  RadioButtonUnchecked,
-  SwapHoriz,
-  ThirteenMp,
-  ZoomInMap,
-} from "@mui/icons-material";
+
 import MyRadio from "../components/MyRadio";
-import PanelModule from "../components/PanelModule";
 import ModuleAccordion from "../components/ModuleAccordion";
-import { useSearchParams } from "react-router-dom";
 
 let loading = false;
 
@@ -682,14 +664,14 @@ class Modulo1FuerzasDePresion extends Component {
               <Grid item xs={12} xl={6}>
                 <MyToggle
                   label="Presión"
-                  value={this.state.showingPressure}
+                  checked={this.state.showingPressure}
                   onChange={(e) => this.toggleShowingPressureChange(e)}
                 />
               </Grid>
               <Grid item xs={12} xl={6}>
                 <MyToggle
                   label="Fuerzas de presión"
-                  value={this.state.showingPressureForces}
+                  checked={this.state.showingPressureForces}
                   onChange={(e) => this.toggleShowingPressureForcesChange(e)}
                 />
               </Grid>
@@ -706,7 +688,7 @@ class Modulo1FuerzasDePresion extends Component {
               <Grid item xs={12} sx={{ marginTop: "50px" }}>
                 <ModuleAccordion title="Ecuación">
                   <MathComponent
-                    tex={String.raw`P: \text{diferencia de presion [Pa]}`}
+                    tex={String.raw`p: \text{diferencia de presion [Pa]}`}
                   />
                   <MathComponent
                     tex={String.raw`\rho: \text{densidad [kg/m³ ]}`}
@@ -715,7 +697,7 @@ class Modulo1FuerzasDePresion extends Component {
                   <MathComponent
                     tex={String.raw`\triangle h: \text{diferencia de altura [m]}`}
                   />
-                  <MathComponent tex={String.raw`P =  \rho g  \triangle h`} />
+                  <MathComponent tex={String.raw`p =  \rho g  \triangle h`} />
                 </ModuleAccordion>
               </Grid>
             </Grid>

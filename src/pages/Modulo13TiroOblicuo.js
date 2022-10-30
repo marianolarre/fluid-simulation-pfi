@@ -1,38 +1,19 @@
 import React, { Component } from "react";
-import MyToggle from "../components/MyToggle";
 import Canvas from "../components/Canvas";
 import PanelAndCanvas from "../components/PanelAndCanvas";
 
 import { Grid, Button, Box, Typography } from "@mui/material";
-import {
-  view,
-  Point,
-  Path,
-  Rectangle,
-  Shape,
-  Size,
-  Group,
-  project,
-} from "paper";
+import { view, Point, Path, Rectangle, Shape, Size, Group } from "paper";
 import SliderWithInput from "../components/SliderWithInput";
 import { addPoints, mulPoint, VectorArrow } from "../paperUtility";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import SpeedIcon from "@mui/icons-material/Speed";
 import PanelModule from "../components/PanelModule";
 import { MathComponent } from "mathjax-react";
-import {
-  ArrowDownward,
-  CenterFocusStrong,
-  SettingsBackupRestore,
-  Water,
-} from "@mui/icons-material";
 import MyTooltip from "../components/MyTooltip";
 
 let loading = false;
 
-let timeUntilNextDot = 0;
 const metersToPixels = 25;
 let initialX = 0;
 let initialY = 0;

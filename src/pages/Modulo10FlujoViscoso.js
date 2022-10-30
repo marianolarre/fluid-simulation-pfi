@@ -15,7 +15,6 @@ import {
   addPoints,
   mulPoint,
   VectorArrow,
-  ColorScaleReference,
 } from "../paperUtility";
 import PanelModule from "../components/PanelModule";
 
@@ -142,6 +141,20 @@ class Modulo10FlujoViscoso extends Component {
     }
   }
 
+  getTopTension() {
+    return -this.getTensionAtPoint(
+      new Point(0, view.center.y - liquidHeight / 2),
+      1
+    );
+  }
+
+  getBottomTension() {
+    return this.getTensionAtPoint(
+      new Point(0, view.center.y + liquidHeight / 2),
+      1
+    );
+  }
+
   updateLine() {
     var points = [];
     var magnitudes = [];
@@ -230,6 +243,11 @@ class Modulo10FlujoViscoso extends Component {
           lineBottom.y
         )
       );
+
+      this.setState({
+        topTension: this.getTopTension(),
+        bottomTension: this.getBottomTension(),
+      });
     }
   }
 
@@ -456,41 +474,34 @@ class Modulo10FlujoViscoso extends Component {
               <Grid item xs={6}>
                 <MyToggle
                   label="Partículas"
-                  value={this.state.showingParticles}
+                  checked={this.state.showingParticles}
                   onChange={this.onShowingParticlesToggle}
                 ></MyToggle>
               </Grid>
               <Grid item xs={6}>
                 <MyToggle
                   label="Tensión"
-                  value={this.state.showingTension}
+                  checked={this.state.showingTension}
                   onChange={this.onShowingTensionToggle}
                 ></MyToggle>
               </Grid>
-              <Box sx={{ margin: "20px" }}></Box>
-              <PanelModule>
-                <Grid item xs={12}>
-                  <Typography>
-                    Tensión de corte con la placa superior:{" "}
-                    {Math.round(
-                      -this.getTensionAtPoint(
-                        new Point(0, view.center.y - liquidHeight / 2),
-                        1
-                      ) * 1000
-                    ) / 1000}
-                  </Typography>
-                  <Typography>
-                    Tensión de corte con la placa inferior:{" "}
-                    {Math.round(
-                      this.getTensionAtPoint(
-                        new Point(0, view.center.y + liquidHeight / 2),
-                        1
-                      ) * 1000
-                    ) / 1000}
-                    {/*TODO: agregar la unidad de la tension de corte*/}
-                  </Typography>
-                </Grid>
-              </PanelModule>
+              {this.state.showingTension && (
+                <>
+                  <Box sx={{ margin: "20px" }}></Box>
+                  <PanelModule>
+                    <Grid item xs={12}>
+                      <Typography>
+                        Tensión de corte con la placa superior:{" "}
+                        {Math.round(this.state.topTension * 1000) / 1000} Pa
+                      </Typography>
+                      <Typography>
+                        Tensión de corte con la placa inferior:{" "}
+                        {Math.round(this.state.bottomTension * 1000) / 1000} Pa
+                      </Typography>
+                    </Grid>
+                  </PanelModule>
+                </>
+              )}
             </Grid>
           </>
         }

@@ -1,37 +1,13 @@
-import MyToggle from "../components/MyToggle";
 import React, { Component } from "react";
 import Canvas from "../components/Canvas";
 import PanelAndCanvas from "../components/PanelAndCanvas";
-import AddIcon from "@mui/icons-material/Add";
 
-import {
-  view,
-  Point,
-  Size,
-  Path,
-  Shape,
-  Rectangle,
-  PointText,
-  project,
-} from "paper";
+import { view, Point, Path, Shape, Rectangle, PointText } from "paper";
 import SliderWithInput from "../components/SliderWithInput";
 
-import {
-  createBoxPath,
-  getColorFromGradient,
-  pressureGradient,
-  VectorArray,
-  addPoints,
-  subPoints,
-  lerp,
-  LevelSimbol,
-  VectorArrow,
-} from "../paperUtility";
-import { Button, Grid } from "@mui/material";
-import Stratum from "../components/Stratum";
-import { HorizontalSplit } from "@mui/icons-material";
+import { subPoints, lerp, VectorArrow } from "../paperUtility";
+import { Grid } from "@mui/material";
 import { MathComponent } from "mathjax-react";
-import PanelModule from "../components/PanelModule";
 import ModuleAccordion from "../components/ModuleAccordion";
 
 let loading = false;
