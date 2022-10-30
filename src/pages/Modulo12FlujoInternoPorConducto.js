@@ -367,6 +367,7 @@ class Modulo12FlujoInternoPorConducto extends Component {
   }
 
   updatePipe() {
+    console.log(tube);
     var pressureEnergy = this.state.pressure;
     var kineticEnergy = 0;
     var potentialEnergy = 0;
@@ -983,10 +984,41 @@ class Modulo12FlujoInternoPorConducto extends Component {
     return points;
   }
 
+  removeAllNodes() {
+    this.deselectNode();
+    for (let i = 0; i < tube.nodes.length; i++) {
+      tube.nodes[i].shape.remove();
+      tube.nodes[i].graphShape.remove();
+      tube.nodes[i].graphLine.remove();
+    }
+    tube.nodes = [];
+  }
+
   getParameterCode() {
-    let module = "X";
+    let module = "L";
     let codeVersion = "1";
-    return [module, codeVersion].join(";");
+    let list = [
+      module,
+      codeVersion,
+      this.state.flow,
+      this.state.pressure,
+      this.state.viscosity,
+    ];
+    for (let i = 0; i < tube.nodes.length; i++) {
+      const node = tube.nodes[i];
+      list.push(
+        node.x,
+        node.y,
+        node.isPump ? 1 : 0,
+        node.pumpPower,
+        node.diameterBefore,
+        node.diameterAfter,
+        node.roughnessBefore,
+        node.roughnessAfter,
+        node.k
+      );
+    }
+    return list.join(";");
   }
 
   loadParameterCode(code) {
@@ -994,6 +1026,35 @@ class Modulo12FlujoInternoPorConducto extends Component {
     let module = split[0];
     let codeVersion = parseInt(split[1]);
     if (codeVersion == 1) {
+      this.removeAllNodes();
+      let flow = parseFloat(split[2]);
+      let pressure = parseFloat(split[3]);
+      let viscosity = parseFloat(split[4]);
+
+      let serializedNodes = split.splice(5);
+      for (let i = 0; i < serializedNodes.length; i += 9) {
+        let x = parseInt(serializedNodes[i]);
+        let y = parseInt(serializedNodes[i + 1]);
+        let isPump = parseInt(serializedNodes[i + 2]) == 1;
+        let pumpPower = parseFloat(serializedNodes[i + 3]);
+        let diameterBefore = parseFloat(serializedNodes[i + 4]);
+        let diameterAfter = parseFloat(serializedNodes[i + 5]);
+        let roughnessBefore = parseFloat(serializedNodes[i + 6]);
+        let roughnessAfter = parseFloat(serializedNodes[i + 7]);
+        let k = parseFloat(serializedNodes[i + 8]);
+        let createdNode = this.newNode(x, y, i);
+        createdNode.pumpPower = pumpPower;
+        if (isPump) {
+          this.makePump(createdNode);
+        }
+        createdNode.diameterBefore = diameterBefore;
+        createdNode.diameterAfter = diameterAfter;
+        createdNode.roughnessBefore = roughnessBefore;
+        createdNode.roughnessAfter = roughnessAfter;
+        createdNode.k = k;
+      }
+
+      this.setState({ flow, pressure, viscosity }, () => this.updatePipe());
     }
   }
 

@@ -10,7 +10,7 @@ class PanelModule extends Component {
         sx={{
           width: "92%",
           background: blue[50],
-          padding: "2%",
+          padding: "1.5%",
           paddingLeft: "6%",
         }}
         elevation={0}

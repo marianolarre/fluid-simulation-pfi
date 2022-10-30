@@ -3,7 +3,7 @@ import MyToggle from "../components/MyToggle";
 import Canvas from "../components/Canvas";
 import PanelAndCanvas from "../components/PanelAndCanvas";
 
-import { Grid, Button, Box } from "@mui/material";
+import { Grid, Button, Box, Typography } from "@mui/material";
 import {
   view,
   Point,
@@ -32,6 +32,8 @@ import MyTooltip from "../components/MyTooltip";
 
 let timeUntilNextDot = 0;
 const metersToPixels = 25;
+let initialX = 0;
+let initialY = 0;
 
 class Modulo13TiroOblicuo extends Component {
   state = {
@@ -55,6 +57,8 @@ class Modulo13TiroOblicuo extends Component {
       acceleration: null,
       shape: null,
       active: false,
+      maxHeight: 0,
+      distance: 0,
     },
     velocityArrow: null,
     horizontalVelocityArrow: null,
@@ -113,8 +117,8 @@ class Modulo13TiroOblicuo extends Component {
 
   update(delta) {
     if (this.state.ready) {
-      const bullet = { ...this.state.bullet };
-      if (bullet.active) {
+      if (this.state.bullet.active) {
+        const bullet = { ...this.state.bullet };
         // Forces
         const steps = 10;
         for (let i = 0; i < steps; i++) {
@@ -133,6 +137,10 @@ class Modulo13TiroOblicuo extends Component {
             (bullet.velocity.y * delta * metersToPixels) / steps;
           bullet.force.x = 0;
           bullet.force.y = 0;
+        }
+        bullet.distance = bullet.position.x - initialX;
+        if (initialY - bullet.position.y > bullet.maxHeight) {
+          bullet.maxHeight = initialY - bullet.position.y;
         }
         bullet.shape.position = bullet.position;
 
@@ -158,8 +166,9 @@ class Modulo13TiroOblicuo extends Component {
         if (bullet.position.y > this.state.cannon.pivot.y) {
           bullet.active = false;
         }
+
+        this.setState({ bullet: bullet });
       }
-      this.setState({ bullet: bullet });
     }
   }
 
@@ -199,6 +208,10 @@ class Modulo13TiroOblicuo extends Component {
     bullet.position = addPoints(this.state.cannon.pivot, cannonVector);
     bullet.shape.position = bullet.position;
     bullet.velocity = mulPoint(cannonDir, this.state.initialSpeed);
+    initialY = bullet.position.y;
+    initialX = bullet.position.x;
+    bullet.maxHeight = 0;
+    bullet.distance = 0;
     const line = new Path();
     line.strokeWidth = 3;
     line.strokeColor = "#777777";
@@ -219,7 +232,6 @@ class Modulo13TiroOblicuo extends Component {
     const speed = velocity.length;
     const area = this.state.bullet.radius * this.state.bullet.radius * Math.PI;
     const dc = this.getDragCoeficient();
-    console.log(dc);
     const multiplier = -dc * 0.5 * this.state.airDensity * speed * area; // la velocidad va al cuadrado, pero en vez de normalizar V y multiplicar por |V|^2, simplemente multiplico por |V|
     const airResistance = mulPoint(velocity, multiplier);
     if (airResistance.length > (speed / delta) * this.getBulletMass()) {
@@ -424,7 +436,7 @@ class Modulo13TiroOblicuo extends Component {
                   step={1}
                   min={0}
                   max={50}
-                  unit={<MathComponent tex={String.raw`\frac{m}{s}`} />}
+                  unit={"m/s"}
                   value={this.state.initialSpeed}
                   onChange={this.onInitialSpeedChanged}
                 ></SliderWithInput>
@@ -447,7 +459,7 @@ class Modulo13TiroOblicuo extends Component {
                   step={1}
                   min={0}
                   max={20}
-                  unit={<MathComponent tex={String.raw`\frac{m}{s^{2}}`} />}
+                  unit={"m/s²"}
                   value={this.state.gravity}
                   onChange={this.onGravityChanged}
                 ></SliderWithInput>
@@ -485,6 +497,33 @@ class Modulo13TiroOblicuo extends Component {
                   onChange={this.onBulletDensityChanged}
                 ></SliderWithInput>
               </Grid>
+              <Box sx={{ margin: "20px" }}></Box>
+              {this.state.bullet.velocity != null && (
+                <PanelModule>
+                  <Typography>
+                    Coeficiente de drag:
+                    {Math.round(this.getDragCoeficient() * 1000) / 1000}
+                  </Typography>
+                  <Typography>
+                    Velocidad: (
+                    {Math.round(this.state.bullet.velocity.x * 1000) / 1000},{" "}
+                    {Math.round(-this.state.bullet.velocity.y * 1000) / 1000})
+                    m/s
+                  </Typography>
+                  <Typography>
+                    Velocidad: ({Math.round(this.getForces(1).x * 1000) / 1000},{" "}
+                    {Math.round(-this.getForces(1).y * 1000) / 1000}) N
+                  </Typography>
+                  <Typography>
+                    Altura máxima:{" "}
+                    {Math.round(this.state.bullet.maxHeight * 1000) / 1000} m
+                  </Typography>
+                  <Typography>
+                    Distancia horizontal:{" "}
+                    {Math.round(this.state.bullet.distance * 1000) / 1000} m
+                  </Typography>
+                </PanelModule>
+              )}
             </Grid>
           </>
         }

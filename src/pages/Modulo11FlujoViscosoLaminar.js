@@ -394,13 +394,14 @@ class Modulo11FlujoViscosoLaminar extends Component {
   }
 
   getParameterCode() {
-    let module = "J";
+    let module = "K";
     let codeVersion = "1";
     return [
       module,
       codeVersion,
+      this.state.testx,
       this.state.speed,
-      this.state.dpdx,
+      this.state.density,
       this.state.viscosity,
       this.state.showingParticles ? 1 : 0,
       this.state.showingTension ? 1 : 0,
@@ -412,15 +413,17 @@ class Modulo11FlujoViscosoLaminar extends Component {
     let module = split[0];
     let codeVersion = parseInt(split[1]);
     if (codeVersion == 1) {
-      let speed = parseFloat(split[2]);
-      let dpdx = parseFloat(split[3]);
-      let viscosity = parseFloat(split[4]);
-      let showingParticles = split[5] == 1;
-      let showingTension = split[6] == 1;
+      let testx = parseFloat(split[2]);
+      let speed = parseFloat(split[3]);
+      let density = parseFloat(split[4]);
+      let viscosity = parseFloat(split[5]);
+      let showingParticles = split[6] == 1;
+      let showingTension = split[7] == 1;
       this.setState(
         {
+          testx,
           speed,
-          dpdx,
+          density,
           viscosity,
           showingParticles,
           showingTension,
