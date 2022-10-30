@@ -120,6 +120,18 @@ class Menu extends Component {
   };
 
   validateCode(code) {
+    if (this.isCodeValid(code)) {
+      this.setState({ error: false, errorMessage: "", valid: true });
+    } else {
+      this.setState({
+        error: true,
+        errorMessage: "Código inválido",
+        valid: false,
+      });
+    }
+  }
+
+  isCodeValid(code) {
     if (code != null) {
       const codeModuleID = code.substring(0, 2);
       const validModuleCodeStarts = [
@@ -138,14 +150,8 @@ class Menu extends Component {
         "M;",
       ];
       if (validModuleCodeStarts.includes(codeModuleID)) {
-        this.setState({ error: false, errorMessage: "", valid: true });
         return true;
       } else {
-        this.setState({
-          error: true,
-          errorMessage: "Código inválido",
-          valid: false,
-        });
         return false;
       }
     }
@@ -283,8 +289,13 @@ class Menu extends Component {
                 helperText={this.state.errorMessage}
               ></TextField>
 
-              <Link to={this.getPathFromCode(this.state.code)}>
+              <Link
+                to={this.getPathFromCode(this.state.code)}
+                disabled={!this.isCodeValid(this.state.code)}
+                style={{ textDecoration: "none" }}
+              >
                 <Button
+                  disabled={!this.isCodeValid(this.state.code)}
                   startIcon={<FileOpen />}
                   variant="contained"
                   sx={{ height: "55px" }}
