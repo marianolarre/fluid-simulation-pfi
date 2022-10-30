@@ -26,6 +26,7 @@ import Stratum from "../components/Stratum";
 import { HorizontalSplit } from "@mui/icons-material";
 import { MathComponent } from "mathjax-react";
 import PanelModule from "../components/PanelModule";
+import ModuleAccordion from "../components/ModuleAccordion";
 
 const metersToPixels = 50;
 const paToPixels = 100 / 101325;
@@ -780,10 +781,28 @@ class Modulo1FuerzasDePresion extends Component {
                 </Grid>
               )}
               <Grid item xs={12} sx={{ marginTop: "50px" }}>
-                <PanelModule>
-                  <Typography>Diferencia de presión:</Typography>
-                  <MathComponent tex={String.raw`P =  \rho g  \triangle h`} />
-                </PanelModule>
+                <ModuleAccordion title="Ecuación">
+                  <PanelModule>
+                    <MathComponent
+                      tex={String.raw`P: \text{diferencia de presion de un estrato [Pa]}`}
+                    />
+                    <MathComponent
+                      tex={String.raw`\rho: \text{densidad del estrato [kg/m³ ]}`}
+                    />
+                    <MathComponent
+                      tex={String.raw`g: \text{gravedad [m/s² ]}`}
+                    />
+                    <MathComponent
+                      tex={String.raw`z_{i}: \text{altura inferior del estrato [m]}`}
+                    />
+                    <MathComponent
+                      tex={String.raw`z_{s}: \text{altura superior del estrato [m]}`}
+                    />
+                    <MathComponent
+                      tex={String.raw`P =  \rho g (z_{s}-z_{i})`}
+                    />
+                  </PanelModule>
+                </ModuleAccordion>
               </Grid>
             </Grid>
           </>

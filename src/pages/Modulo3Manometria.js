@@ -21,6 +21,9 @@ import {
 import { Button, Grid } from "@mui/material";
 import Stratum from "../components/Stratum";
 import { HorizontalSplit } from "@mui/icons-material";
+import { MathComponent } from "mathjax-react";
+import PanelModule from "../components/PanelModule";
+import ModuleAccordion from "../components/ModuleAccordion";
 
 const metersToPixels = 1000;
 const paToPixels = 20;
@@ -28,6 +31,9 @@ const maxPressure = 16;
 
 const leftColumnXOffset = -100;
 const rightColumnXOffset = 300;
+
+let heightDifference = 0;
+let velocity = 0;
 
 class Modulo3Manometria extends Component {
   state = {
@@ -46,8 +52,6 @@ class Modulo3Manometria extends Component {
     },
     liquid: {
       shape: null,
-      velocity: 0,
-      heightDifference: 0,
       density: 1000,
     },
     columnInfo: null,
@@ -58,8 +62,6 @@ class Modulo3Manometria extends Component {
     atmosphericPressure: 101325,
     gravity: 9.8,
   };
-
-  componentDidUpdate() {}
 
   onReservoirPressureChanged = (newValue) => {
     var reservoirCopy = { ...this.state.reservoir };
@@ -82,8 +84,8 @@ class Modulo3Manometria extends Component {
     const level = 100;
     const frequency = 4;
     const damping = 0.9;
-    const minDifference = -11;
-    const maxDifference = 12;
+    const minDifference = -0.21;
+    const maxDifference = 0.21;
 
     const center = view.center;
 
@@ -94,13 +96,11 @@ class Modulo3Manometria extends Component {
       (this.state.liquid.density * this.state.gravity) /
       2;
 
-    const distanceToTarget =
-      targetHeightDifference - this.state.liquid.heightDifference;
+    const distanceToTarget = targetHeightDifference - heightDifference;
     let newVelocity =
-      (this.state.liquid.velocity + distanceToTarget * delta * frequency) *
-      damping;
+      (velocity + distanceToTarget * delta * frequency) * damping;
 
-    let newHeightDifference = this.state.liquid.heightDifference + newVelocity;
+    let newHeightDifference = heightDifference + newVelocity;
     if (newHeightDifference < minDifference) {
       newHeightDifference = minDifference;
       newVelocity = -newVelocity;
@@ -160,10 +160,8 @@ class Modulo3Manometria extends Component {
         new Point(midColumnX, targetRightHeight)
       );
 
-      var newState = { ...this.state };
-      newState.liquid.heightDifference = newHeightDifference;
-      newState.liquid.velocity = newVelocity;
-      this.setState(newState);
+      heightDifference = newHeightDifference;
+      velocity = newVelocity;
     }
   }
 
@@ -408,6 +406,25 @@ class Modulo3Manometria extends Component {
                   value={this.state.liquid.density}
                   onChange={this.onLiquidDensityChanged}
                 ></SliderWithInput>
+              </Grid>
+              <Grid item xs={12} sx={{ marginTop: "50px" }}>
+                <ModuleAccordion title="Ecuación">
+                  <MathComponent
+                    tex={String.raw`\triangle Z : \text{altura de la columna}`}
+                  />
+                  <MathComponent
+                    tex={String.raw`P_{r}: \text{Presion en el reservorio}`}
+                  />
+                  <MathComponent
+                    tex={String.raw`P_{a}: \text{Presion atmosferica}`}
+                  />
+                  <MathComponent
+                    tex={String.raw`\rho: \text{Densidad del liquido}`}
+                  />
+                  <MathComponent
+                    tex={String.raw`\triangle Z = \frac{P_{r}-P_{a}}{\rho} `}
+                  />
+                </ModuleAccordion>
               </Grid>
             </Grid>
           </>

@@ -24,9 +24,10 @@ import {
   ColorScaleReference,
   getInvertedPressureGradient,
 } from "../paperUtility";
-import { Button, Typography } from "@mui/material";
+import { Accordion, AccordionSummary, Button, Typography } from "@mui/material";
 import {
   CenterFocusStrong,
+  ExpandMore,
   Gradient,
   Height,
   HorizontalSplit,
@@ -37,6 +38,7 @@ import {
 } from "@mui/icons-material";
 import MyRadio from "../components/MyRadio";
 import PanelModule from "../components/PanelModule";
+import ModuleAccordion from "../components/ModuleAccordion";
 
 const metersToPixels = 50;
 const paToPixels = 100 / 101325;
@@ -694,17 +696,19 @@ class Modulo1FuerzasDePresion extends Component {
                 ></MyRadio>
               </Grid>
               <Grid item xs={12} sx={{ marginTop: "50px" }}>
-                <PanelModule>
+                <ModuleAccordion title="Ecuación">
                   <MathComponent
-                    tex={String.raw`P: \text{diferencia de presion}`}
+                    tex={String.raw`P: \text{diferencia de presion [Pa]}`}
                   />
-                  <MathComponent tex={String.raw`\rho: \text{densidad}`} />
-                  <MathComponent tex={String.raw`g: \text{gravedad}`} />
                   <MathComponent
-                    tex={String.raw`\triangle h: \text{diferencia de altura}`}
+                    tex={String.raw`\rho: \text{densidad [kg/m³ ]}`}
+                  />
+                  <MathComponent tex={String.raw`g: \text{gravedad [m/s² ]}`} />
+                  <MathComponent
+                    tex={String.raw`\triangle h: \text{diferencia de altura [m]}`}
                   />
                   <MathComponent tex={String.raw`P =  \rho g  \triangle h`} />
-                </PanelModule>
+                </ModuleAccordion>
               </Grid>
             </Grid>
           </>

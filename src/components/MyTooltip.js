@@ -6,6 +6,7 @@ class MyTooltip extends Component {
   render() {
     return (
       <Tooltip
+        disableInteractive={this.props.disableInteractive}
         title={<Typography fontSize={18}>{this.props.title}</Typography>}
       >
         {this.props.children}

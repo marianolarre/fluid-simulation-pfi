@@ -77,7 +77,6 @@ const buttons = [
   {
     mod: "mod11",
     title: "Flujo viscoso laminar",
-    disabled: true,
     description:
       "Tensión de corte y capa límite de un fluido viscoso viajando sobre una superficie fija",
     img: "./img/modules/UnderConstruction.png",
@@ -95,14 +94,6 @@ const buttons = [
     description:
       "Observa las fuerzas que actuan sobre un proyectil viajando por un fluido",
     img: "./img/modules/Modulo13.png",
-  },
-  {
-    mod: "mod14",
-    title: "Perfil alar",
-    disabled: true,
-    description:
-      "Visualización de lift, drag y turbulencia de un cuerpo en un tunel de viento",
-    img: "./img/modules/UnderConstruction.png",
   },
 ];
 
