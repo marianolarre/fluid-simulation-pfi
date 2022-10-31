@@ -72,7 +72,7 @@ class Modulo6Flotacion extends Component {
     drawingShape: false,
     movingShape: false,
     movingLocalPoint: null,
-    atmosphericPressure: 1,
+    atmosphericPressure: 5000,
     absolutePressure: false,
     showingPressureForces: false,
     showEquivalentForcePoints: false,
@@ -226,8 +226,12 @@ class Modulo6Flotacion extends Component {
 
   onSelectPresetRectangle = (event) => {
     this.removeCurrentShape();
+    const corner = new Point(
+      view.center.x - view.bounds.width / 4,
+      view.center.y - view.bounds.height / 4
+    );
     const newShape = new Path.Rectangle({
-      point: new Point(view.bounds.width / 4, view.bounds.height / 8),
+      point: corner,
       size: new Size(view.bounds.width / 2, view.bounds.height / 5),
     });
     this.registerShape(newShape);
@@ -235,8 +239,12 @@ class Modulo6Flotacion extends Component {
 
   onSelectPresetCircle = (event) => {
     this.removeCurrentShape();
+    const center = new Point(
+      view.center.x,
+      view.center.y - view.bounds.height / 4
+    );
     const newShape = new Path.Circle({
-      center: new Point(view.bounds.width / 2, view.bounds.height / 4),
+      center: center,
       radius: view.bounds.height / 6,
     });
     this.registerShape(newShape);
@@ -245,7 +253,10 @@ class Modulo6Flotacion extends Component {
   onSelectPresetBoat = (event) => {
     this.removeCurrentShape();
     const boatWidth = view.bounds.width / 2;
-    const center = new Point(view.bounds.width / 2, view.bounds.height / 4);
+    const center = new Point(
+      view.center.x,
+      view.center.y - view.bounds.height / 4
+    );
     const newShape = new Path.Circle({
       center: center,
       radius: view.bounds.height / 6,

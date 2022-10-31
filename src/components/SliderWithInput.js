@@ -61,7 +61,7 @@ class SliderWithInput extends Component {
               <Icon xs={{ margin: 0 }}>{this.props.icon}</Icon>
             </Grid>
           )}
-          <Grid item xs={5}>
+          <Grid item xs={4}>
             <Slider
               marks={this.props.marks}
               value={
@@ -74,7 +74,7 @@ class SliderWithInput extends Component {
               aria-labelledby="input-slider"
             />
           </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={4}>
             <MuiInput
               value={this.state.temporaryValue || this.props.value}
               size="small"

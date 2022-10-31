@@ -224,7 +224,7 @@ class Modulo4SuperficieSumergida extends Component {
   }
 
   getLiquidHeight() {
-    return view.size.height * 0.4;
+    return view.size.height * 0.4 * view.scaling.y;
   }
 
   onPressureTypeChange = (event) => {

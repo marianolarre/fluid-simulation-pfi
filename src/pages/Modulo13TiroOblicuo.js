@@ -383,6 +383,7 @@ class Modulo13TiroOblicuo extends Component {
         title="Tiro oblícuo"
         shareCode={() => this.getParameterCode()}
         loadCode={(code) => this.loadParameterCode(code)}
+        keepScrollbar
         panel={
           <>
             <Grid container spacing="2%" alignItems="stretch">

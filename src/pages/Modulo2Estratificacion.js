@@ -518,7 +518,7 @@ class Modulo1FuerzasDePresion extends Component {
     const center = view.center;
 
     const background = new Path.Rectangle(
-      new Rectangle(new Point(0, 0), view.size)
+      new Rectangle(view.bounds.topLeft, view.bounds.bottomRight)
     );
     background.fillColor = "#ffffff";
 

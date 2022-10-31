@@ -17,17 +17,14 @@ class PanelAndCanvas extends Component {
           overflow: "hidden",
         }}
       >
-        <Stack
-          direction={{ lg: "row", xs: "column-reverse" }}
-          sx={{ height: "100%" }}
-        >
+        <Stack direction={"row"} sx={{ height: "100%" }}>
           <Paper
             elevation={0}
             sx={{
               display: "flex",
               flexDirection: "column",
               flex: "1",
-              height: { lg: "100%", xs: "50%" },
+              height: "100%",
               backgroundColor: blue[100],
             }}
           >
@@ -39,7 +36,7 @@ class PanelAndCanvas extends Component {
             <Box
               sx={{
                 padding: "20px",
-                overflowY: "auto",
+                overflowY: this.props.keepScrollbar ? "scroll" : "auto",
                 flex: "1",
               }}
             >
