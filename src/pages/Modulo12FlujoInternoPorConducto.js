@@ -1081,6 +1081,7 @@ class Modulo12FlujoInternoPorConducto extends Component {
         title="Flujo interno por conducto"
         shareCode={() => this.getParameterCode()}
         loadCode={(code) => this.loadParameterCode(code)}
+        keepScrollbar
         panel={
           <>
             <Grid container spacing="2%" alignItems="stretch">
