@@ -186,7 +186,7 @@ class Menu extends Component {
         <AppBar
           position="relative"
           sx={{
-            padding: 2,
+            padding: 5,
           }}
         >
           <Box
