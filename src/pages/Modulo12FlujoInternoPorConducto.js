@@ -1422,7 +1422,7 @@ class Modulo12FlujoInternoPorConducto extends Component {
                   <ModuleAccordion
                     title={
                       <MathComponent
-                        tex={String.raw`\triangle p_{t}={t}^{}\frac{f_{t}L_{t}}{D_{t}}\frac{1}{2}\rho V_{t}^2`}
+                        tex={String.raw`\triangle p_{t}=\frac{f_{t}L_{t}}{D_{t}}\frac{1}{2}\rho V_{t}^2`}
                       />
                     }
                     fontSize={20}

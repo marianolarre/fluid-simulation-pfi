@@ -608,7 +608,7 @@ class Modulo11FlujoViscosoLaminar extends Component {
                   <ModuleAccordion
                     title={
                       <MathComponent
-                        tex={String.raw`\tau _{w}(x)=\frac{1}{2}\rho U^20,733\frac{1}{Re_{x}^\frac{1}{2}}`}
+                        tex={String.raw`\tau _{w}(x)=\frac{1}{2}\rho U^20.733\frac{1}{Re_{x}^\frac{1}{2}}`}
                       />
                     }
                     fontSize={20}
