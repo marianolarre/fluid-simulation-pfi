@@ -349,6 +349,7 @@ class Modulo3Manometria extends Component {
       this.state.reservoir.pressure,
       this.state.atmosphericPressure,
       this.state.liquid.density,
+      this.state.gravity,
     ].join(";");
   }
 
@@ -359,7 +360,7 @@ class Modulo3Manometria extends Component {
     let module = split[0];
     let codeVersion = parseInt(split[1]);
     if (codeVersion == 1) {
-      if (split.length != 5) {
+      if (split.length != 6) {
         throw "Formato inválido";
       }
       let reservoir = { ...this.state.reservoir };
@@ -367,8 +368,9 @@ class Modulo3Manometria extends Component {
       reservoir.pressure = parseFloat(split[2]);
       let atmosphericPressure = parseFloat(split[3]);
       liquid.density = parseFloat(split[4]);
+      let gravity = parseFloat(split[5]);
       this.setState(
-        { reservoir, atmosphericPressure, liquid },
+        { reservoir, atmosphericPressure, liquid, gravity },
         () => (loading = false)
       );
     }
