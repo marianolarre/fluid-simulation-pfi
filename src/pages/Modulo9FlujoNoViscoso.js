@@ -69,11 +69,11 @@ const presets = [
   { name: "Solido", x: "-y", y: "x" },
   { name: "Pared", x: "-x", y: "y" },
   { name: "Fuente", x: "x/(2*pi*R^2)", y: "y/(2*pi*R^2)" },
-  {
+  /*{
     name: "Dipolo",
     x: "R/(2*pi)*((x^2*cos(ang)-y^2*cos(ang)+2*x*y*sin(ang))/R^4)",
     y: "R/(2*pi)*((y^2*sin(ang)-x^2*sin(ang)+2*x*y*cos(ang))/R^4)",
-  },
+  },*/
 ];
 
 let frame = 0;
@@ -722,6 +722,20 @@ class Modulo9FlujoNoViscoso extends Component {
   handlePresetSelection(index) {
     this.loadExpressionPreset(presets[index]);
     this.handleExpressionDialogClose();
+  }
+
+  loadExpressionPreset(preset) {
+    let writtenExpression = { x: preset.x, y: preset.y };
+    let expression = { x: "", y: "" };
+    expression.x = this.cleanExpression(preset.x);
+    expression.y = this.cleanExpression(preset.y);
+    this.setState(
+      {
+        writtenExpression: writtenExpression,
+        expression: expression,
+      },
+      () => this.updateVectorField()
+    );
   }
 
   togglePause = (event) => {

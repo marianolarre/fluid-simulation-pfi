@@ -237,7 +237,7 @@ class Modulo5Dique extends Component {
   }
 
   getLiquidHeight() {
-    return view.size.height * 0.3;
+    return view.size.height * 0.3 * view.scaling.y;
   }
 
   onPressureTypeChange = (event) => {

@@ -561,7 +561,7 @@ class Modulo8VolumenDeControl extends Component {
                         tex={String.raw`\sum\overrightarrow{F}=(\rho VA\overrightarrow{V})out-(\rho VA\overrightarrow{V})in`}
                       />
                     }
-                    fontSize={20}
+                    fontSize={15}
                     center
                     hasBorder
                   >

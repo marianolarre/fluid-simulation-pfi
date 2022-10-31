@@ -933,35 +933,35 @@ class Modulo7Cinematica extends Component {
                   onChange={(e) => this.onVectorLengthMultiplierChange(e)}
                 ></SliderWithInput>
               </Grid>
-              <Grid item xs={4}>
+              <Grid item xs={6} xl={4}>
                 <MyToggle
                   label="Mostrar línea de corriente"
                   checked={this.state.showingCurrent}
                   onChange={(e) => this.toggleShowingCurrent(e)}
                 ></MyToggle>
               </Grid>
-              <Grid item xs={4}>
+              <Grid item xs={6} xl={4}>
                 <MyToggle
                   label="Mostrar línea de trayectoria"
                   checked={this.state.showingTrayectory}
                   onChange={(e) => this.toggleShowingTrayectory(e)}
                 ></MyToggle>
               </Grid>
-              <Grid item xs={4}>
+              <Grid item xs={6} xl={4}>
                 <MyToggle
                   label="Mostrar línea de humo"
                   checked={this.state.showingSmoke}
                   onChange={(e) => this.toggleShowingSmoke(e)}
                 ></MyToggle>
               </Grid>
-              <Grid item xs={4}>
+              <Grid item xs={6} xl={4}>
                 <MyToggle
                   label="Emisión periodica"
                   checked={this.state.periodicParticles}
                   onChange={(e) => this.togglePeriodicParticles(e)}
                 ></MyToggle>
               </Grid>
-              <Grid item xs={8}>
+              <Grid item xs={12} xl={8}>
                 <SliderWithInput
                   label="Periodo de emisión"
                   min={0.05}

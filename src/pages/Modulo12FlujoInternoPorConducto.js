@@ -1498,7 +1498,7 @@ class Modulo12FlujoInternoPorConducto extends Component {
                         tex={String.raw`\frac{1}{f_{t}^\frac{1}{2}}=-1.8 log((\frac{\varepsilon /D_{t}}{3.7})^{1.11}+\frac{6.9}{Re_{t}})`}
                       />
                     }
-                    fontSize={20}
+                    fontSize={15}
                     center
                     hasBorder
                   >

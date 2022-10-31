@@ -566,7 +566,7 @@ class Modulo13TiroOblicuo extends Component {
                         tex={String.raw`C_{D}=\frac{24}{Re}+\frac{0.411(\frac{Re}{2.63\times 10^5})}{1+(\frac{Re}{2.63\times 10^5})}+\frac{0.25(\frac{Re}{10^6})}{1+(\frac{Re}{10^6})}`}
                       />
                     }
-                    fontSize={20}
+                    fontSize={15}
                     center
                     hasBorder
                   >

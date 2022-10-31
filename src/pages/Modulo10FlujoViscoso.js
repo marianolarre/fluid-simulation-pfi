@@ -518,7 +518,7 @@ class Modulo10FlujoViscoso extends Component {
                         tex={String.raw`u(y)=-\frac{dp}{dx}\frac{h^2}{2\mu}(1-\frac{y^2}{h^2})+\frac{U}{2}(1+\frac{y}{h})`}
                       />
                     }
-                    fontSize={20}
+                    fontSize={15}
                     center
                     hasBorder
                   >
