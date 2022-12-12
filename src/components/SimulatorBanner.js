@@ -362,7 +362,7 @@ class SimulatorBanner extends Component {
             </Box>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => this.closeShareModal()}>Cancelar</Button>
+            <Button onClick={() => this.closeLoadModal()}>Cancelar</Button>
           </DialogActions>
         </Dialog>
         {/* Modal de cambio de modulo */}
