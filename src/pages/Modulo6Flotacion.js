@@ -333,6 +333,7 @@ class Modulo6Flotacion extends Component {
 
   shapeInstersectionError(shape) {
     var createdShapes = [];
+    this.removeIntersectionErrors();
 
     var intersections = shape.getIntersections(shape);
 
@@ -378,7 +379,7 @@ class Modulo6Flotacion extends Component {
     shape.style = shapeStyle;
 
     this.removeIntersectionErrors();
-    // Defered
+    // Deferred
     setTimeout(() => {
       let newState = { ...this.state };
       newState.buoy.shape = shape;
