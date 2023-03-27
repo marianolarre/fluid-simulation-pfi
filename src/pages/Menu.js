@@ -206,6 +206,15 @@ class Menu extends Component {
             >
               Simulador didáctico de Mecánica de Fluidos
             </Typography>
+            <Typography
+              sx={{
+                paddingTop: "0.5rem",
+                color: "#99bbff",
+                fontSize: "1.2rem",
+              }}
+            >
+              [Versión Beta] | Hecho por Mariano Larreteguy
+            </Typography>
           </Box>
         </AppBar>
         <Box
